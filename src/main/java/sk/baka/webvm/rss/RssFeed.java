@@ -48,11 +48,11 @@ public final class RssFeed extends HttpServlet {
         PrintWriter out = response.getWriter();
         try {
             out.println("<?xml version=\"1.0\"?>\n<rss version=\"2.0\">");
-            out.println("  <channel>\n    <title>SysInfo feeds</title>\n    <link>.</link>\n    <description>SysInfo: Remote server problems</description>");
+            out.println("  <channel>\n    <title>WebVM feeds</title>\n    <link>.</link>\n    <description>WebVM: Remote server problems</description>");
             out.println("    <language>en-us</language>\n    <ttl>1</ttl>\n");
             final List<ProblemReport> problems = Problems.getProblems();
             if (ProblemReport.isProblem(problems)) {
-                out.print("    <item>\n      <title>SysInfo: Problems report for ");
+                out.print("    <item>\n      <title>WebVM: Problems report for ");
                 out.print(new Date());
                 out.print("</title>\n      <link>Problems.html</link>\n      <description>Problems report:&lt;br/&gt;&lt;br/&gt;");
                 out.print(ProblemReport.toString(Problems.getProblems(), "&lt;br/&gt;"));
