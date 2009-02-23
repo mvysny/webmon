@@ -27,6 +27,7 @@
     <description>WebVM: A Java Virtual Machine analyzer with Web interface. Ideal for watching out for your
         Tomcat or J2EE server installations. You can even embed it into your EAR.
     </description>
+	<url>http://kenai.com/projects/webvm</url>
     <organization>
         <name>Baka</name>
         <url>http://www.baka.sk/</url>
@@ -42,6 +43,40 @@
 		<connection>scm:hg:https://kenai.com/hg/webvm~sources</connection>
 		<url>http://kenai.com/projects/webvm/sources/sources/show</url>
 	</scm>
+	<issueManagement>
+		<system>JIRA</system>
+		<url>http://kenai.com/jira/browse/WEBVM</url>
+	</issueManagement>
+	<mailingLists>
+		<mailingList>
+			<name>Commits</name>
+			<subscribe>http://kenai.com/projects/webvm/lists/commits/</subscribe>
+			<unsubscribe>http://kenai.com/projects/webvm/lists/commits/</unsubscribe>
+			<post>commits@webvm.kenai.com</post>
+			<archive>http://kenai.com/projects/webvm/lists/commits/archive</archive>
+		</mailingList>
+		<mailingList>
+			<name>Dev</name>
+			<subscribe>http://kenai.com/projects/webvm/lists/dev/</subscribe>
+			<unsubscribe>http://kenai.com/projects/webvm/lists/dev/</unsubscribe>
+			<post>dev@webvm.kenai.com</post>
+			<archive>http://kenai.com/projects/webvm/lists/dev/archive</archive>
+		</mailingList>
+		<mailingList>
+			<name>Issues</name>
+			<subscribe>http://kenai.com/projects/webvm/lists/issues/</subscribe>
+			<unsubscribe>http://kenai.com/projects/webvm/lists/issues/</unsubscribe>
+			<post>issues@webvm.kenai.com</post>
+			<archive>http://kenai.com/projects/webvm/lists/issues/archive</archive>
+		</mailingList>
+		<mailingList>
+			<name>Users</name>
+			<subscribe>http://kenai.com/projects/webvm/lists/users/</subscribe>
+			<unsubscribe>http://kenai.com/projects/webvm/lists/users/</unsubscribe>
+			<post>users@webvm.kenai.com</post>
+			<archive>http://kenai.com/projects/webvm/lists/users/archive</archive>
+		</mailingList>
+	</mailingLists>
     <developers>
         <developer>
             <id>mvy</id>
@@ -114,8 +149,12 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>maven-jetty-plugin</artifactId>
+                <artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<preparationGoals>clean install</preparationGoals>
+					<goals>clean install</goals>
+				</configuration>
             </plugin>
         </plugins>
     </build>
