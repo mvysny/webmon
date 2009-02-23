@@ -154,6 +154,8 @@
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 					<preparationGoals>clean install</preparationGoals>
 					<goals>clean install</goals>
+					<username>${kenai.username}</username>
+					<password>${kenai.password}</password>
 				</configuration>
             </plugin>
         </plugins>
