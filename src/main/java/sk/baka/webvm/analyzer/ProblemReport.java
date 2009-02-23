@@ -19,6 +19,8 @@
 package sk.baka.webvm.analyzer;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Describes a potential problem.
@@ -167,5 +169,36 @@ public final class ProblemReport {
     @Override
     public String toString() {
         return pclass + ": " + desc;
+    }
+
+    private static Map<String, ProblemReport> toMap(final Iterable<? extends ProblemReport> reports, final boolean filterProblems) {
+        final Map<String, ProblemReport> result = new HashMap<String, ProblemReport>();
+        for (final ProblemReport r : reports) {
+            if (filterProblems && !r.problem) {
+                continue;
+            }
+            result.put(r.pclass, r);
+        }
+        return result;
+    }
+
+    /**
+     * Checks if two problem reports are equal. Reports are equal when same classes are problematic and all problematic reports share the same description.
+     * @param reports1 first report set.
+     * @param reports2 second report set.
+     * @return true if report sets are equal, false otherwise.
+     */
+    public static boolean equals(final Collection<? extends ProblemReport> reports1, final Collection<? extends ProblemReport> reports2) {
+        final Map<String, ProblemReport> r1 = toMap(reports1, true);
+        final Map<String, ProblemReport> r2 = toMap(reports2, true);
+        if (!r1.keySet().equals(r2.keySet())) {
+            return false;
+        }
+        for (final String pclass : r1.keySet()) {
+            if (!r1.get(pclass).desc.equals(r2.get(pclass).desc)) {
+                return false;
+            }
+        }
+        return false;
     }
 }
