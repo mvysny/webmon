@@ -50,29 +50,29 @@
 	<mailingLists>
 		<mailingList>
 			<name>Commits</name>
-			<subscribe>http://kenai.com/projects/webvm/lists/commits/</subscribe>
-			<unsubscribe>http://kenai.com/projects/webvm/lists/commits/</unsubscribe>
+			<subscribe>sympa@webvm.kenai.com?subject=subscribe%20commits</subscribe>
+			<unsubscribe>sympa@webvm.kenai.com?subject=unsubscribe%20commits</unsubscribe>
 			<post>commits@webvm.kenai.com</post>
 			<archive>http://kenai.com/projects/webvm/lists/commits/archive</archive>
 		</mailingList>
 		<mailingList>
 			<name>Dev</name>
-			<subscribe>http://kenai.com/projects/webvm/lists/dev/</subscribe>
-			<unsubscribe>http://kenai.com/projects/webvm/lists/dev/</unsubscribe>
+			<subscribe>sympa@webvm.kenai.com?subject=subscribe%20dev</subscribe>
+			<unsubscribe>sympa@webvm.kenai.com?subject=unsubscribe%20dev</unsubscribe>
 			<post>dev@webvm.kenai.com</post>
 			<archive>http://kenai.com/projects/webvm/lists/dev/archive</archive>
 		</mailingList>
 		<mailingList>
 			<name>Issues</name>
-			<subscribe>http://kenai.com/projects/webvm/lists/issues/</subscribe>
-			<unsubscribe>http://kenai.com/projects/webvm/lists/issues/</unsubscribe>
+			<subscribe>sympa@webvm.kenai.com?subject=subscribe%20issues</subscribe>
+			<unsubscribe>sympa@webvm.kenai.com?subject=unsubscribe%20issues</unsubscribe>
 			<post>issues@webvm.kenai.com</post>
 			<archive>http://kenai.com/projects/webvm/lists/issues/archive</archive>
 		</mailingList>
 		<mailingList>
 			<name>Users</name>
-			<subscribe>http://kenai.com/projects/webvm/lists/users/</subscribe>
-			<unsubscribe>http://kenai.com/projects/webvm/lists/users/</unsubscribe>
+			<subscribe>sympa@webvm.kenai.com?subject=subscribe%20users</subscribe>
+			<unsubscribe>sympa@webvm.kenai.com?subject=unsubscribe%20users</unsubscribe>
 			<post>users@webvm.kenai.com</post>
 			<archive>http://kenai.com/projects/webvm/lists/users/archive</archive>
 		</mailingList>
