@@ -26,9 +26,15 @@ import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.basic.MultiLineLabel;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import sk.baka.webvm.misc.HistorySampler;
 import sk.baka.webvm.misc.MgmtUtils;
 
@@ -70,9 +76,25 @@ public final class Problems extends WebPage {
     public Problems(PageParameters params) {
         final AppBorder border = new AppBorder("appBorder");
         add(border);
-        border.add(new MultiLineLabel("deadlocks", getDeadlockReport().getDesc()));
-        border.add(new MultiLineLabel("memStat", getMemStatReport().getDesc()));
-        border.add(new MultiLineLabel("gcUsage", getGCMemUsageReport().toString() + "\n" + getGCCPUUsageReport().toString()));
+        final IModel<List<ProblemReport>> model = new LoadableDetachableModel<List<ProblemReport>>() {
+
+            @Override
+            protected List<ProblemReport> load() {
+                return getProblems();
+            }
+        };
+        border.add(new ListView<ProblemReport>("problemList", model) {
+
+            @Override
+            protected void populateItem(ListItem<ProblemReport> item) {
+                final ProblemReport pr = item.getModelObject();
+                item.add(new Label("problemClass", pr.getPclass()));
+                final Label l = new Label("problemSeverity", pr.isProblem() ? "WARN" : "OK");
+                l.add(new SimpleAttributeModifier("bgcolor", pr.isProblem() ? "#d24343" : "#28cb17"));
+                item.add(l);
+                item.add(new Label("problemDesc", pr.getDesc()));
+            }
+        });
         border.add(new Link<Void>("performGCLink") {
 
             @Override
@@ -115,10 +137,10 @@ public final class Problems extends WebPage {
         }
         avgTreshold = avgTreshold / samples;
         if (tresholdCount >= GC_CPU_TRESHOLD_SAMPLES) {
-            return new ProblemReport(true, CLASS_GC_CPU_USAGE, "Warning: GC spent more than " + GC_CPU_TRESHOLD + "% (avg. " +
+            return new ProblemReport(true, CLASS_GC_CPU_USAGE, "GC spent more than " + GC_CPU_TRESHOLD + "% (avg. " +
                     avgTreshold + "%) of CPU last " + (GC_CPU_TRESHOLD_SAMPLES * HistorySampler.HISTORY_SAMPLE_RATE_MS / 1000) + " seconds");
         }
-        return new ProblemReport(false, CLASS_GC_CPU_USAGE, "OK, avg. GC CPU usage last " +
+        return new ProblemReport(false, CLASS_GC_CPU_USAGE, "Avg. GC CPU usage last " +
                 (samples * HistorySampler.HISTORY_SAMPLE_RATE_MS / 1000) + " seconds: " + avgTreshold + "%");
     }
 
@@ -143,7 +165,7 @@ public final class Problems extends WebPage {
             }
         }
         if (sb.length() == 0) {
-            return new ProblemReport(false, CLASS_MEMORY_STATUS, "OK, heap usage: " + MgmtUtils.getUsagePerc(MgmtUtils.getHeapFromRuntime()));
+            return new ProblemReport(false, CLASS_MEMORY_STATUS, "Heap usage: " + MgmtUtils.getUsagePerc(MgmtUtils.getHeapFromRuntime()));
         }
         sb.append("\nTry performing a GC: this should decrease the memory usage. If not, you may need to increase the memory or check for memory leaks");
         return new ProblemReport(false, CLASS_MEMORY_STATUS, sb.toString());
@@ -162,7 +184,7 @@ public final class Problems extends WebPage {
             }
             final long used = usage.getUsed() * 100 / usage.getMax();
             if (used >= MEM_AFTER_GC_USAGE_TRESHOLD) {
-                sb.append("WARN: Pool [");
+                sb.append("Pool [");
                 sb.append(bean.getName());
                 sb.append("] is ");
                 sb.append(used);
@@ -191,7 +213,7 @@ public final class Problems extends WebPage {
             dt = bean.findMonitorDeadlockedThreads();
         }
         if ((dt == null) || (dt.length == 0)) {
-            return new ProblemReport(false, CLASS_DEADLOCKED_THREADS, "OK - None");
+            return new ProblemReport(false, CLASS_DEADLOCKED_THREADS, "None");
         }
         for (final long thread : dt) {
             final ThreadInfo info = bean.getThreadInfo(thread);

@@ -13,20 +13,14 @@
                 <h2 class="title">Potential problems report (also see Classloader analysis for further problems)</h2>
                 <div class="entry">
                     <table border="1">
-                        <tr>
-                            <td>Deadlocked threads</td>
-                            <td><span wicket:id="deadlocks"/></td>
-                        </tr>
-                        <tr>
-                            <td>Memory status</td>
-                            <td><span wicket:id="memStat"/></td>
-                            <td><a wicket:id="performGCLink">Perform GC</a></td>
-                        </tr>
-                        <tr>
-                            <td>GC-related</td>
-                            <td><span wicket:id="gcUsage"/></td>
+                        <thead><tr><th>Problem type</th><th>Status</th><th>Description</th></tr></thead>
+                        <tr wicket:id="problemList">
+                            <td wicket:id="problemClass"/>
+                            <td wicket:id="problemSeverity"/>
+                            <td><pre wicket:id="problemDesc"/></td>
                         </tr>
                     </table>
+                    <a wicket:id="performGCLink">Perform GC</a>
                 </div>
             </div>
         </div>

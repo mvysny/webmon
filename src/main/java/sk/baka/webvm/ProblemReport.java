@@ -107,7 +107,7 @@ public final class ProblemReport {
      */
     public static String toHtml(final Collection<? extends ProblemReport> problems) {
         final StringBuilder sb = new StringBuilder();
-        sb.append("<table border=\"1\"><thead><tr><th>Class</th><th>Status</th><th>Description</th></tr></thead>\n");
+        sb.append("<table border=\"1\"><thead><tr><th>Problem type</th><th>Status</th><th>Description</th></tr></thead>\n");
         for (final ProblemReport r : problems) {
             sb.append("<tr><td>");
             sb.append(r.pclass);
