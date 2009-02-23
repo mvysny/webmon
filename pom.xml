@@ -93,6 +93,10 @@
             <id>realtime</id>
             <url>scp://rt.sk/home/moto/public_html/webvm/</url>
         </site>
+        <repository>
+            <id>realtime</id>
+            <url>scp://rt.sk/home/moto/public_html/maven2</url>
+        </repository>
     </distributionManagement>
     <dependencies>
         <dependency>
