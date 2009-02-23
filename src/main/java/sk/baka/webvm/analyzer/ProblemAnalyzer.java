@@ -26,7 +26,6 @@ import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.List;
-import sk.baka.webvm.analyzer.HistorySample;
 
 /**
  * Analyzes VM problems.
