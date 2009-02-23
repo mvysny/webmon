@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>Detailed memory information</title>
+        <link rel="stylesheet" type="text/css" href="style.css" media="screen"/>
+    </head>
+    <body>
+        <div wicket:id="appBorder">
+            <div class="post">
+                <h2 class="title">Memory managers</h2>
+                <div class="entry">
+                    <table border="1">
+                        <thead><tr>
+                            <th>Name</th>
+                            <th>Valid</th>
+                            <th>Properties</th>
+                        </tr></thead>
+                        <tr wicket:id="memoryManagers">
+                            <td wicket:id="memManName"/>
+                            <td wicket:id="memManValid"/>
+                            <td wicket:id="memManProperties"/>
+                        </tr>
+                    </table>
+            </div></div>
+            <div class="post">
+                <h2 class="title">Garbage collectors</h2>
+                <div class="entry">
+                    <table border="1">
+                        <thead><tr>
+                            <th>Name</th>
+                            <th>Valid</th>
+                            <th>Properties</th>
+                        </tr></thead>
+                        <tr wicket:id="gc">
+                            <td wicket:id="gcName"/>
+                            <td wicket:id="gcValid"/>
+                            <td wicket:id="gcProperties"/>
+                        </tr>
+                    </table>
+            </div></div>
+            <div class="post">
+                <h2 class="title">Memory pools</h2>
+                <div class="entry">
+                    <table border="1">
+                        <thead><tr>
+                            <th>Pool name</th>
+                            <th>Pool type</th>
+                            <th>Valid</th>
+                            <th>Current usage</th>
+                            <th>%</th>
+                            <th>Peak usage</th>
+                            <th>%</th>
+                            <th>Garbage Collects</th>
+                            <th>%</th>
+                        </tr></thead>
+                        <tr wicket:id="memoryPool">
+                            <td wicket:id="poolName"/>
+                            <td wicket:id="poolType"/>
+                            <td wicket:id="poolValid"/>
+                            <td wicket:id="poolUsage"/>
+                            <td wicket:id="poolUsagePerc"/>
+                            <td wicket:id="poolPeak"/>
+                            <td wicket:id="poolPeakPerc"/>
+                            <td wicket:id="poolCollects"/>
+                            <td><b wicket:id="poolCollectsPerc"/></td>
+                        </tr>
+                    </table>
+                    <a wicket:id="performGCLink">Perform GC</a>
+            </div></div>
+        </div>
+    </body>
+</html>
