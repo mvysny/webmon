@@ -51,17 +51,17 @@ public final class RssFeed extends HttpServlet {
             out.println("  <channel>\n    <title>WebVM feeds</title>\n    <link>.</link>\n    <description>WebVM: Remote server problems</description>");
             out.println("    <language>en-us</language>\n    <ttl>1</ttl>\n");
             final List<ProblemReport> problems = Problems.getProblems();
-            if (ProblemReport.isProblem(problems)) {
-                out.print("    <item>\n      <title>WebVM: Problems report for ");
-                out.print(new Date());
-                out.print("</title>\n      <link>Problems.html</link>\n      <description>Problems report:&lt;br/&gt;&lt;br/&gt;");
-                out.print(ProblemReport.toString(Problems.getProblems(), "&lt;br/&gt;"));
-                out.print("</description>\n      <pubDate>");
-                out.print(new Date());
-                out.print("</pubDate>\n      <guid>");
-                out.print(System.currentTimeMillis());
-                out.println("</guid>\n    </item>");
-            }
+//            if (ProblemReport.isProblem(problems)) {
+            out.print("    <item>\n      <title>WebVM: Problems report for ");
+            out.print(new Date());
+            out.print("</title>\n      <link>Problems.html</link>\n      <description>Problems report:&lt;br/&gt;");
+            out.print(ProblemReport.escape(ProblemReport.toHtml(problems)));
+            out.print("</description>\n      <pubDate>");
+            out.print(new Date());
+            out.print("</pubDate>\n      <guid>");
+            out.print(System.currentTimeMillis());
+            out.println("</guid>\n    </item>");
+//            }
             out.println("  </channel>\n</rss>\n");
         } finally {
             out.close();

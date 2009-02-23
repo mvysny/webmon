@@ -100,6 +100,40 @@ public final class ProblemReport {
         return sb.toString();
     }
 
+    /**
+     * Formats the problem reports in the form of a HTML table.
+     * @param problems the problem reports to format.
+     * @return all problem reports.
+     */
+    public static String toHtml(final Collection<? extends ProblemReport> problems) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("<table border=\"1\"><thead><tr><th>Class</th><th>Status</th><th>Description</th></tr></thead>\n");
+        for (final ProblemReport r : problems) {
+            sb.append("<tr><td>");
+            sb.append(r.pclass);
+            sb.append("</td><td bgcolor=\"#");
+            sb.append(r.isProblem() ? "d24343" : "28cb17");
+            sb.append("\">");
+            sb.append(r.isProblem() ? "WARN" : "OK");
+            sb.append("</td><td>");
+            sb.append(r.desc);
+            sb.append("</td></tr>\n");
+        }
+        return sb.toString();
+    }
+
+    /**
+     * XML-escapes given text.
+     * @param text the text to escape
+     * @return text with &amp;amp;, &amp;lt; etc.
+     */
+    public static final String escape(final String text) {
+        String result = text.replace("&", "&amp;");
+        result = result.replace("<", "&lt;");
+        result = result.replace(">", "&gt;");
+        return result;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
