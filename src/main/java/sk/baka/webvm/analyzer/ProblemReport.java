@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with WebVM.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sk.baka.webvm;
+package sk.baka.webvm.analyzer;
 
 import java.util.Collection;
 

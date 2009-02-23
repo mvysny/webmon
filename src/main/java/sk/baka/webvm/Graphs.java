@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm;
 
+import sk.baka.webvm.analyzer.HistorySample;
 import sk.baka.webvm.misc.TextGraph;
 import java.util.List;
 import org.apache.wicket.PageParameters;

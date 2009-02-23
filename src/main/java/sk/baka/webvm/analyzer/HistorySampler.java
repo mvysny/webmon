@@ -16,8 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with WebVM.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sk.baka.webvm.misc;
+package sk.baka.webvm.analyzer;
 
+import sk.baka.webvm.misc.*;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import sk.baka.webvm.HistorySample;
+import sk.baka.webvm.analyzer.HistorySample;
 
 /**
  * Samples the VM history regularly. You need to invoke {@link #start()} to start the sampler, {@link #stop()} to stop it. Thread-safe.

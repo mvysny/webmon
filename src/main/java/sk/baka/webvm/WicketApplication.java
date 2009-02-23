@@ -18,9 +18,10 @@
  */
 package sk.baka.webvm;
 
+import sk.baka.webvm.analyzer.HistorySample;
 import java.util.List;
 import org.apache.wicket.protocol.http.WebApplication;
-import sk.baka.webvm.misc.HistorySampler;
+import sk.baka.webvm.analyzer.HistorySampler;
 
 /**
  * The main Wicket application class.
