@@ -22,7 +22,7 @@
     <groupId>sk.baka.webvm</groupId>
     <artifactId>webvm</artifactId>
     <packaging>war</packaging>
-    <version>0.1</version>
+    <version>0.1-SNAPSHOT</version>
     <name>WebVM</name>
     <description>WebVM: A Java Virtual Machine analyzer with Web interface. Ideal for watching out for your
         Tomcat or J2EE server installations. You can even embed it into your EAR.
