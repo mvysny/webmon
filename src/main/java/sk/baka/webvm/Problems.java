@@ -48,7 +48,7 @@ public final class Problems extends WebPage {
 
             @Override
             protected List<ProblemReport> load() {
-                return ProblemAnalyzer.getProblems();
+                return ProblemAnalyzer.getProblems(WicketApplication.getHistory());
             }
         };
         border.add(new ListView<ProblemReport>("problemList", model) {

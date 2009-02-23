@@ -27,7 +27,6 @@ import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.List;
 import sk.baka.webvm.analyzer.HistorySample;
-import sk.baka.webvm.WicketApplication;
 
 /**
  * Analyzes VM problems.
@@ -67,19 +66,19 @@ public final class ProblemAnalyzer {
 
     /**
      * Diagnose the VM and returns a list of problem reports.
+     * @param history current history.
      * @return the list of reports.
      */
-    public static List<ProblemReport> getProblems() {
+    public static List<ProblemReport> getProblems(final List<HistorySample> history) {
         final List<ProblemReport> result = new ArrayList<ProblemReport>();
         result.add(getDeadlockReport());
-        result.add(getGCCPUUsageReport());
+        result.add(getGCCPUUsageReport(history));
         result.add(getMemStatReport());
         result.add(getGCMemUsageReport());
         return result;
     }
 
-    private static ProblemReport getGCCPUUsageReport() {
-        final List<HistorySample> history = WicketApplication.getHistory();
+    private static ProblemReport getGCCPUUsageReport(final List<HistorySample> history) {
         int startFrom = history.size() - GC_CPU_TRESHOLD_SAMPLES;
         if (startFrom < 0) {
             startFrom = 0;

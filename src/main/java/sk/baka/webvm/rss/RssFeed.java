@@ -27,6 +27,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import sk.baka.webvm.WicketApplication;
 import sk.baka.webvm.analyzer.ProblemAnalyzer;
 
 /**
@@ -50,7 +51,7 @@ public final class RssFeed extends HttpServlet {
             out.println("<?xml version=\"1.0\"?>\n<rss version=\"2.0\">");
             out.println("  <channel>\n    <title>WebVM feeds</title>\n    <link>.</link>\n    <description>WebVM: Remote server problems</description>");
             out.println("    <language>en-us</language>\n    <ttl>1</ttl>\n");
-            final List<ProblemReport> problems = ProblemAnalyzer.getProblems();
+            final List<ProblemReport> problems = ProblemAnalyzer.getProblems(WicketApplication.getHistory());
             if (ProblemReport.isProblem(problems)) {
                 out.print("    <item>\n      <title>WebVM: Problems report for ");
                 out.print(new Date());
