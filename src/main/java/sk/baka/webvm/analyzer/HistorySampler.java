@@ -65,14 +65,14 @@ public final class HistorySampler {
         executor.scheduleWithFixedDelay(new Sampler(), 0, HISTORY_SAMPLE_RATE_MS, TimeUnit.MILLISECONDS);
     }
     private ScheduledThreadPoolExecutor executor = null;
-    private final Queue<HistorySample> history = new ConcurrentLinkedQueue<HistorySample>();
+    private final SimpleFixedSizeFIFO<HistorySample> history = new SimpleFixedSizeFIFO<HistorySample>(HISTORY_LENGTH);
 
     /**
      * Returns a snapshot of the history values.
      * @return modifiable snapshot.
      */
     public List<HistorySample> getHistory() {
-        return new ArrayList<HistorySample>(history);
+        return history.toList();
     }
 
     /**
@@ -86,15 +86,10 @@ public final class HistorySampler {
 
     private final class Sampler implements Runnable {
 
-        private int historyLength = 0;
         private long lastGcTimes = -1;
         private long lastGcSampleTaken = -1;
 
         public void run() {
-            while (historyLength > HISTORY_LENGTH) {
-                history.poll();
-                historyLength--;
-            }
             // get the GC CPU usage
             long collectTime = 0;
             final List<GarbageCollectorMXBean> beans = ManagementFactory.getGarbageCollectorMXBeans();
@@ -124,7 +119,6 @@ public final class HistorySampler {
                 cpuUsageByGC = 0;
             }
             history.add(new HistorySample(cpuUsageByGC, (int) (MgmtUtils.getHeapFromRuntime().getUsed() / 1024 / 1024)));
-            historyLength++;
         }
     }
 }
