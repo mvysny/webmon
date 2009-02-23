@@ -35,6 +35,7 @@ public final class SimpleFixedSizeFIFO<T> {
         }
         history.add(item);
         historyLength++;
+        newest = item;
     }
 
     /**
@@ -50,5 +51,15 @@ public final class SimpleFixedSizeFIFO<T> {
      */
     public void clear() {
         history.clear();
+        newest = null;
+    }
+    private T newest = null;
+
+    /**
+     * Returns the newest item put into this queue. Not thread-safe - may be called from the same thread which is {@link #add(java.lang.Object) adding} items only.
+     * @return newest item or null if the FIFO is empty.
+     */
+    public T getNewest() {
+        return newest;
     }
 }

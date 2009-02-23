@@ -36,11 +36,11 @@ public final class WicketApplication extends WebApplication {
     private static HistorySampler sampler = null;
 
     /**
-     * Returns a snapshot of the history values.
-     * @return modifiable snapshot.
+     * Returns a history sampler.
+     * @return the history sampler.
      */
-    public static List<HistorySample> getHistory() {
-        return sampler.getHistory();
+    public static HistorySampler getHistory() {
+        return sampler;
     }
 
     @Override

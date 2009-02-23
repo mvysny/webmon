@@ -67,6 +67,11 @@ public final class ProblemReport {
         this.pclass = pclass;
         this.desc = desc;
     }
+    
+    /**
+     * When this object was created.
+     */
+    public final long created = System.currentTimeMillis();
 
     /**
      * Checks if there is at least one real problem.

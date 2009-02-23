@@ -51,16 +51,17 @@ public final class RssFeed extends HttpServlet {
             out.println("<?xml version=\"1.0\"?>\n<rss version=\"2.0\">");
             out.println("  <channel>\n    <title>WebVM feeds</title>\n    <link>.</link>\n    <description>WebVM: Remote server problems</description>");
             out.println("    <language>en-us</language>\n    <ttl>1</ttl>\n");
-            final List<ProblemReport> problems = ProblemAnalyzer.getProblems(WicketApplication.getHistory());
-            if (ProblemReport.isProblem(problems)) {
+            final List<List<ProblemReport>> ph = WicketApplication.getHistory().getProblemHistory();
+            for (final List<ProblemReport> problems : ph) {
+                final Date snapshotTaken = new Date(problems.get(0).created);
                 out.print("    <item>\n      <title>WebVM: Problems report for ");
-                out.print(new Date());
+                out.print(snapshotTaken);
                 out.print("</title>\n      <link>Problems.html</link>\n      <description>Problems report:&lt;br/&gt;");
                 out.print(ProblemReport.escape(ProblemReport.toHtml(problems)));
                 out.print("</description>\n      <pubDate>");
-                out.print(new Date());
+                out.print(snapshotTaken);
                 out.print("</pubDate>\n      <guid>");
-                out.print(System.currentTimeMillis());
+                out.print(snapshotTaken.getTime());
                 out.println("</guid>\n    </item>");
             }
             out.println("  </channel>\n</rss>\n");

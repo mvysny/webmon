@@ -36,7 +36,7 @@ public final class Graphs extends WebPage {
         add(border);
         TextGraph tg = new TextGraph();
         tg.setRange(0, 100);
-        final List<HistorySample> history = WicketApplication.getHistory();
+        final List<HistorySample> history = WicketApplication.getHistory().getHistory();
         for (final HistorySample hs : history) {
             tg.addValue(hs.getGcCpuUsage());
         }

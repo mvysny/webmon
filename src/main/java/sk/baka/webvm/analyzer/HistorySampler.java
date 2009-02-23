@@ -21,10 +21,7 @@ package sk.baka.webvm.analyzer;
 import sk.baka.webvm.misc.*;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
@@ -63,6 +60,7 @@ public final class HistorySampler {
             }
         });
         executor.scheduleWithFixedDelay(new Sampler(), 0, HISTORY_SAMPLE_RATE_MS, TimeUnit.MILLISECONDS);
+        executor.scheduleWithFixedDelay(new ProblemSampler(), 500, 30 * 1000, TimeUnit.MILLISECONDS);
     }
     private ScheduledThreadPoolExecutor executor = null;
     private final SimpleFixedSizeFIFO<HistorySample> history = new SimpleFixedSizeFIFO<HistorySample>(HISTORY_LENGTH);
@@ -82,6 +80,7 @@ public final class HistorySampler {
         executor.shutdownNow();
         executor = null;
         history.clear();
+        problemHistory.clear();
     }
 
     private final class Sampler implements Runnable {
@@ -120,5 +119,25 @@ public final class HistorySampler {
             }
             history.add(new HistorySample(cpuUsageByGC, (int) (MgmtUtils.getHeapFromRuntime().getUsed() / 1024 / 1024)));
         }
+    }
+    private final SimpleFixedSizeFIFO<List<ProblemReport>> problemHistory = new SimpleFixedSizeFIFO<List<ProblemReport>>(20);
+
+    private final class ProblemSampler implements Runnable {
+
+        public void run() {
+            final List<ProblemReport> currentProblems = ProblemAnalyzer.getProblems(history.toList());
+            final List<ProblemReport> last = problemHistory.getNewest();
+            if (last == null && !ProblemReport.isProblem(currentProblems)) {
+                return;
+            }
+            if (ProblemReport.equals(last, currentProblems)) {
+                return;
+            }
+            problemHistory.add(currentProblems);
+        }
+    }
+
+    public List<List<ProblemReport>> getProblemHistory() {
+        return problemHistory.toList();
     }
 }
