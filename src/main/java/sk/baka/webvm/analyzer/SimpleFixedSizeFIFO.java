@@ -25,7 +25,7 @@ public final class SimpleFixedSizeFIFO<T> {
     }
 
     /**
-     * Adds an item to the history, discarding oldest items when the maximum length has been reached. Not thread-safe - must be called from at most one thread.
+     * Adds an item to the history, discarding oldest items when the maximum length has been reached. Not thread-safe - may be called from one thread instance only.
      * @param item the item to add
      */
     public void add(T item) {
