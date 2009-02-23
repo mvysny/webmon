@@ -115,9 +115,9 @@ public final class ProblemReport {
             sb.append(r.isProblem() ? "d24343" : "28cb17");
             sb.append("\">");
             sb.append(r.isProblem() ? "WARN" : "OK");
-            sb.append("</td><td>");
+            sb.append("</td><td><pre>");
             sb.append(r.desc);
-            sb.append("</td></tr>\n");
+            sb.append("</pre></td></tr>\n");
         }
         return sb.toString();
     }
