@@ -33,111 +33,131 @@ import java.util.concurrent.TimeUnit;
  */
 public final class HistorySampler {
 
-    /**
-     * Number of samples to keep.
-     */
-    public static final int HISTORY_LENGTH = 150;
-    /**
-     * History sample is taken each {@value #HISTORY_SAMPLE_RATE_MS} millis.
-     */
-    public static final int HISTORY_SAMPLE_RATE_MS = 1000;
+	/**
+	 * Creates new sampler instance with default values.
+	 */
+	public HistorySampler() {
+		this(HISTORY_VMSTAT, HISTORY_PROBLEMS);
+	}
 
-    /**
-     * Starts the sampling process in a background thread.
-     */
-    public void start() {
-        if (executor != null) {
-            throw new IllegalStateException("Already started.");
-        }
-        executor = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
+	/**
+	 * Creates new sampler instance.
+	 * @param vmstatConfig the vmstat sampler config
+	 * @param problemConfig the problem sampler config
+	 */
+	public HistorySampler(final SamplerConfig vmstatConfig, final SamplerConfig problemConfig) {
+		this.vmstatConfig = vmstatConfig;
+		this.problemConfig = problemConfig;
+		vmstatHistory = new SimpleFixedSizeFIFO<HistorySample>(vmstatConfig.getHistoryLength());
+		problemHistory = new SimpleFixedSizeFIFO<List<ProblemReport>>(problemConfig.getHistoryLength());
+	}
+	private final SamplerConfig problemConfig;
+	/**
+	 * Default VMStat history.
+	 */
+	public static final SamplerConfig HISTORY_VMSTAT = new SamplerConfig(150, 1000, 0);
+	/**
+	 * Default Problems history.
+	 */
+	public static final SamplerConfig HISTORY_PROBLEMS = new SamplerConfig(20, 30 * 1000, 500);
 
-            private final ThreadFactory def = Executors.defaultThreadFactory();
+	/**
+	 * Starts the sampling process in a background thread.
+	 */
+	public void start() {
+		if (executor != null) {
+			throw new IllegalStateException("Already started.");
+		}
+		executor = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
 
-            public Thread newThread(Runnable r) {
-                final Thread result = def.newThread(r);
-                result.setDaemon(true);
-                return result;
-            }
-        });
-        executor.scheduleWithFixedDelay(new Sampler(), 0, HISTORY_SAMPLE_RATE_MS, TimeUnit.MILLISECONDS);
-        executor.scheduleWithFixedDelay(new ProblemSampler(), 500, 30 * 1000, TimeUnit.MILLISECONDS);
-    }
-    private ScheduledThreadPoolExecutor executor = null;
-    private final SimpleFixedSizeFIFO<HistorySample> history = new SimpleFixedSizeFIFO<HistorySample>(HISTORY_LENGTH);
+			private final ThreadFactory def = Executors.defaultThreadFactory();
 
-    /**
-     * Returns a snapshot of the history values.
-     * @return modifiable snapshot.
-     */
-    public List<HistorySample> getHistory() {
-        return history.toList();
-    }
+			public Thread newThread(Runnable r) {
+				final Thread result = def.newThread(r);
+				result.setDaemon(true);
+				return result;
+			}
+		});
+		executor.scheduleWithFixedDelay(new Sampler(), vmstatConfig.getInitialDelay(), vmstatConfig.getHistorySampleDelayMs(), TimeUnit.MILLISECONDS);
+		executor.scheduleWithFixedDelay(new ProblemSampler(), problemConfig.getInitialDelay(), problemConfig.getHistorySampleDelayMs(), TimeUnit.MILLISECONDS);
+	}
+	private ScheduledThreadPoolExecutor executor = null;
+	private final SimpleFixedSizeFIFO<HistorySample> vmstatHistory;
 
-    /**
-     * Disposes of this sampler. This instance is no longer usable and cannot be started again.
-     */
-    public void stop() {
-        executor.shutdownNow();
-        executor = null;
-        history.clear();
-        problemHistory.clear();
-    }
+	/**
+	 * Returns a snapshot of the history values.
+	 * @return modifiable snapshot.
+	 */
+	public List<HistorySample> getVmstatHistory() {
+		return vmstatHistory.toList();
+	}
 
-    private final class Sampler implements Runnable {
+	/**
+	 * Disposes of this sampler. This instance is no longer usable and cannot be started again.
+	 */
+	public void stop() {
+		executor.shutdownNow();
+		executor = null;
+		vmstatHistory.clear();
+		problemHistory.clear();
+	}
 
-        private long lastGcTimes = -1;
-        private long lastGcSampleTaken = -1;
+	private final class Sampler implements Runnable {
 
-        public void run() {
-            // get the GC CPU usage
-            long collectTime = 0;
-            final List<GarbageCollectorMXBean> beans = ManagementFactory.getGarbageCollectorMXBeans();
-            if (beans != null) {
-                for (final GarbageCollectorMXBean bean : beans) {
-                    if (!bean.isValid()) {
-                        continue;
-                    }
-                    if (bean.getCollectionTime() > 0) {
-                        collectTime += bean.getCollectionTime();
-                    }
-                }
-            }
-            final long currentTimeMillis = System.currentTimeMillis();
-            if (lastGcTimes < 0) {
-                lastGcTimes = collectTime;
-                lastGcSampleTaken = currentTimeMillis;
-            }
-            final long gcTimeDelta = collectTime - lastGcTimes;
-            final long gcSampleTakenDelta = currentTimeMillis - lastGcSampleTaken;
-            lastGcTimes = collectTime;
-            lastGcSampleTaken = currentTimeMillis;
-            final int cpuUsageByGC;
-            if (gcSampleTakenDelta > 0) {
-                cpuUsageByGC = (int) (gcTimeDelta * 100 / gcSampleTakenDelta);
-            } else {
-                cpuUsageByGC = 0;
-            }
-            history.add(new HistorySample(cpuUsageByGC, (int) (MgmtUtils.getHeapFromRuntime().getUsed() / 1024 / 1024)));
-        }
-    }
-    private final SimpleFixedSizeFIFO<List<ProblemReport>> problemHistory = new SimpleFixedSizeFIFO<List<ProblemReport>>(20);
+		private long lastGcTimes = -1;
+		private long lastGcSampleTaken = -1;
 
-    private final class ProblemSampler implements Runnable {
+		public void run() {
+			// get the GC CPU usage
+			long collectTime = 0;
+			final List<GarbageCollectorMXBean> beans = ManagementFactory.getGarbageCollectorMXBeans();
+			if (beans != null) {
+				for (final GarbageCollectorMXBean bean : beans) {
+					if (!bean.isValid()) {
+						continue;
+					}
+					if (bean.getCollectionTime() > 0) {
+						collectTime += bean.getCollectionTime();
+					}
+				}
+			}
+			final long currentTimeMillis = System.currentTimeMillis();
+			if (lastGcTimes < 0) {
+				lastGcTimes = collectTime;
+				lastGcSampleTaken = currentTimeMillis;
+			}
+			final long gcTimeDelta = collectTime - lastGcTimes;
+			final long gcSampleTakenDelta = currentTimeMillis - lastGcSampleTaken;
+			lastGcTimes = collectTime;
+			lastGcSampleTaken = currentTimeMillis;
+			final int cpuUsageByGC;
+			if (gcSampleTakenDelta > 0) {
+				cpuUsageByGC = (int) (gcTimeDelta * 100 / gcSampleTakenDelta);
+			} else {
+				cpuUsageByGC = 0;
+			}
+			vmstatHistory.add(new HistorySample(cpuUsageByGC, (int) (MgmtUtils.getHeapFromRuntime().getUsed() / 1024 / 1024)));
+		}
+	}
+	private SamplerConfig vmstatConfig;
+	private final SimpleFixedSizeFIFO<List<ProblemReport>> problemHistory;
 
-        public void run() {
-            final List<ProblemReport> currentProblems = ProblemAnalyzer.getProblems(history.toList());
-            final List<ProblemReport> last = problemHistory.getNewest();
-            if (last == null && !ProblemReport.isProblem(currentProblems)) {
-                return;
-            }
-            if (ProblemReport.equals(last, currentProblems)) {
-                return;
-            }
-            problemHistory.add(currentProblems);
-        }
-    }
+	private final class ProblemSampler implements Runnable {
 
-    public List<List<ProblemReport>> getProblemHistory() {
-        return problemHistory.toList();
-    }
+		public void run() {
+			final List<ProblemReport> currentProblems = ProblemAnalyzer.getProblems(vmstatHistory.toList());
+			final List<ProblemReport> last = problemHistory.getNewest();
+			if (last == null && !ProblemReport.isProblem(currentProblems)) {
+				return;
+			}
+			if (ProblemReport.equals(last, currentProblems)) {
+				return;
+			}
+			problemHistory.add(currentProblems);
+		}
+	}
+
+	public List<List<ProblemReport>> getProblemHistory() {
+		return problemHistory.toList();
+	}
 }

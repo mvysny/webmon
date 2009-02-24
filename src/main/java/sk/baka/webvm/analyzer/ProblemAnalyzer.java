@@ -99,10 +99,10 @@ public final class ProblemAnalyzer {
 		avgTreshold = avgTreshold / samples;
 		if (tresholdCount >= GC_CPU_TRESHOLD_SAMPLES) {
 			return new ProblemReport(true, CLASS_GC_CPU_USAGE, "GC spent more than " + GC_CPU_TRESHOLD + "% (avg. " +
-					avgTreshold + "%) of CPU last " + (GC_CPU_TRESHOLD_SAMPLES * HistorySampler.HISTORY_SAMPLE_RATE_MS / 1000) + " seconds");
+					avgTreshold + "%) of CPU last " + (GC_CPU_TRESHOLD_SAMPLES * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds");
 		}
 		return new ProblemReport(false, CLASS_GC_CPU_USAGE, "Avg. GC CPU usage last " +
-				(samples * HistorySampler.HISTORY_SAMPLE_RATE_MS / 1000) + " seconds: " + avgTreshold + "%");
+				(samples * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds: " + avgTreshold + "%");
 	}
 
 	/**
