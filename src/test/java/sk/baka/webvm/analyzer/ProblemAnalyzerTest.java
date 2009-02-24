@@ -23,7 +23,7 @@ public class ProblemAnalyzerTest extends TestCase {
 			public void run() {
 				lock1.tryLock();
 				try {
-					Thread.sleep(500);
+					Thread.sleep(200);
 					lock2.tryLock(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
 				} catch (InterruptedException ex) {
 					// okay
@@ -37,7 +37,7 @@ public class ProblemAnalyzerTest extends TestCase {
 			public void run() {
 				lock2.tryLock();
 				try {
-					Thread.sleep(500);
+					Thread.sleep(200);
 					lock1.tryLock(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
 				} catch (InterruptedException ex) {
 					// okay
@@ -48,7 +48,7 @@ public class ProblemAnalyzerTest extends TestCase {
 		t1.start();
 		t2.start();
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(400);
 			// t1 and t2 should form a deadlock by now
 			final ProblemReport pr = ProblemAnalyzer.getDeadlockReport();
 			System.out.println(pr.getDesc());
