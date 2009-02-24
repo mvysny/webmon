@@ -26,12 +26,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Samples the VM history regularly. You need to invoke {@link #start()} to start the sampler, {@link #stop()} to stop it. Thread-safe.
  * @author Martin Vysny
  */
 public final class HistorySampler {
+
+	private static final Logger log = Logger.getLogger(HistorySampler.class.getName());
 
 	/**
 	 * Creates new sampler instance with default values.
@@ -108,6 +112,15 @@ public final class HistorySampler {
 		private long lastGcSampleTaken = -1;
 
 		public void run() {
+			try {
+				final int cpuUsageByGC = getGCCPUUsage();
+				vmstatHistory.add(new HistorySample(cpuUsageByGC, (int) (MgmtUtils.getHeapFromRuntime().getUsed() / 1024 / 1024)));
+			} catch (Throwable e) {
+				log.log(Level.SEVERE, "The Sampler thread failed", e);
+			}
+		}
+
+		private int getGCCPUUsage() {
 			// get the GC CPU usage
 			long collectTime = 0;
 			final List<GarbageCollectorMXBean> beans = ManagementFactory.getGarbageCollectorMXBeans();
@@ -136,7 +149,7 @@ public final class HistorySampler {
 			} else {
 				cpuUsageByGC = 0;
 			}
-			vmstatHistory.add(new HistorySample(cpuUsageByGC, (int) (MgmtUtils.getHeapFromRuntime().getUsed() / 1024 / 1024)));
+			return cpuUsageByGC;
 		}
 	}
 	private SamplerConfig vmstatConfig;
@@ -145,15 +158,22 @@ public final class HistorySampler {
 	private final class ProblemSampler implements Runnable {
 
 		public void run() {
-			final List<ProblemReport> currentProblems = ProblemAnalyzer.getProblems(vmstatHistory.toList());
-			final List<ProblemReport> last = problemHistory.getNewest();
-			if (last == null && !ProblemReport.isProblem(currentProblems)) {
-				return;
+			try {
+				final List<ProblemReport> currentProblems = ProblemAnalyzer.getProblems(vmstatHistory.toList());
+				final List<ProblemReport> last = problemHistory.getNewest();
+				if (last == null) {
+					if (!ProblemReport.isProblem(currentProblems)) {
+						return;
+					}
+				} else {
+					if (ProblemReport.equals(last, currentProblems)) {
+						return;
+					}
+				}
+				problemHistory.add(currentProblems);
+			} catch (Throwable e) {
+				log.log(Level.SEVERE, "The ProblemSampler timer failed", e);
 			}
-			if (ProblemReport.equals(last, currentProblems)) {
-				return;
-			}
-			problemHistory.add(currentProblems);
 		}
 	}
 

@@ -96,7 +96,7 @@ public final class ProblemAnalyzer {
 				tresholdCount++;
 			}
 		}
-		avgTreshold = avgTreshold / samples;
+		avgTreshold = samples == 0 ? 0 : avgTreshold / samples;
 		if (tresholdCount >= GC_CPU_TRESHOLD_SAMPLES) {
 			return new ProblemReport(true, CLASS_GC_CPU_USAGE, "GC spent more than " + GC_CPU_TRESHOLD + "% (avg. " +
 					avgTreshold + "%) of CPU last " + (GC_CPU_TRESHOLD_SAMPLES * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds");
@@ -149,6 +149,9 @@ public final class ProblemAnalyzer {
 		for (final MemoryPoolMXBean bean : beans) {
 			final MemoryUsage usage = bean.getCollectionUsage();
 			if (usage == null || !bean.isCollectionUsageThresholdSupported() || !bean.isUsageThresholdSupported()) {
+				continue;
+			}
+			if (usage.getMax() < 1) {
 				continue;
 			}
 			final long used = usage.getUsed() * 100 / usage.getMax();
