@@ -18,8 +18,6 @@
  */
 package sk.baka.webvm;
 
-import sk.baka.webvm.analyzer.HistorySample;
-import java.util.List;
 import org.apache.wicket.protocol.http.WebApplication;
 import sk.baka.webvm.analyzer.HistorySampler;
 
@@ -48,7 +46,10 @@ public final class WicketApplication extends WebApplication {
         super.init();
         sampler = new HistorySampler();
         sampler.start();
-        mountBookmarkablePage("/Problems.html", Problems.class);
+        mountBookmarkablePage("/graphs.html", Graphs.class);
+        mountBookmarkablePage("/problems.html", Problems.class);
+        mountBookmarkablePage("/memory.html", Memory.class);
+        mountBookmarkablePage("/sysinfo.html", SysInfo.class);
     }
 
     @Override
