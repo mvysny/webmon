@@ -25,8 +25,11 @@ public class ProblemAnalyzerTest extends TestCase {
 				try {
 					Thread.sleep(200);
 					lock2.tryLock(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+					lock2.unlock();
 				} catch (InterruptedException ex) {
 					// okay
+				} finally {
+					lock1.unlock();
 				}
 			}
 		};
@@ -39,8 +42,11 @@ public class ProblemAnalyzerTest extends TestCase {
 				try {
 					Thread.sleep(200);
 					lock1.tryLock(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+					lock1.unlock();
 				} catch (InterruptedException ex) {
 					// okay
+				} finally {
+					lock2.unlock();
 				}
 			}
 		};
@@ -54,9 +60,10 @@ public class ProblemAnalyzerTest extends TestCase {
 			System.out.println(pr.getDesc());
 			assertTrue(pr.isProblem());
 			assertTrue(pr.getDesc().contains("deadlock1"));
+			assertTrue(pr.getDesc().contains("deadlock2"));
+			// check for the stack-trace presence
 			assertTrue(pr.getDesc().contains("ProblemAnalyzerTest"));
 			assertTrue(pr.getDesc().contains("run("));
-			assertTrue(pr.getDesc().contains("deadlock2"));
 		} finally {
 			t1.interrupt();
 			t2.interrupt();
