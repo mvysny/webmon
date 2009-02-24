@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import sk.baka.webvm.WicketApplication;
-import sk.baka.webvm.analyzer.ProblemAnalyzer;
 
 /**
  * Provides a RSS feed with the "Problems" report.
@@ -49,14 +48,14 @@ public final class RssFeed extends HttpServlet {
         PrintWriter out = response.getWriter();
         try {
             out.println("<?xml version=\"1.0\"?>\n<rss version=\"2.0\">");
-            out.println("  <channel>\n    <title>WebVM feeds</title>\n    <link>.</link>\n    <description>WebVM: Remote server problems</description>");
+            out.println("  <channel>\n    <title>WebVM feeds</title>\n    <link>problems.html</link>\n    <description>WebVM: Remote server problems</description>");
             out.println("    <language>en-us</language>\n    <ttl>1</ttl>\n");
             final List<List<ProblemReport>> ph = WicketApplication.getHistory().getProblemHistory();
             for (final List<ProblemReport> problems : ph) {
                 final Date snapshotTaken = new Date(problems.get(0).created);
                 out.print("    <item>\n      <title>WebVM: Problems report for ");
                 out.print(snapshotTaken);
-                out.print("</title>\n      <link>Problems.html</link>\n      <description>Problems report:&lt;br/&gt;");
+                out.print("</title>\n      <link>problems.html</link>\n      <description>Problems report:&lt;br/&gt;");
                 out.print(ProblemReport.escape(ProblemReport.toHtml(problems)));
                 out.print("</description>\n      <pubDate>");
                 out.print(snapshotTaken);
