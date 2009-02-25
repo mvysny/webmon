@@ -20,6 +20,7 @@ package sk.baka.webvm;
 
 import org.apache.wicket.protocol.http.WebApplication;
 import sk.baka.webvm.analyzer.HistorySampler;
+import sk.baka.webvm.analyzer.ProblemAnalyzer;
 
 /**
  * The main Wicket application class.
@@ -33,6 +34,8 @@ public final class WicketApplication extends WebApplication {
     }
     private static HistorySampler sampler = null;
 
+    private static ProblemAnalyzer analyzer = null;
+
     /**
      * Returns a history sampler.
      * @return the history sampler.
@@ -41,10 +44,20 @@ public final class WicketApplication extends WebApplication {
         return sampler;
     }
 
+    /**
+     * Returns a problem analyzer instance.
+     * @return the problem analyzer.
+     */
+    public static ProblemAnalyzer getAnalyzer() {
+        return analyzer;
+    }
+
     @Override
     protected void init() {
         super.init();
-        sampler = new HistorySampler();
+        analyzer = new ProblemAnalyzer();
+        analyzer.configure(this);
+        sampler = new HistorySampler(analyzer);
         sampler.start();
         mountBookmarkablePage("/graphs.html", Graphs.class);
         mountBookmarkablePage("/problems.html", Problems.class);

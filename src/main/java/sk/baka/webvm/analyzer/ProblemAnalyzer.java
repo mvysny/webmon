@@ -27,7 +27,10 @@ import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.io.FileSystemUtils;
+import org.apache.wicket.protocol.http.WebApplication;
 
 /**
  * Analyzes VM problems.
@@ -35,15 +38,31 @@ import org.apache.commons.io.FileSystemUtils;
  */
 public final class ProblemAnalyzer {
 
+    private final static Logger log = Logger.getLogger(ProblemAnalyzer.class.getName());
+
+    /**
+     * Parses init values from given application.
+     * @param app the application to parse.
+     */
+    public void configure(final WebApplication app) {
+        String param = app.getInitParameter("minFreeDiskSpaceMb");
+        if (param != null) {
+            param = param.trim();
+            try {
+                minFreeDiskSpaceMb = Long.parseLong(param);
+            } catch (final Exception ex) {
+                log.log(Level.SEVERE, "minFreeDiskSpaceMb: failed to parse '" + param + "'", ex);
+            }
+        }
+    }
     /**
      * The "Free disk space" problem class.
      */
     public static final String CLASS_FREE_DISK_SPACE = "Free disk space";
-    public static final long MIN_FREE_DISK_SPACE_MB = 100;
-    public static final String CLASS_FREE_DISK_SPACE_DESC = "Triggered when there is less than " + MIN_FREE_DISK_SPACE_MB + "Mb of free space on some drive";
+    public long minFreeDiskSpaceMb = 100;
 
-    private ProblemAnalyzer() {
-        throw new AssertionError();
+    private String getFreeDiskSpaceDesc() {
+        return "Triggered when there is less than " + minFreeDiskSpaceMb + "Mb of free space on some drive";
     }
     /**
      * The "Deadlocked threads" problem class.
@@ -86,7 +105,7 @@ public final class ProblemAnalyzer {
      * @param history current history.
      * @return the list of reports.
      */
-    public static List<ProblemReport> getProblems(final List<HistorySample> history) {
+    public List<ProblemReport> getProblems(final List<HistorySample> history) {
         final List<ProblemReport> result = new ArrayList<ProblemReport>();
         result.add(getDeadlockReport());
         result.add(getGCCPUUsageReport(history));
@@ -257,19 +276,19 @@ public final class ProblemAnalyzer {
      * Analyzes free disk space.
      * @return free disk space report.
      */
-    public static ProblemReport getFreeDiskspaceReport() {
+    public ProblemReport getFreeDiskspaceReport() {
         final StringBuilder sb = new StringBuilder();
         boolean problem = false;
         for (final File root : File.listRoots()) {
             try {
-                final long freeSpaceKb = FileSystemUtils.freeSpaceKb(root.getAbsolutePath());
-                if (freeSpaceKb < MIN_FREE_DISK_SPACE_MB * 1024) {
+                final long freeSpaceMb = FileSystemUtils.freeSpaceKb(root.getAbsolutePath()) / 1024;
+                if (freeSpaceMb < minFreeDiskSpaceMb) {
                     problem = true;
                     sb.append("Low disk space on ");
                     sb.append(root.getAbsolutePath());
                     sb.append(": ");
-                    sb.append(freeSpaceKb);
-                    sb.append("Kb\n");
+                    sb.append(freeSpaceMb);
+                    sb.append("Mb\n");
                 }
             } catch (Exception ex) {
                 sb.append("Failed to get free space on ");
@@ -282,6 +301,6 @@ public final class ProblemAnalyzer {
         if (sb.length() == 0) {
             sb.append("OK");
         }
-        return new ProblemReport(problem, CLASS_FREE_DISK_SPACE, sb.toString(), CLASS_FREE_DISK_SPACE_DESC);
+        return new ProblemReport(problem, CLASS_FREE_DISK_SPACE, sb.toString(), getFreeDiskSpaceDesc());
     }
 }

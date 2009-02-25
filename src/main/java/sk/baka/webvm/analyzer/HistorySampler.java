@@ -36,24 +36,28 @@ import java.util.logging.Logger;
 public final class HistorySampler {
 
 	private static final Logger log = Logger.getLogger(HistorySampler.class.getName());
+    private final ProblemAnalyzer analyzer;
 
 	/**
 	 * Creates new sampler instance with default values.
+     * @param analyzer a configured instance of the analyzer
 	 */
-	public HistorySampler() {
-		this(HISTORY_VMSTAT, HISTORY_PROBLEMS);
+	public HistorySampler(final ProblemAnalyzer analyzer) {
+		this(HISTORY_VMSTAT, HISTORY_PROBLEMS, analyzer);
 	}
 
 	/**
 	 * Creates new sampler instance.
 	 * @param vmstatConfig the vmstat sampler config
 	 * @param problemConfig the problem sampler config
+     * @param analyzer a configured instance of the analyzer
 	 */
-	public HistorySampler(final SamplerConfig vmstatConfig, final SamplerConfig problemConfig) {
+	public HistorySampler(final SamplerConfig vmstatConfig, final SamplerConfig problemConfig, final ProblemAnalyzer analyzer) {
 		this.vmstatConfig = vmstatConfig;
 		this.problemConfig = problemConfig;
 		vmstatHistory = new SimpleFixedSizeFIFO<HistorySample>(vmstatConfig.getHistoryLength());
 		problemHistory = new SimpleFixedSizeFIFO<List<ProblemReport>>(problemConfig.getHistoryLength());
+        this.analyzer = analyzer;
 	}
 	private final SamplerConfig problemConfig;
 	/**
@@ -159,7 +163,7 @@ public final class HistorySampler {
 
 		public void run() {
 			try {
-				final List<ProblemReport> currentProblems = ProblemAnalyzer.getProblems(vmstatHistory.toList());
+				final List<ProblemReport> currentProblems = analyzer.getProblems(vmstatHistory.toList());
 				final List<ProblemReport> last = problemHistory.getNewest();
 				if (last == null) {
 					if (!ProblemReport.isProblem(currentProblems)) {
