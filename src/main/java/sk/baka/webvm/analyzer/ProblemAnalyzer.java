@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm.analyzer;
 
+import java.io.File;
 import sk.baka.webvm.misc.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
@@ -26,6 +27,7 @@ import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.io.FileSystemUtils;
 
 /**
  * Analyzes VM problems.
@@ -74,6 +76,7 @@ public final class ProblemAnalyzer {
 		result.add(getGCCPUUsageReport(history));
 		result.add(getMemStatReport());
 		result.add(getGCMemUsageReport());
+		result.add(getFreeDiskspaceReport());
 		return result;
 	}
 
@@ -230,5 +233,37 @@ public final class ProblemAnalyzer {
 			}
 		}
 		return new ProblemReport(true, CLASS_DEADLOCKED_THREADS, sb.toString());
+	}
+
+	/**
+	 * Analyzes free disk space.
+	 * @return free disk space report.
+	 */
+	public static ProblemReport getFreeDiskspaceReport() {
+		final StringBuilder sb = new StringBuilder();
+		boolean problem = false;
+		for (final File root : File.listRoots()) {
+			try {
+				final long freeSpaceKb = FileSystemUtils.freeSpaceKb(root.getAbsolutePath());
+				if (freeSpaceKb < 100 * 1024) {
+					problem = true;
+					sb.append("Low disk space on ");
+					sb.append(root.getAbsolutePath());
+					sb.append(": ");
+					sb.append(freeSpaceKb);
+					sb.append("Kb\n");
+				}
+			} catch (Exception ex) {
+				sb.append("Failed to get free space on ");
+				sb.append(root.getAbsolutePath());
+				sb.append(": ");
+				sb.append(ex.toString());
+				sb.append("\n");
+			}
+		}
+		if (sb.length() == 0) {
+			sb.append("OK");
+		}
+		return new ProblemReport(problem, "Disk space", sb.toString());
 	}
 }
