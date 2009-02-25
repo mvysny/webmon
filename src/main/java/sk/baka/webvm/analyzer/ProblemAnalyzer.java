@@ -45,21 +45,34 @@ public final class ProblemAnalyzer {
      * @param app the application to parse.
      */
     public void configure(final WebApplication app) {
-        String param = app.getInitParameter("minFreeDiskSpaceMb");
-        if (param != null) {
-            param = param.trim();
-            try {
-                minFreeDiskSpaceMb = Long.parseLong(param);
-            } catch (final Exception ex) {
-                log.log(Level.SEVERE, "minFreeDiskSpaceMb: failed to parse '" + param + "'", ex);
-            }
+        minFreeDiskSpaceMb = parse(app, "minFreeDiskSpaceMb", minFreeDiskSpaceMb);
+        gcCpuTreshold = parse(app, "gcCpuTreshold", gcCpuTreshold);
+        gcCpuTresholdSamples = parse(app, "gcCpuTresholdSamples", gcCpuTresholdSamples);
+        memAfterGcUsageTreshold = parse(app, "memAfterGcUsageTreshold", memAfterGcUsageTreshold);
+        memUsageTreshold = parse(app, "memUsageTreshold", memUsageTreshold);
+    }
+
+    private int parse(final WebApplication app, final String argName, final int defaultValue) {
+        String arg = app.getInitParameter(argName);
+        if (arg == null) {
+            return defaultValue;
         }
+        arg = arg.trim();
+        try {
+            return Integer.parseInt(arg);
+        } catch (final Exception ex) {
+            log.log(Level.SEVERE, argName + ": failed to parse '" + arg + "'", ex);
+        }
+        return defaultValue;
     }
     /**
      * The "Free disk space" problem class.
      */
     public static final String CLASS_FREE_DISK_SPACE = "Free disk space";
-    public long minFreeDiskSpaceMb = 100;
+    /**
+     * Triggers a problem when there is less than minFreeDiskSpaceMb of free space on some drive
+     */
+    public int minFreeDiskSpaceMb = 100;
 
     private String getFreeDiskSpaceDesc() {
         return "Triggered when there is less than " + minFreeDiskSpaceMb + "Mb of free space on some drive";
@@ -68,7 +81,7 @@ public final class ProblemAnalyzer {
      * The "Deadlocked threads" problem class.
      */
     public static final String CLASS_DEADLOCKED_THREADS = "Deadlocked threads";
-    public static final String CLASS_DEADLOCKED_THREADS_DESC = "Triggered when there are some deadlocked threads. Finds cycles of threads that are in " +
+    private static final String CLASS_DEADLOCKED_THREADS_DESC = "Triggered when there are some deadlocked threads. Finds cycles of threads that are in " +
             "deadlock waiting to acquire object monitors (also " +
             "<a href=\"http://java.sun.com/javase/6/docs/api/java/lang/management/LockInfo.html#OwnableSynchronizer\">ownable synchronizers" +
             "</a> when running on Java 6).";
@@ -76,10 +89,19 @@ public final class ProblemAnalyzer {
      * The "GC CPU Usage" problem class.
      */
     public static final String CLASS_GC_CPU_USAGE = "GC CPU Usage";
-    public static final int GC_CPU_TRESHOLD = 50;
-    public static final int GC_CPU_TRESHOLD_SAMPLES = 3;
-    public static final String CLASS_GC_CPU_USAGE_DESC = "Triggered when GC uses " + GC_CPU_TRESHOLD + "% or more of CPU continuously for " +
-            (GC_CPU_TRESHOLD_SAMPLES * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds";
+    /**
+     * Triggers a problem when GC uses over gcCpuTreshold% or more of CPU continuously for gcCpuTresholdSamples seconds.
+     */
+    public int gcCpuTreshold = 50;
+    /**
+     * Triggers a problem when GC uses over gcCpuTreshold% or more of CPU continuously for gcCpuTresholdSamples seconds.
+     */
+    public int gcCpuTresholdSamples = 3;
+
+    private String getGcCpuUsageDesc() {
+        return "Triggered when GC uses " + gcCpuTreshold + "% or more of CPU continuously for " +
+                (gcCpuTresholdSamples * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds";
+    }
     /**
      * The "GC Memory cleanup" problem class.
      */
@@ -87,18 +109,23 @@ public final class ProblemAnalyzer {
     /**
      * If the memory usage after GC goes above this value the {@link #CLASS_GC_MEMORY_CLEANUP} problem is reported.
      */
-    public static final int MEM_AFTER_GC_USAGE_TRESHOLD = 85;
-    public static final String CLASS_GC_MEMORY_CLEANUP_DESC = "Triggered when GC cannot make available more than " +
-            (100 - MEM_AFTER_GC_USAGE_TRESHOLD) + "% of memory";
+    public int memAfterGcUsageTreshold = 85;
+
+    private String getGcMemoryCleanupDesc() {
+        return "Triggered when GC cannot make available more than " +
+                (100 - memAfterGcUsageTreshold) + "% of memory";
+    }
     /**
      * The "Memory status" problem class.
      */
-    public static final String CLASS_MEMORY_STATUS = "Memory usage";
+    public static final String CLASS_MEMORY_USAGE = "Memory usage";
     /**
-     * If the memory usage goes above this value the {@link #CLASS_MEMORY_STATUS} problem is reported.
+     * If the memory usage goes above this value the pool name is reported in the {@link #CLASS_MEMORY_STATUS} report. This never triggers a problem.
      */
-    public static final int MEM_USAGE_TRESHOLD = 90;
-    public static final String CLASS_MEMORY_STATUS_DESC = "Triggered: never. Reports memory pools which are at least " + MEM_USAGE_TRESHOLD + "% full";
+    public int memUsageTreshold = 90;
+    private String getMemUsageDesc() {
+        return "Triggered: never. Reports memory pools which are at least " + memUsageTreshold + "% full";
+    }
 
     /**
      * Diagnose the VM and returns a list of problem reports.
@@ -120,8 +147,8 @@ public final class ProblemAnalyzer {
      * @param history the history
      * @return report
      */
-    public static ProblemReport getGCCPUUsageReport(final List<HistorySample> history) {
-        int startFrom = history.size() - GC_CPU_TRESHOLD_SAMPLES;
+    public ProblemReport getGCCPUUsageReport(final List<HistorySample> history) {
+        int startFrom = history.size() - gcCpuTresholdSamples;
         if (startFrom < 0) {
             startFrom = 0;
         }
@@ -130,29 +157,29 @@ public final class ProblemAnalyzer {
         int avgTreshold = 0;
         for (final HistorySample h : history.subList(startFrom, history.size())) {
             avgTreshold += h.getGcCpuUsage();
-            if (h.getGcCpuUsage() >= GC_CPU_TRESHOLD) {
+            if (h.getGcCpuUsage() >= gcCpuTreshold) {
                 tresholdCount++;
             }
         }
         avgTreshold = samples == 0 ? 0 : avgTreshold / samples;
-        if (tresholdCount >= GC_CPU_TRESHOLD_SAMPLES) {
-            return new ProblemReport(true, CLASS_GC_CPU_USAGE, "GC spent more than " + GC_CPU_TRESHOLD + "% (avg. " +
-                    avgTreshold + "%) of CPU last " + (GC_CPU_TRESHOLD_SAMPLES * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds",
-                    CLASS_GC_CPU_USAGE_DESC);
+        if (tresholdCount >= gcCpuTresholdSamples) {
+            return new ProblemReport(true, CLASS_GC_CPU_USAGE, "GC spent more than " + gcCpuTreshold + "% (avg. " +
+                    avgTreshold + "%) of CPU last " + (gcCpuTresholdSamples * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds",
+                    getGcCpuUsageDesc());
         }
         return new ProblemReport(false, CLASS_GC_CPU_USAGE, "Avg. GC CPU usage last " +
                 (samples * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds: " + avgTreshold + "%",
-                CLASS_GC_CPU_USAGE_DESC);
+                getGcCpuUsageDesc());
     }
 
     /**
      * Prepares the {@link #CLASS_MEMORY_STATUS} report.
      * @return report
      */
-    public static ProblemReport getMemStatReport() {
+    public ProblemReport getMemStatReport() {
         final List<MemoryPoolMXBean> beans = ManagementFactory.getMemoryPoolMXBeans();
         if (beans == null || beans.isEmpty()) {
-            return new ProblemReport(false, CLASS_MEMORY_STATUS, "INFO: No memory pool information", CLASS_MEMORY_STATUS_DESC);
+            return new ProblemReport(false, CLASS_MEMORY_USAGE, "INFO: No memory pool information", getMemUsageDesc());
         }
         final StringBuilder sb = new StringBuilder();
         for (final MemoryPoolMXBean bean : beans) {
@@ -161,7 +188,7 @@ public final class ProblemAnalyzer {
                 continue;
             }
             final long used = usage.getUsed() * 100 / usage.getMax();
-            if (used >= MEM_USAGE_TRESHOLD) {
+            if (used >= memUsageTreshold) {
                 sb.append("INFO: Pool [");
                 sb.append(bean.getName());
                 sb.append("] is now ");
@@ -170,20 +197,20 @@ public final class ProblemAnalyzer {
             }
         }
         if (sb.length() == 0) {
-            return new ProblemReport(false, CLASS_MEMORY_STATUS, "Heap usage: " + MgmtUtils.getUsagePerc(MgmtUtils.getHeapFromRuntime()), CLASS_MEMORY_STATUS_DESC);
+            return new ProblemReport(false, CLASS_MEMORY_USAGE, "Heap usage: " + MgmtUtils.getUsagePerc(MgmtUtils.getHeapFromRuntime()), getMemUsageDesc());
         }
         sb.append("\nTry performing a GC: this should decrease the memory usage. If not, you may need to increase the memory or check for memory leaks");
-        return new ProblemReport(false, CLASS_MEMORY_STATUS, sb.toString(), CLASS_MEMORY_STATUS_DESC);
+        return new ProblemReport(false, CLASS_MEMORY_USAGE, sb.toString(), getMemUsageDesc());
     }
 
     /**
      * Prepares the {@link #CLASS_GC_MEMORY_CLEANUP} report.
      * @return report
      */
-    public static ProblemReport getGCMemUsageReport() {
+    public ProblemReport getGCMemUsageReport() {
         final List<MemoryPoolMXBean> beans = ManagementFactory.getMemoryPoolMXBeans();
         if (beans == null || beans.isEmpty()) {
-            return new ProblemReport(false, CLASS_GC_MEMORY_CLEANUP, "INFO: No memory pool information", CLASS_GC_MEMORY_CLEANUP_DESC);
+            return new ProblemReport(false, CLASS_GC_MEMORY_CLEANUP, "INFO: No memory pool information", getGcMemoryCleanupDesc());
         }
         final StringBuilder sb = new StringBuilder();
         for (final MemoryPoolMXBean bean : beans) {
@@ -195,7 +222,7 @@ public final class ProblemAnalyzer {
                 continue;
             }
             final long used = usage.getUsed() * 100 / usage.getMax();
-            if (used >= MEM_AFTER_GC_USAGE_TRESHOLD) {
+            if (used >= memAfterGcUsageTreshold) {
                 sb.append("Pool [");
                 sb.append(bean.getName());
                 sb.append("] is ");
@@ -204,10 +231,10 @@ public final class ProblemAnalyzer {
             }
         }
         if (sb.length() == 0) {
-            return new ProblemReport(false, CLASS_GC_MEMORY_CLEANUP, "OK", CLASS_GC_MEMORY_CLEANUP_DESC);
+            return new ProblemReport(false, CLASS_GC_MEMORY_CLEANUP, "OK", getGcMemoryCleanupDesc());
         }
         sb.append("\nYou may need to increase the memory or check for memory leaks");
-        return new ProblemReport(true, CLASS_GC_MEMORY_CLEANUP, sb.toString(), CLASS_GC_MEMORY_CLEANUP_DESC);
+        return new ProblemReport(true, CLASS_GC_MEMORY_CLEANUP, sb.toString(), getGcMemoryCleanupDesc());
     }
 
     /**

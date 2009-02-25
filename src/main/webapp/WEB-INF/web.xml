@@ -30,10 +30,43 @@
             <param-name>configuration</param-name>
             <param-value>deployment</param-value>
         </init-param>
+
+        <!-- ===================== -->
+        <!-- The Problems notification setup -->
         <init-param>
-            <!-- The Free Disk Space problem analyzer -->
+            <!-- The Free Disk Space problem analyzer.
+                Triggers a problem when there is less than minFreeDiskSpaceMb of free space on some drive
+            -->
             <param-name>minFreeDiskSpaceMb</param-name>
             <param-value>100</param-value>
+        </init-param>
+        <init-param>
+            <!--
+                Triggers a problem when GC uses over gcCpuTreshold% or more of CPU continuously for gcCpuTresholdSamples seconds.
+                -->
+            <param-name>gcCpuTreshold</param-name>
+            <param-value>50</param-value>
+        </init-param>
+        <init-param>
+            <!--
+                Triggers a problem when GC uses over gcCpuTreshold% or more of CPU continuously for gcCpuTresholdSamples seconds.
+                -->
+            <param-name>gcCpuTresholdSamples</param-name>
+            <param-value>3</param-value>
+        </init-param>
+        <init-param>
+            <!--
+                If the memory usage after GC goes above this value the GC Memory Cleanup problem is reported.
+                -->
+            <param-name>memAfterGcUsageTreshold</param-name>
+            <param-value>85</param-value>
+        </init-param>
+        <init-param>
+            <!--
+                If the memory usage goes above this value the pool name is reported in the "Memory Usage" report. This never triggers a problem.
+                -->
+            <param-name>memUsageTreshold</param-name>
+            <param-value>90</param-value>
         </init-param>
     </filter>
 
