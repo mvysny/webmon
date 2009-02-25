@@ -24,6 +24,27 @@
     </properties>
     <body>
         <release version="0.2" date="?">
+        		<action dev="vyzivus" type="update">
+        			All problems reports triggers are now configurable in web.xml
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added problem trigger descriptions
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added JNDI list
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added disk free space problem checks
+        		</action>
+        		<action dev="vyzivus" type="fix">
+        			Fixed Wicket page naming
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Graphs page is now reloaded automatically each 2 seconds.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Problems report is now sampled each 30 seconds and stored into its own history. This history is fed to RSS. RSS shouldn't receive duplicate events anymore.
+        		</action>
             <action dev="vyzivus" type="update">
                 RSS problem report is now formatted in a HTML table
             </action>
