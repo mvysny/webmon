@@ -16,13 +16,13 @@ public class ProblemAnalyzerTest extends TestCase {
 		d.simulate();
 		try {
 			final ProblemReport pr = ProblemAnalyzer.getDeadlockReport();
-			System.out.println(pr.getDesc());
-			assertTrue(pr.isProblem());
-			assertTrue(pr.getDesc().contains("deadlock1"));
-			assertTrue(pr.getDesc().contains("deadlock2"));
+			System.out.println(pr.diagnosis);
+			assertTrue(pr.isProblem);
+			assertTrue(pr.diagnosis.contains("deadlock1"));
+			assertTrue(pr.diagnosis.contains("deadlock2"));
 			// check for the stack-trace presence
-			assertTrue(pr.getDesc().contains(Deadlock.class.getName()));
-			assertTrue(pr.getDesc().contains("run("));
+			assertTrue(pr.diagnosis.contains(Deadlock.class.getName()));
+			assertTrue(pr.diagnosis.contains("run("));
 		} finally {
 			d.cancel();
 		}

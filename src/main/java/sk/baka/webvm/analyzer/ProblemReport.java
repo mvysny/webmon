@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm.analyzer;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,48 +27,38 @@ import java.util.Map;
  * Describes a potential problem.
  * @author Martin Vysny
  */
-public final class ProblemReport {
-
-    private final boolean problem;
+public final class ProblemReport implements Serializable {
 
     /**
-     * The description of the problem.
-     * @return description of the problem, or something like OK if everything is okay. Never null.
+     * Checks if this really is a problem. true if this might be a serious problem, false if everything is OK or this is only a minor issue.
      */
-    public String getDesc() {
-        return desc;
-    }
-
+    public final boolean isProblem;
     /**
-     * Checks if this really is a problem.
-     * @return true if this might be a serious problem, false if everything is OK or this is only a minor issue.
+     * description of the problem class, not null
      */
-    public boolean isProblem() {
-        return problem;
-    }
-    private final String pclass;
-
+    public final String desc;
     /**
-     * The problem 'class'
-     * @return problem class, not null.
+     * The problem 'class', not null.
      */
-    public String getPclass() {
-        return pclass;
-    }
-    private final String desc;
+    public final String pclass;
+    /**
+     * The 'diagnosis' of the problem.
+     */
+    public final String diagnosis;
 
     /**
      * Creates new instance.
-     * @param problem true if this might be a serious problem, false if everything is OK or this is only a minor issue.
-     * @param desc description of the problem, or something like OK if everything is okay. not null
+     * @param isProblem true if this might be a serious problem, false if everything is OK or this is only a minor issue.
+     * @param diagnosis diagnosis of the problem, or something like OK if everything is okay. not null
      * @param pclass the problem class, not null
+     * @param description of the problem class, not null
      */
-    public ProblemReport(final boolean problem, final String pclass, final String desc) {
-        this.problem = problem;
+    public ProblemReport(final boolean isProblem, final String pclass, final String diagnosis, final String desc) {
+        this.isProblem = isProblem;
         this.pclass = pclass;
+        this.diagnosis = diagnosis;
         this.desc = desc;
     }
-    
     /**
      * When this object was created.
      */
@@ -80,7 +71,7 @@ public final class ProblemReport {
      */
     public static boolean isProblem(final Collection<? extends ProblemReport> problems) {
         for (final ProblemReport p : problems) {
-            if (p.isProblem()) {
+            if (p.isProblem) {
                 return true;
             }
         }
@@ -119,11 +110,11 @@ public final class ProblemReport {
             sb.append("<tr><td>");
             sb.append(r.pclass);
             sb.append("</td><td bgcolor=\"#");
-            sb.append(r.isProblem() ? "d24343" : "28cb17");
+            sb.append(r.isProblem ? "d24343" : "28cb17");
             sb.append("\">");
-            sb.append(r.isProblem() ? "WARN" : "OK");
+            sb.append(r.isProblem ? "WARN" : "OK");
             sb.append("</td><td><pre>");
-            sb.append(r.desc);
+            sb.append(r.diagnosis);
             sb.append("</pre></td></tr>\n");
         }
         return sb.toString();
@@ -150,13 +141,13 @@ public final class ProblemReport {
             return false;
         }
         final ProblemReport other = (ProblemReport) obj;
-        if (this.problem != other.problem) {
+        if (this.isProblem != other.isProblem) {
             return false;
         }
         if ((this.pclass == null) ? (other.pclass != null) : !this.pclass.equals(other.pclass)) {
             return false;
         }
-        if ((this.desc == null) ? (other.desc != null) : !this.desc.equals(other.desc)) {
+        if ((this.diagnosis == null) ? (other.diagnosis != null) : !this.diagnosis.equals(other.diagnosis)) {
             return false;
         }
         return true;
@@ -165,21 +156,21 @@ public final class ProblemReport {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 59 * hash + (this.problem ? 1 : 0);
+        hash = 59 * hash + (this.isProblem ? 1 : 0);
         hash = 59 * hash + (this.pclass != null ? this.pclass.hashCode() : 0);
-        hash = 59 * hash + (this.desc != null ? this.desc.hashCode() : 0);
+        hash = 59 * hash + (this.diagnosis != null ? this.diagnosis.hashCode() : 0);
         return hash;
     }
 
     @Override
     public String toString() {
-        return pclass + ": " + desc;
+        return pclass + ": " + diagnosis;
     }
 
     private static Map<String, ProblemReport> toMap(final Iterable<? extends ProblemReport> reports, final boolean filterProblems) {
         final Map<String, ProblemReport> result = new HashMap<String, ProblemReport>();
         for (final ProblemReport r : reports) {
-            if (filterProblems && !r.problem) {
+            if (filterProblems && !r.isProblem) {
                 continue;
             }
             result.put(r.pclass, r);
@@ -200,7 +191,7 @@ public final class ProblemReport {
             return false;
         }
         for (final String pclass : r1.keySet()) {
-            if (!r1.get(pclass).desc.equals(r2.get(pclass).desc)) {
+            if (!r1.get(pclass).diagnosis.equals(r2.get(pclass).diagnosis)) {
                 return false;
             }
         }

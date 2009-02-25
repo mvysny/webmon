@@ -56,11 +56,14 @@ public final class Problems extends WebPage {
             @Override
             protected void populateItem(ListItem<ProblemReport> item) {
                 final ProblemReport pr = item.getModelObject();
-                item.add(new Label("problemClass", pr.getPclass()));
-                final Label l = new Label("problemSeverity", pr.isProblem() ? "WARN" : "OK");
-                l.add(new SimpleAttributeModifier("bgcolor", pr.isProblem() ? "#d24343" : "#28cb17"));
+                item.add(new Label("problemClass", pr.pclass));
+                final Label l = new Label("problemSeverity", pr.isProblem ? "WARN" : "OK");
+                l.add(new SimpleAttributeModifier("bgcolor", pr.isProblem ? "#d24343" : "#28cb17"));
                 item.add(l);
-                item.add(new Label("problemDesc", pr.getDesc()));
+                final Label desc = new Label("problemDesc", pr.desc);
+                desc.setEscapeModelStrings(false);
+                item.add(desc);
+                item.add(new Label("problemDiagnosis", pr.diagnosis));
             }
         });
         border.add(new Link<Void>("performGCLink") {
