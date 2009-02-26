@@ -25,6 +25,21 @@ import java.io.Serializable;
  * @author Martin Vysny
  */
 public final class Config implements Serializable {
+
+	/**
+	 * Creates new config file with default settings.
+	 */
+	public Config() {
+		super();
+	}
+
+	/**
+	 * Clones given config.
+	 */
+	public Config(final Config other) {
+		super();
+		Binder.copy(other, this);
+	}
 	/**
 	 * Triggers a problem when there is less than minFreeDiskSpaceMb of free space on some drive
 	 */
@@ -50,4 +65,39 @@ public final class Config implements Serializable {
 	 */
 	@Bind(key = "memUsageTreshold", min = 0, max = 100)
 	public int memUsageTreshold = 90;
+	/**
+	 * The SMTP server host/port. If this is commented then no mails are sent.
+	 */
+	@Bind(key = "mail.smtp.host")
+	public String mailSmtpHost;
+	/**
+	 * SMTP server port, defaults to 25 (465 for SSL)
+	 */
+	@Bind(key = "mail.smtp.port", min = -1, max = 65535)
+	public int mailSmtpPort = -1;
+	/**
+	 * The "from" address
+	 */
+	@Bind(key = "mail.from")
+	public String mailFrom;
+	/**
+	 * Receivers, split by a comma
+	 */
+	@Bind(key = "mail.to")
+	public String mailTo;
+	/**
+	 * The connection encryption.
+	 */
+	@Bind(key = "mail.smtp.encryption")
+	public EncryptionEnum mailSmtpEncryption = EncryptionEnum.NONE;
+	/**
+	 * Optional SMTP authentication.
+	 */
+	@Bind(key = "mail.smtp.username")
+	public String mailSmtpUsername;
+	/**
+	 * Optional SMTP authentification.
+	 */
+	@Bind(key = "mail.smtp.password")
+	public String mailSmtpPassword;
 }

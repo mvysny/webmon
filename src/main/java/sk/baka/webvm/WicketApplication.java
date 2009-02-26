@@ -21,6 +21,7 @@ package sk.baka.webvm;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,6 +29,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.wicket.protocol.http.WebApplication;
 import sk.baka.webvm.analyzer.HistorySampler;
 import sk.baka.webvm.analyzer.ProblemAnalyzer;
+import sk.baka.webvm.config.Binder;
+import sk.baka.webvm.config.Config;
 
 /**
  * The main Wicket application class.
@@ -60,13 +63,13 @@ public final class WicketApplication extends WebApplication {
 	/**
 	 * The configuration properties.
 	 */
-	private static Properties CONFIG = null;
+	private static Config CONFIG = null;
 
 	/**
 	 * Returns the configuration properties (config.properties)
 	 * @return the configuration properties.
 	 */
-	public static Properties getConfig() {
+	public static Config getConfig() {
 		return CONFIG;
 	}
 
@@ -91,7 +94,7 @@ public final class WicketApplication extends WebApplication {
 		super.onDestroy();
 	}
 
-	private Properties loadConfig() {
+	private Config loadConfig() {
 		String configUrl = getInitParameter("configFile");
 		if (configUrl == null) {
 			configUrl = "classpath:config.properties";
@@ -108,8 +111,11 @@ public final class WicketApplication extends WebApplication {
 				in = new URL(configUrl).openStream();
 			}
 			try {
-				final Properties result = new Properties();
-				result.load(in);
+				final Properties props = new Properties();
+				props.load(in);
+				final Config result = new Config();
+				final Map<String, String> warnings = Binder.bindBeanView(result, props, false, true);
+				Binder.log(log, warnings);
 				return result;
 			} finally {
 				IOUtils.closeQuietly(in);
@@ -117,7 +123,7 @@ public final class WicketApplication extends WebApplication {
 		} catch (Exception ex) {
 			log.log(Level.WARNING, "Failed to load " + configUrl + ", keeping defaults", ex);
 		}
-		return new Properties();
+		return new Config();
 	}
 	private static final Logger log = Logger.getLogger(WicketApplication.class.getName());
 }

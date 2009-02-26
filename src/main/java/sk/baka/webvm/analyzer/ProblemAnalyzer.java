@@ -31,6 +31,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileSystemUtils;
+import sk.baka.webvm.config.Config;
 
 /**
  * Analyzes VM problems.
@@ -44,13 +45,10 @@ public final class ProblemAnalyzer {
 	 * Parses init values from given application.
 	 * @param app the application to parse.
 	 */
-	public void configure(final Properties app) {
-		minFreeDiskSpaceMb = parse(app, "minFreeDiskSpaceMb", minFreeDiskSpaceMb);
-		gcCpuTreshold = parse(app, "gcCpuTreshold", gcCpuTreshold);
-		gcCpuTresholdSamples = parse(app, "gcCpuTresholdSamples", gcCpuTresholdSamples);
-		memAfterGcUsageTreshold = parse(app, "memAfterGcUsageTreshold", memAfterGcUsageTreshold);
-		memUsageTreshold = parse(app, "memUsageTreshold", memUsageTreshold);
+	public void configure(final Config config) {
+		this.config = new Config(config);
 	}
+	private Config config;
 
 	public static int parse(final Properties app, final String argName, final int defaultValue) {
 		String arg = app.getProperty(argName);
@@ -69,13 +67,9 @@ public final class ProblemAnalyzer {
 	 * The "Free disk space" problem class.
 	 */
 	public static final String CLASS_FREE_DISK_SPACE = "Free disk space";
-	/**
-	 * Triggers a problem when there is less than minFreeDiskSpaceMb of free space on some drive
-	 */
-	public int minFreeDiskSpaceMb = 100;
 
 	private String getFreeDiskSpaceDesc() {
-		return "Triggered when there is less than " + minFreeDiskSpaceMb + "Mb of free space on some drive";
+		return "Triggered when there is less than " + config.minFreeDiskSpaceMb + "Mb of free space on some drive";
 	}
 	/**
 	 * The "Deadlocked threads" problem class.
@@ -89,43 +83,27 @@ public final class ProblemAnalyzer {
 	 * The "GC CPU Usage" problem class.
 	 */
 	public static final String CLASS_GC_CPU_USAGE = "GC CPU Usage";
-	/**
-	 * Triggers a problem when GC uses over gcCpuTreshold% or more of CPU continuously for gcCpuTresholdSamples seconds.
-	 */
-	public int gcCpuTreshold = 50;
-	/**
-	 * Triggers a problem when GC uses over gcCpuTreshold% or more of CPU continuously for gcCpuTresholdSamples seconds.
-	 */
-	public int gcCpuTresholdSamples = 3;
 
 	private String getGcCpuUsageDesc() {
-		return "Triggered when GC uses " + gcCpuTreshold + "% or more of CPU continuously for " +
-				(gcCpuTresholdSamples * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds";
+		return "Triggered when GC uses " + config.gcCpuTreshold + "% or more of CPU continuously for " +
+				(config.gcCpuTresholdSamples * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds";
 	}
 	/**
 	 * The "GC Memory cleanup" problem class.
 	 */
 	public static final String CLASS_GC_MEMORY_CLEANUP = "GC Memory cleanup";
-	/**
-	 * If the memory usage after GC goes above this value the {@link #CLASS_GC_MEMORY_CLEANUP} problem is reported.
-	 */
-	public int memAfterGcUsageTreshold = 85;
 
 	private String getGcMemoryCleanupDesc() {
 		return "Triggered when GC cannot make available more than " +
-				(100 - memAfterGcUsageTreshold) + "% of memory";
+				(100 - config.memAfterGcUsageTreshold) + "% of memory";
 	}
 	/**
 	 * The "Memory status" problem class.
 	 */
 	public static final String CLASS_MEMORY_USAGE = "Memory usage";
-	/**
-	 * If the memory usage goes above this value the pool name is reported in the {@link #CLASS_MEMORY_STATUS} report. This never triggers a problem.
-	 */
-	public int memUsageTreshold = 90;
 
 	private String getMemUsageDesc() {
-		return "Triggered: never. Reports memory pools which are at least " + memUsageTreshold + "% full";
+		return "Triggered: never. Reports memory pools which are at least " + config.memUsageTreshold + "% full";
 	}
 
 	/**
@@ -149,7 +127,7 @@ public final class ProblemAnalyzer {
 	 * @return report
 	 */
 	public ProblemReport getGCCPUUsageReport(final List<HistorySample> history) {
-		int startFrom = history.size() - gcCpuTresholdSamples;
+		int startFrom = history.size() - config.gcCpuTresholdSamples;
 		if (startFrom < 0) {
 			startFrom = 0;
 		}
@@ -158,14 +136,14 @@ public final class ProblemAnalyzer {
 		int avgTreshold = 0;
 		for (final HistorySample h : history.subList(startFrom, history.size())) {
 			avgTreshold += h.getGcCpuUsage();
-			if (h.getGcCpuUsage() >= gcCpuTreshold) {
+			if (h.getGcCpuUsage() >= config.gcCpuTreshold) {
 				tresholdCount++;
 			}
 		}
 		avgTreshold = samples == 0 ? 0 : avgTreshold / samples;
-		if (tresholdCount >= gcCpuTresholdSamples) {
-			return new ProblemReport(true, CLASS_GC_CPU_USAGE, "GC spent more than " + gcCpuTreshold + "% (avg. " +
-					avgTreshold + "%) of CPU last " + (gcCpuTresholdSamples * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds",
+		if (tresholdCount >= config.gcCpuTresholdSamples) {
+			return new ProblemReport(true, CLASS_GC_CPU_USAGE, "GC spent more than " + config.gcCpuTreshold + "% (avg. " +
+					avgTreshold + "%) of CPU last " + (config.gcCpuTresholdSamples * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds",
 					getGcCpuUsageDesc());
 		}
 		return new ProblemReport(false, CLASS_GC_CPU_USAGE, "Avg. GC CPU usage last " +
@@ -189,7 +167,7 @@ public final class ProblemAnalyzer {
 				continue;
 			}
 			final long used = usage.getUsed() * 100 / usage.getMax();
-			if (used >= memUsageTreshold) {
+			if (used >= config.memUsageTreshold) {
 				sb.append("INFO: Pool [");
 				sb.append(bean.getName());
 				sb.append("] is now ");
@@ -223,7 +201,7 @@ public final class ProblemAnalyzer {
 				continue;
 			}
 			final long used = usage.getUsed() * 100 / usage.getMax();
-			if (used >= memAfterGcUsageTreshold) {
+			if (used >= config.memAfterGcUsageTreshold) {
 				sb.append("Pool [");
 				sb.append(bean.getName());
 				sb.append("] is ");
@@ -310,7 +288,7 @@ public final class ProblemAnalyzer {
 		for (final File root : File.listRoots()) {
 			try {
 				final long freeSpaceMb = FileSystemUtils.freeSpaceKb(root.getAbsolutePath()) / 1024;
-				if (freeSpaceMb < minFreeDiskSpaceMb) {
+				if (freeSpaceMb < config.minFreeDiskSpaceMb) {
 					problem = true;
 					sb.append("Low disk space on ");
 					sb.append(root.getAbsolutePath());
