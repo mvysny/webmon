@@ -29,30 +29,32 @@ import sk.baka.webvm.config.Config;
  */
 public class HistorySamplerTest extends TestCase {
 
-    /**
-     * Test of getProblemHistory method, of class HistorySampler.
-     */
-    public void testGetProblemHistory() throws Exception {
-        final HistorySampler hs = new HistorySampler(new Config(), new SamplerConfig(100, Integer.MAX_VALUE, Integer.MAX_VALUE), new SamplerConfig(100, 50, 0), new ProblemAnalyzer());
-        hs.start();
-        try {
-            Thread.sleep(100);
-            List<List<ProblemReport>> history = hs.getProblemHistory();
-            assertEquals(new ArrayList<Object>(), history);
-            final Deadlock d = new Deadlock();
-            d.simulate();
-            try {
-                Thread.sleep(200);
-                history = hs.getProblemHistory();
-                assertEquals(1, history.size());
-            } finally {
-                d.cancel();
-            }
-            Thread.sleep(200);
-            history = hs.getProblemHistory();
-            assertEquals(2, history.size());
-        } finally {
-            hs.stop();
-        }
-    }
+	/**
+	 * Test of getProblemHistory method, of class HistorySampler.
+	 */
+	public void testGetProblemHistory() throws Exception {
+		final ProblemAnalyzer a = new ProblemAnalyzer();
+		a.configure(new Config());
+		final HistorySampler hs = new HistorySampler(new Config(), new SamplerConfig(100, Integer.MAX_VALUE, Integer.MAX_VALUE), new SamplerConfig(100, 50, 0), a);
+		hs.start();
+		try {
+			Thread.sleep(100);
+			List<List<ProblemReport>> history = hs.getProblemHistory();
+			assertEquals(new ArrayList<Object>(), history);
+			final Deadlock d = new Deadlock();
+			d.simulate();
+			try {
+				Thread.sleep(200);
+				history = hs.getProblemHistory();
+				assertEquals(1, history.size());
+			} finally {
+				d.cancel();
+			}
+			Thread.sleep(200);
+			history = hs.getProblemHistory();
+			assertEquals(2, history.size());
+		} finally {
+			hs.stop();
+		}
+	}
 }
