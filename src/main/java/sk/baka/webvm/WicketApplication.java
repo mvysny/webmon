@@ -114,7 +114,7 @@ public final class WicketApplication extends WebApplication {
 				final Properties props = new Properties();
 				props.load(in);
 				final Config result = new Config();
-				final Map<String, String> warnings = Binder.bindBeanView(result, props, false, true);
+				final Map<String, String> warnings = Binder.bindBeanMap(result, props, false, true);
 				Binder.log(log, warnings);
 				return result;
 			} finally {

@@ -50,7 +50,7 @@ public class Binder {
 	 * @return an empty map if no validation constraints were violated; a map of
 	 *         a property key to an error message if violation occurred.
 	 */
-	public static Map<String, String> bindBeanView(final Object bean,
+	public static Map<String, String> bindBeanMap(final Object bean,
 			final Properties properties, final boolean beanToMap, final boolean validate) {
 		if (bean == null) {
 			throw new IllegalArgumentException("bean");

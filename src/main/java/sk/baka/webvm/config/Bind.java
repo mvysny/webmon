@@ -18,10 +18,17 @@
  */
 package sk.baka.webvm.config;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * Binds values from a {@link Properties} map.
  * @author Martin Vysny
  */
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Bind {
 	/**
 	 * A key to the {@link Properties} map.

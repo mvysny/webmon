@@ -21,6 +21,7 @@ package sk.baka.webvm.analyzer;
 import java.util.ArrayList;
 import java.util.List;
 import junit.framework.TestCase;
+import sk.baka.webvm.config.Config;
 
 /**
  * Tests the {@link HistorySampler}.
@@ -32,7 +33,7 @@ public class HistorySamplerTest extends TestCase {
      * Test of getProblemHistory method, of class HistorySampler.
      */
     public void testGetProblemHistory() throws Exception {
-        final HistorySampler hs = new HistorySampler(new SamplerConfig(100, Integer.MAX_VALUE, Integer.MAX_VALUE), new SamplerConfig(100, 50, 0), new ProblemAnalyzer());
+        final HistorySampler hs = new HistorySampler(new Config(), new SamplerConfig(100, Integer.MAX_VALUE, Integer.MAX_VALUE), new SamplerConfig(100, 50, 0), new ProblemAnalyzer());
         hs.start();
         try {
             Thread.sleep(100);
