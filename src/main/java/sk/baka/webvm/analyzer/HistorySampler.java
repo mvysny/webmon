@@ -22,6 +22,7 @@ import sk.baka.webvm.misc.*;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
@@ -44,8 +45,8 @@ public final class HistorySampler {
 	 * Creates new sampler instance with default values.
 	 * @param analyzer a configured instance of the analyzer
 	 */
-	public HistorySampler(final ProblemAnalyzer analyzer) {
-		this(HISTORY_VMSTAT, HISTORY_PROBLEMS, analyzer);
+	public HistorySampler(final Properties config, final ProblemAnalyzer analyzer) {
+		this(config, HISTORY_VMSTAT, HISTORY_PROBLEMS, analyzer);
 	}
 
 	/**
@@ -54,13 +55,15 @@ public final class HistorySampler {
 	 * @param problemConfig the problem sampler config
 	 * @param analyzer a configured instance of the analyzer
 	 */
-	public HistorySampler(final SamplerConfig vmstatConfig, final SamplerConfig problemConfig, final ProblemAnalyzer analyzer) {
+	public HistorySampler(final Properties config, final SamplerConfig vmstatConfig, final SamplerConfig problemConfig, final ProblemAnalyzer analyzer) {
 		this.vmstatConfig = vmstatConfig;
 		this.problemConfig = problemConfig;
 		vmstatHistory = new SimpleFixedSizeFIFO<HistorySample>(vmstatConfig.getHistoryLength());
 		problemHistory = new SimpleFixedSizeFIFO<List<ProblemReport>>(problemConfig.getHistoryLength());
 		this.analyzer = analyzer;
+		this.config.putAll(config);
 	}
+	private final Properties config = new Properties();
 	private final SamplerConfig problemConfig;
 	/**
 	 * Default VMStat history.
@@ -189,8 +192,12 @@ public final class HistorySampler {
 	}
 
 	private void onProblemHistoryUpdated() {
+		if(!config.containsKey("mail.smtp.host")){
+			return;
+		}
 		try {
 			final Email mail = new SimpleEmail();
+			configure(mail);
 			mail.setHostName("TODO");
 			mail.addTo("TODO");
 			mail.setFrom("TODO");
@@ -199,6 +206,31 @@ public final class HistorySampler {
 			mail.send();
 		} catch (Exception ex) {
 			log.log(Level.SEVERE, "Failed to send email", ex);
+		}
+	}
+
+	private void configure(final Email mail) {
+		mail.setHostName(config.getProperty("mail.smtp.host"));
+		String value=config.getProperty("mail.smtp.conn");
+		if(value==null){
+			value="none";
+		}
+		if("none".equals(value)){
+			// ok
+		}else if("ssl".equals(value)){
+			mail.setSSL(true);
+		}else if("tls".equals(value)){
+			mail.setTLS(true);
+		}else{
+			log.warning("Invalid value of the mail.smtp.conn property ("+value+"), ignoring");
+		}
+		final int port=config.getProperty("mail.smtp.port");
+		if(value!=null){
+			if(mail.isSSL()){
+			mail.setSslSmtpPort(value);
+			}else{
+			mail.setSmtpPort(ProblemAnalyzer.parse(config, "mail.smtp.port"));
+			}
 		}
 	}
 }

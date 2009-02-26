@@ -31,42 +31,15 @@
             <param-value>deployment</param-value>
         </init-param>
 
-        <!-- ===================== -->
-        <!-- The Problems notification setup -->
         <init-param>
-            <!-- The Free Disk Space problem analyzer.
-                Triggers a problem when there is less than minFreeDiskSpaceMb of free space on some drive
+            <!--
+				The configuration file location URL. You may supply any URL, such as:
+				file:///home/user/config.properties
+				classpath:config.properties (the default, the file is in WAR/WEB-INF/classes/config.properties)
+				http://server/config.properties
             -->
-            <param-name>minFreeDiskSpaceMb</param-name>
-            <param-value>100</param-value>
-        </init-param>
-        <init-param>
-            <!--
-                Triggers a problem when GC uses over gcCpuTreshold% or more of CPU continuously for gcCpuTresholdSamples seconds.
-                -->
-            <param-name>gcCpuTreshold</param-name>
-            <param-value>50</param-value>
-        </init-param>
-        <init-param>
-            <!--
-                Triggers a problem when GC uses over gcCpuTreshold% or more of CPU continuously for gcCpuTresholdSamples seconds.
-                -->
-            <param-name>gcCpuTresholdSamples</param-name>
-            <param-value>3</param-value>
-        </init-param>
-        <init-param>
-            <!--
-                If the memory usage after GC goes above this value the GC Memory Cleanup problem is reported.
-                -->
-            <param-name>memAfterGcUsageTreshold</param-name>
-            <param-value>85</param-value>
-        </init-param>
-        <init-param>
-            <!--
-                If the memory usage goes above this value the pool name is reported in the "Memory Usage" report. This never triggers a problem.
-                -->
-            <param-name>memUsageTreshold</param-name>
-            <param-value>90</param-value>
+            <param-name>configFile</param-name>
+            <param-value>classpath:config.properties</param-value>
         </init-param>
     </filter>
 

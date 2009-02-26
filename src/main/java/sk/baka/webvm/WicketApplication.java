@@ -18,6 +18,13 @@
  */
 package sk.baka.webvm;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.io.IOUtils;
 import org.apache.wicket.protocol.http.WebApplication;
 import sk.baka.webvm.analyzer.HistorySampler;
 import sk.baka.webvm.analyzer.ProblemAnalyzer;
@@ -28,47 +35,89 @@ import sk.baka.webvm.analyzer.ProblemAnalyzer;
  */
 public final class WicketApplication extends WebApplication {
 
-    @Override
-    public Class<HomePage> getHomePage() {
-        return HomePage.class;
-    }
-    private static HistorySampler sampler = null;
+	@Override
+	public Class<HomePage> getHomePage() {
+		return HomePage.class;
+	}
+	private static HistorySampler SAMPLER = null;
+	private static ProblemAnalyzer ANALYZER = null;
 
-    private static ProblemAnalyzer analyzer = null;
+	/**
+	 * Returns a history sampler.
+	 * @return the history sampler.
+	 */
+	public static HistorySampler getHistory() {
+		return SAMPLER;
+	}
 
-    /**
-     * Returns a history sampler.
-     * @return the history sampler.
-     */
-    public static HistorySampler getHistory() {
-        return sampler;
-    }
+	/**
+	 * Returns a problem analyzer instance.
+	 * @return the problem analyzer.
+	 */
+	public static ProblemAnalyzer getAnalyzer() {
+		return ANALYZER;
+	}
+	/**
+	 * The configuration properties.
+	 */
+	private static Properties CONFIG = null;
 
-    /**
-     * Returns a problem analyzer instance.
-     * @return the problem analyzer.
-     */
-    public static ProblemAnalyzer getAnalyzer() {
-        return analyzer;
-    }
+	/**
+	 * Returns the configuration properties (config.properties)
+	 * @return the configuration properties.
+	 */
+	public static Properties getConfig() {
+		return CONFIG;
+	}
 
-    @Override
-    protected void init() {
-        super.init();
-        analyzer = new ProblemAnalyzer();
-        analyzer.configure(this);
-        sampler = new HistorySampler(analyzer);
-        sampler.start();
-        mountBookmarkablePage("/graphs.html", Graphs.class);
-        mountBookmarkablePage("/problems.html", Problems.class);
-        mountBookmarkablePage("/memory.html", Memory.class);
-        mountBookmarkablePage("/sysinfo.html", SysInfo.class);
-        mountBookmarkablePage("/jndi.html", Jndi.class);
-    }
+	@Override
+	protected void init() {
+		super.init();
+		CONFIG = loadConfig();
+		ANALYZER = new ProblemAnalyzer();
+		ANALYZER.configure(CONFIG);
+		SAMPLER = new HistorySampler(CONFIG, ANALYZER);
+		SAMPLER.start();
+		mountBookmarkablePage("/graphs.html", Graphs.class);
+		mountBookmarkablePage("/problems.html", Problems.class);
+		mountBookmarkablePage("/memory.html", Memory.class);
+		mountBookmarkablePage("/sysinfo.html", SysInfo.class);
+		mountBookmarkablePage("/jndi.html", Jndi.class);
+	}
 
-    @Override
-    protected void onDestroy() {
-        sampler.stop();
-        super.onDestroy();
-    }
+	@Override
+	protected void onDestroy() {
+		SAMPLER.stop();
+		super.onDestroy();
+	}
+
+	private Properties loadConfig() {
+		String configUrl = getInitParameter("configFile");
+		if (configUrl == null) {
+			configUrl = "classpath:config.properties";
+		}
+		try {
+			final InputStream in;
+			if (configUrl.startsWith("classpath:")) {
+				final String resource = configUrl.substring("classpath:".length());
+				in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
+				if (in == null) {
+					throw new IOException("Resource not found: " + resource);
+				}
+			} else {
+				in = new URL(configUrl).openStream();
+			}
+			try {
+				final Properties result = new Properties();
+				result.load(in);
+				return result;
+			} finally {
+				IOUtils.closeQuietly(in);
+			}
+		} catch (Exception ex) {
+			log.log(Level.WARNING, "Failed to load " + configUrl + ", keeping defaults", ex);
+		}
+		return new Properties();
+	}
+	private static final Logger log = Logger.getLogger(WicketApplication.class.getName());
 }
