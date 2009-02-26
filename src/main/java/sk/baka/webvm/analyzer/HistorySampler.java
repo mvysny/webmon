@@ -28,6 +28,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.mail.Email;
+import org.apache.commons.mail.SimpleEmail;
 
 /**
  * Samples the VM history regularly. You need to invoke {@link #start()} to start the sampler, {@link #stop()} to stop it. Thread-safe.
@@ -36,11 +38,11 @@ import java.util.logging.Logger;
 public final class HistorySampler {
 
 	private static final Logger log = Logger.getLogger(HistorySampler.class.getName());
-    private final ProblemAnalyzer analyzer;
+	private final ProblemAnalyzer analyzer;
 
 	/**
 	 * Creates new sampler instance with default values.
-     * @param analyzer a configured instance of the analyzer
+	 * @param analyzer a configured instance of the analyzer
 	 */
 	public HistorySampler(final ProblemAnalyzer analyzer) {
 		this(HISTORY_VMSTAT, HISTORY_PROBLEMS, analyzer);
@@ -50,14 +52,14 @@ public final class HistorySampler {
 	 * Creates new sampler instance.
 	 * @param vmstatConfig the vmstat sampler config
 	 * @param problemConfig the problem sampler config
-     * @param analyzer a configured instance of the analyzer
+	 * @param analyzer a configured instance of the analyzer
 	 */
 	public HistorySampler(final SamplerConfig vmstatConfig, final SamplerConfig problemConfig, final ProblemAnalyzer analyzer) {
 		this.vmstatConfig = vmstatConfig;
 		this.problemConfig = problemConfig;
 		vmstatHistory = new SimpleFixedSizeFIFO<HistorySample>(vmstatConfig.getHistoryLength());
 		problemHistory = new SimpleFixedSizeFIFO<List<ProblemReport>>(problemConfig.getHistoryLength());
-        this.analyzer = analyzer;
+		this.analyzer = analyzer;
 	}
 	private final SamplerConfig problemConfig;
 	/**
@@ -175,6 +177,7 @@ public final class HistorySampler {
 					}
 				}
 				problemHistory.add(currentProblems);
+				onProblemHistoryUpdated();
 			} catch (Throwable e) {
 				log.log(Level.SEVERE, "The ProblemSampler timer failed", e);
 			}
@@ -183,5 +186,19 @@ public final class HistorySampler {
 
 	public List<List<ProblemReport>> getProblemHistory() {
 		return problemHistory.toList();
+	}
+
+	private void onProblemHistoryUpdated() {
+		try {
+			final Email mail = new SimpleEmail();
+			mail.setHostName("TODO");
+			mail.addTo("TODO");
+			mail.setFrom("TODO");
+			mail.setSubject("WebVM: Problems notification");
+			mail.setMsg(ProblemReport.toString(problemHistory.getNewest(), "\n"));
+			mail.send();
+		} catch (Exception ex) {
+			log.log(Level.SEVERE, "Failed to send email", ex);
+		}
 	}
 }
