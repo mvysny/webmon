@@ -67,6 +67,7 @@ public final class Jndi extends WebPage {
             }
         });
         tree.getTreeState().expandAll();
+	tree.setRootLess(true);
         return tree;
     }
 
