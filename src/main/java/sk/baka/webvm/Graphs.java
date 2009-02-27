@@ -26,7 +26,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 
 /**
- * Shows various graphs.
+ * Shows the JVM memory usage and GC CPU usage graphs.
  * @author Martin Vysny
  */
 public final class Graphs extends WebPage {

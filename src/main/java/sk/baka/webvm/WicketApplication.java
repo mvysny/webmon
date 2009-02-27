@@ -86,6 +86,7 @@ public final class WicketApplication extends WebApplication {
 		mountBookmarkablePage("/memory.html", Memory.class);
 		mountBookmarkablePage("/sysinfo.html", SysInfo.class);
 		mountBookmarkablePage("/jndi.html", Jndi.class);
+		mountBookmarkablePage("/configure.html", Configure.class);
 	}
 
 	@Override

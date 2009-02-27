@@ -16,8 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with WebVM.  If not, see <http://www.gnu.org/licenses />.
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+--><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>sk.baka.webvm</groupId>
     <artifactId>webvm</artifactId>
@@ -25,8 +24,7 @@
     <version>0.2-SNAPSHOT</version>
     <name>WebVM</name>
     <description>WebVM: A Java Virtual Machine analyzer with Web interface. Ideal for watching out for your
-        Tomcat or J2EE server installations. You can even embed it into your EAR.
-    </description>
+        Tomcat or J2EE server installations. You can even embed it into your EAR.</description>
     <url>http://baka.sk/webvm</url>
     <organization>
         <name>Baka</name>
@@ -218,6 +216,7 @@
     <properties>
         <wicket.version>1.4-rc2</wicket.version>
         <netbeans.hint.deploy.server>J2EE</netbeans.hint.deploy.server>
+        
     </properties>
     <reporting>
         <plugins>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>Configure</title>
+        <link rel="stylesheet" type="text/css" href="style.css" media="screen"/>
+    </head>
+    <body>
+        <div wicket:id="appBorder">
+            <div class="post">
+                <h2 class="title">Configuration</h2>
+                <div class="entry">
+                    <p>These settings are not persistent: they will be reset when WebVM is restarted. To make them permanent you
+                        need open the WebVM WAR file and edit the <code>WEB-INF/classes/config.properties</code> file instead.</p>
+                    <form wicket:id="configForm">
+                        <h2>Problems triggers</h2>
+						<table>
+							<tr>
+								<td>Minimum free disk space (Mb):<br/>triggers a problem when there is less free space on some drive</td>
+								<td><textarea cols="10" rows="1" wicket:id="minFreeDiskSpaceMb"></textarea></td>
+							</tr>
+							<tr>
+								<td colspan="2">Trigger a problem when GC uses <textarea cols="2" rows="1" wicket:id="gcCpuTreshold"></textarea> CPU power for <textarea cols="2" rows="1" wicket:id="gcCpuTresholdSamples"></textarea> or more seconds</td>
+							</tr>
+							<tr>
+								<td>Maximum memory used after GC (%):<br/>If the memory usage after GC goes above this value a problem is triggered</td>
+								<td><textarea cols="2" rows="1" wicket:id="memAfterGcUsageTreshold"></textarea></td>
+							</tr>
+							<tr>
+								<td>Maximum memory used by a pool (%):<br/>If the memory usage goes above this value the pool name is reported. This never triggers a problem.</td>
+								<td><textarea cols="2" rows="1" wicket:id="memUsageTreshold"></textarea></td>
+							</tr>
+						</table>
+                        <h2>Mail settings</h2>
+						<table>
+							<tr>
+								<td>SMTP host</td>
+								<td><textarea cols="30" rows="1" wicket:id="mail.smtp.host"></textarea></td>
+							</tr>
+							<tr>
+								<td>SMTP server port, defaults to 25 (465 for SSL)</td>
+								<td><textarea cols="5" rows="1" wicket:id="mail.smtp.port"></textarea></td>
+							</tr>
+							<tr>
+								<td>The "from" address</td>
+								<td><textarea cols="30" rows="1" wicket:id="mail.from"></textarea></td>
+							</tr>
+							<tr>
+								<td>Receivers, split by a comma</td>
+								<td><textarea cols="30" rows="1" wicket:id="mail.to"></textarea></td>
+							</tr>
+							<tr>
+								<td>SMTP encryption</td>
+                                <td><select wicket:id="mail.smtp.encryption"></select></td>
+							</tr>
+							<tr>
+								<td>Optional SMTP username:</td>
+								<td><textarea cols="30" rows="1" wicket:id="mail.smtp.username"></textarea></td>
+							</tr>
+							<tr>
+								<td>Optional SMTP password:</td>
+								<td><textarea cols="30" rows="1" wicket:id="mail.smtp.password"></textarea></td>
+							</tr>
+						</table>
+						<input type="submit" value="Submit"/>
+					</form>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

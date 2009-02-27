@@ -19,7 +19,7 @@
  * along with WebVM.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <sun-web-app error-url="">
-  <context-root>/webvm</context-root>
+  <context-root>/webvm-0.2-SNAPSHOT</context-root>
   <class-loader delegate="true"/>
   <jsp-config>
     <property name="keepgenerated" value="true">
