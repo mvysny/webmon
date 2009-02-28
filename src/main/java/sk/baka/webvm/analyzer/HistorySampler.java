@@ -43,8 +43,8 @@ public final class HistorySampler {
 	 * Creates new sampler instance with default values.
 	 * @param analyzer a configured instance of the analyzer
 	 */
-	public HistorySampler(final Config config, final ProblemAnalyzer analyzer) {
-		this(config, HISTORY_VMSTAT, HISTORY_PROBLEMS, analyzer);
+	public HistorySampler(final ProblemAnalyzer analyzer) {
+		this(HISTORY_VMSTAT, HISTORY_PROBLEMS, analyzer);
 	}
 
 	/**
@@ -53,15 +53,14 @@ public final class HistorySampler {
 	 * @param problemConfig the problem sampler config
 	 * @param analyzer a configured instance of the analyzer
 	 */
-	public HistorySampler(final Config config, final SamplerConfig vmstatConfig, final SamplerConfig problemConfig, final ProblemAnalyzer analyzer) {
+	public HistorySampler(final SamplerConfig vmstatConfig, final SamplerConfig problemConfig, final ProblemAnalyzer analyzer) {
 		this.vmstatConfig = vmstatConfig;
 		this.problemConfig = problemConfig;
 		vmstatHistory = new SimpleFixedSizeFIFO<HistorySample>(vmstatConfig.getHistoryLength());
 		problemHistory = new SimpleFixedSizeFIFO<List<ProblemReport>>(problemConfig.getHistoryLength());
 		this.analyzer = analyzer;
-		this.config = new Config(config);
 	}
-	private Config config = new Config();
+	private volatile Config config = new Config();
 	private final SamplerConfig problemConfig;
 	/**
 	 * Default VMStat history.
@@ -71,6 +70,14 @@ public final class HistorySampler {
 	 * Default Problems history.
 	 */
 	public static final SamplerConfig HISTORY_PROBLEMS = new SamplerConfig(20, 30 * 1000, 500);
+
+    /**
+     * Sets the new configuration file.
+     * @param config the new config file.
+     */
+    public void configure(final Config config) {
+        this.config = new Config(config);
+    }
 
 	/**
 	 * Starts the sampling process in a background thread.

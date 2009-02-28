@@ -54,7 +54,7 @@ public final class Configure extends WebPage {
 
     private final class ConfigForm extends Form {
 
-        private final Config config = new Config();
+        private final Config config = new Config(WicketApplication.getConfig());
 
         public ConfigForm(final String componentName) {
             super(componentName);
@@ -102,8 +102,7 @@ public final class Configure extends WebPage {
 
         @Override
         public final void onSubmit() {
-            // TODO save config and re-configure components
-            System.out.println(config.minFreeDiskSpaceMb);
+            WicketApplication.setConfig(config);
         }
     }
 }

@@ -73,13 +73,22 @@ public final class WicketApplication extends WebApplication {
 		return CONFIG;
 	}
 
+    public synchronized static void setConfig(final Config config) {
+        SAMPLER.stop();
+        CONFIG=new Config(config);
+        ANALYZER.configure(CONFIG);
+        SAMPLER.configure(CONFIG);
+        SAMPLER.start();
+    }
+
 	@Override
 	protected void init() {
 		super.init();
 		CONFIG = loadConfig();
 		ANALYZER = new ProblemAnalyzer();
 		ANALYZER.configure(CONFIG);
-		SAMPLER = new HistorySampler(CONFIG, ANALYZER);
+		SAMPLER = new HistorySampler(ANALYZER);
+        SAMPLER.configure(CONFIG);
 		SAMPLER.start();
 		mountBookmarkablePage("/graphs.html", Graphs.class);
 		mountBookmarkablePage("/problems.html", Problems.class);

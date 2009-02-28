@@ -35,7 +35,7 @@ public class HistorySamplerTest extends TestCase {
 	public void testGetProblemHistory() throws Exception {
 		final ProblemAnalyzer a = new ProblemAnalyzer();
 		a.configure(new Config());
-		final HistorySampler hs = new HistorySampler(new Config(), new SamplerConfig(100, Integer.MAX_VALUE, Integer.MAX_VALUE), new SamplerConfig(100, 50, 0), a);
+		final HistorySampler hs = new HistorySampler(new SamplerConfig(100, Integer.MAX_VALUE, Integer.MAX_VALUE), new SamplerConfig(100, 50, 0), a);
 		hs.start();
 		try {
 			Thread.sleep(100);
