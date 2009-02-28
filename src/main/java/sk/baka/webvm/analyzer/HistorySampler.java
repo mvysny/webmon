@@ -69,7 +69,7 @@ public final class HistorySampler {
 	/**
 	 * Default Problems history.
 	 */
-	public static final SamplerConfig HISTORY_PROBLEMS = new SamplerConfig(20, 30 * 1000, 500);
+	public static final SamplerConfig HISTORY_PROBLEMS = new SamplerConfig(20, 10 * 1000, 500);
 
     /**
      * Sets the new configuration file.

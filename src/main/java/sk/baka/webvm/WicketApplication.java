@@ -38,102 +38,102 @@ import sk.baka.webvm.config.Config;
  */
 public final class WicketApplication extends WebApplication {
 
-	@Override
-	public Class<HomePage> getHomePage() {
-		return HomePage.class;
-	}
-	private static HistorySampler SAMPLER = null;
-	private static ProblemAnalyzer ANALYZER = null;
+    @Override
+    public Class<HomePage> getHomePage() {
+        return HomePage.class;
+    }
+    private static HistorySampler SAMPLER = null;
+    private static ProblemAnalyzer ANALYZER = null;
 
-	/**
-	 * Returns a history sampler.
-	 * @return the history sampler.
-	 */
-	public static HistorySampler getHistory() {
-		return SAMPLER;
-	}
+    /**
+     * Returns a history sampler.
+     * @return the history sampler.
+     */
+    public static HistorySampler getHistory() {
+        return SAMPLER;
+    }
 
-	/**
-	 * Returns a problem analyzer instance.
-	 * @return the problem analyzer.
-	 */
-	public static ProblemAnalyzer getAnalyzer() {
-		return ANALYZER;
-	}
-	/**
-	 * The configuration properties.
-	 */
-	private static Config CONFIG = null;
+    /**
+     * Returns a problem analyzer instance.
+     * @return the problem analyzer.
+     */
+    public static ProblemAnalyzer getAnalyzer() {
+        return ANALYZER;
+    }
+    /**
+     * The configuration properties.
+     */
+    private static Config CONFIG = null;
 
-	/**
-	 * Returns the configuration properties (config.properties)
-	 * @return the configuration properties.
-	 */
-	public static Config getConfig() {
-		return CONFIG;
-	}
+    /**
+     * Returns the configuration properties (config.properties)
+     * @return the configuration properties.
+     */
+    public static Config getConfig() {
+        return CONFIG;
+    }
 
     public synchronized static void setConfig(final Config config) {
         SAMPLER.stop();
-        CONFIG=new Config(config);
+        CONFIG = new Config(config);
         ANALYZER.configure(CONFIG);
         SAMPLER.configure(CONFIG);
         SAMPLER.start();
     }
 
-	@Override
-	protected void init() {
-		super.init();
-		CONFIG = loadConfig();
-		ANALYZER = new ProblemAnalyzer();
-		ANALYZER.configure(CONFIG);
-		SAMPLER = new HistorySampler(ANALYZER);
+    @Override
+    protected void init() {
+        super.init();
+        CONFIG = loadConfig();
+        ANALYZER = new ProblemAnalyzer();
+        ANALYZER.configure(CONFIG);
+        SAMPLER = new HistorySampler(ANALYZER);
         SAMPLER.configure(CONFIG);
-		SAMPLER.start();
-		mountBookmarkablePage("/graphs.html", Graphs.class);
-		mountBookmarkablePage("/problems.html", Problems.class);
-		mountBookmarkablePage("/memory.html", Memory.class);
-		mountBookmarkablePage("/sysinfo.html", SysInfo.class);
-		mountBookmarkablePage("/jndi.html", Jndi.class);
-		mountBookmarkablePage("/configure.html", Configure.class);
-	}
+        SAMPLER.start();
+        mountBookmarkablePage("/graphs.html", Graphs.class);
+        mountBookmarkablePage("/problems.html", Problems.class);
+        mountBookmarkablePage("/memory.html", Memory.class);
+        mountBookmarkablePage("/sysinfo.html", SysInfo.class);
+        mountBookmarkablePage("/jndi.html", Jndi.class);
+        mountBookmarkablePage("/configure.html", Configure.class);
+    }
 
-	@Override
-	protected void onDestroy() {
-		SAMPLER.stop();
-		super.onDestroy();
-	}
+    @Override
+    protected void onDestroy() {
+        SAMPLER.stop();
+        super.onDestroy();
+    }
 
-	private Config loadConfig() {
-		String configUrl = getInitParameter("configFile");
-		if (configUrl == null) {
-			configUrl = "classpath:config.properties";
-		}
-		try {
-			final InputStream in;
-			if (configUrl.startsWith("classpath:")) {
-				final String resource = configUrl.substring("classpath:".length());
-				in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
-				if (in == null) {
-					throw new IOException("Resource not found: " + resource);
-				}
-			} else {
-				in = new URL(configUrl).openStream();
-			}
-			try {
-				final Properties props = new Properties();
-				props.load(in);
-				final Config result = new Config();
-				final Map<String, String> warnings = Binder.bindBeanMap(result, props, false, true);
-				Binder.log(log, warnings);
-				return result;
-			} finally {
-				IOUtils.closeQuietly(in);
-			}
-		} catch (Exception ex) {
-			log.log(Level.WARNING, "Failed to load " + configUrl + ", keeping defaults", ex);
-		}
-		return new Config();
-	}
-	private static final Logger log = Logger.getLogger(WicketApplication.class.getName());
+    private Config loadConfig() {
+        String configUrl = getInitParameter("configFile");
+        if (configUrl == null) {
+            configUrl = "classpath:config.properties";
+        }
+        try {
+            final InputStream in;
+            if (configUrl.startsWith("classpath:")) {
+                final String resource = configUrl.substring("classpath:".length());
+                in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
+                if (in == null) {
+                    throw new IOException("Resource not found: " + resource);
+                }
+            } else {
+                in = new URL(configUrl).openStream();
+            }
+            try {
+                final Properties props = new Properties();
+                props.load(in);
+                final Config result = new Config();
+                final Map<String, String> warnings = Binder.bindBeanMap(result, props, false, true);
+                Binder.log(log, warnings);
+                return result;
+            } finally {
+                IOUtils.closeQuietly(in);
+            }
+        } catch (Exception ex) {
+            log.log(Level.WARNING, "Failed to load " + configUrl + ", keeping defaults", ex);
+        }
+        return new Config();
+    }
+    private static final Logger log = Logger.getLogger(WicketApplication.class.getName());
 }
