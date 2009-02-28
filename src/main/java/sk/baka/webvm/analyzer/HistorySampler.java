@@ -22,16 +22,12 @@ import sk.baka.webvm.misc.*;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.mail.Email;
-import org.apache.commons.mail.EmailException;
-import org.apache.commons.mail.SimpleEmail;
 import sk.baka.webvm.config.Config;
 
 /**
@@ -194,39 +190,10 @@ public final class HistorySampler {
 	}
 
 	private void onProblemHistoryUpdated() {
-		if (config.mailSmtpHost == null) {
-			return;
-		}
 		try {
-			final Email mail = new SimpleEmail();
-			configure(mail);
-			mail.setSubject("WebVM: Problems notification");
-			mail.setMsg(ProblemReport.toString(problemHistory.getNewest(), "\n"));
-			mail.send();
+            NotificationDelivery.sendEmail(config, false, problemHistory.getNewest());
 		} catch (Exception ex) {
 			log.log(Level.SEVERE, "Failed to send email", ex);
-		}
-	}
-
-	private void configure(final Email mail) throws EmailException {
-		mail.setHostName(config.mailSmtpHost);
-		config.mailSmtpEncryption.activate(mail);
-		if (mail.isSSL()) {
-			mail.setSslSmtpPort(Integer.toString(config.mailSmtpPort));
-		} else {
-			mail.setSmtpPort(config.mailSmtpPort);
-		}
-		if (config.mailSmtpUsername != null) {
-			mail.setAuthentication(config.mailSmtpUsername, config.mailSmtpPassword);
-		}
-		mail.setFrom(config.mailFrom);
-		if (config.mailTo == null) {
-			config.mailTo = "";
-		}
-		// add recipients
-		final StringTokenizer t = new StringTokenizer(config.mailTo, ",");
-		for (; t.hasMoreTokens();) {
-			mail.addTo(t.nextToken().trim());
 		}
 	}
 }
