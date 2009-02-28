@@ -34,7 +34,7 @@
         <init-param>
             <!--
 				The configuration file location URL. You may supply any URL, such as:
-				file:///home/user/config.properties
+				file:/home/user/config.properties
 				classpath:config.properties (the default, the file is in WAR/WEB-INF/classes/config.properties)
 				http://server/config.properties
             -->
