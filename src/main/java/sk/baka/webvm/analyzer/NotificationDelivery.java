@@ -43,7 +43,7 @@ public final class NotificationDelivery {
      * @throws org.apache.commons.mail.EmailException if sending mail fails.
      */
     public static void sendEmail(final Config config, final boolean testing, final List<ProblemReport> reports) throws EmailException {
-        if (config.mailSmtpHost == null) {
+        if (config.mailSmtpHost == null || config.mailSmtpHost.trim().length() == 0) {
             return;
         }
         final Email mail = new SimpleEmail();
