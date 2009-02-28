@@ -31,6 +31,10 @@ import sk.baka.webvm.config.Config;
  */
 public final class NotificationDelivery {
 
+    private NotificationDelivery() {
+        throw new AssertionError();
+    }
+
     /**
      * Sends a mail with given report.
      * @param config the mail server configuration.
