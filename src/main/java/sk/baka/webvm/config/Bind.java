@@ -30,17 +30,29 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Bind {
-	/**
-	 * A key to the {@link Properties} map.
-	 */
-	String key();
-	/**
-	 * (Optional) minimum value if number is specified.
-	 */
-	int min() default Integer.MIN_VALUE;
 
-	/**
-	 * (Optional) maximum value if number is specified.
-	 */
-	int max() default Integer.MAX_VALUE;
+    /**
+     * A key to the {@link Properties} map.
+     */
+    String key();
+
+    /**
+     * (Optional) minimum value if number is specified.
+     */
+    int min() default Integer.MIN_VALUE;
+
+    /**
+     * (Optional) maximum value if number is specified.
+     */
+    int max() default Integer.MAX_VALUE;
+
+    /**
+     * true if this field denotes a password field.
+     */
+    boolean password() default false;
+
+    /**
+     * Set to false if this field is not required.
+     */
+    boolean required() default true;
 }

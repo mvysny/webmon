@@ -26,78 +26,78 @@ import java.io.Serializable;
  */
 public final class Config implements Serializable {
 
-	/**
-	 * Creates new config file with default settings.
-	 */
-	public Config() {
-		super();
-	}
+    /**
+     * Creates new config file with default settings.
+     */
+    public Config() {
+        super();
+    }
 
-	/**
-	 * Clones given config.
-	 */
-	public Config(final Config other) {
-		super();
-		Binder.copy(other, this);
-	}
-	/**
-	 * Triggers a problem when there is less than minFreeDiskSpaceMb of free space on some drive
-	 */
-	@Bind(key = "minFreeDiskSpaceMb", min = 0)
-	public int minFreeDiskSpaceMb = 100;
-	/**
-	 * Triggers a problem when GC uses over gcCpuTreshold% or more of CPU continuously for gcCpuTresholdSamples seconds.
-	 */
-	@Bind(key = "gcCpuTreshold", min = 0)
-	public int gcCpuTreshold = 50;
-	/**
-	 * Triggers a problem when GC uses over gcCpuTreshold% or more of CPU continuously for gcCpuTresholdSamples seconds.
-	 */
-	@Bind(key = "gcCpuTresholdSamples", min = 1)
-	public int gcCpuTresholdSamples = 3;
-	/**
-	 * If the memory usage after GC goes above this value the {@link #CLASS_GC_MEMORY_CLEANUP} problem is reported.
-	 */
-	@Bind(key = "memAfterGcUsageTreshold", min = 0, max = 100)
-	public int memAfterGcUsageTreshold = 85;
-	/**
-	 * If the memory usage goes above this value the pool name is reported in the {@link #CLASS_MEMORY_STATUS} report. This never triggers a problem.
-	 */
-	@Bind(key = "memUsageTreshold", min = 0, max = 100)
-	public int memUsageTreshold = 90;
-	/**
-	 * The SMTP server host/port. If this is commented then no mails are sent.
-	 */
-	@Bind(key = "mail.smtp.host")
-	public String mailSmtpHost;
-	/**
-	 * SMTP server port, defaults to 25 (465 for SSL)
-	 */
-	@Bind(key = "mail.smtp.port", min = -1, max = 65535)
-	public int mailSmtpPort = -1;
-	/**
-	 * The "from" address
-	 */
-	@Bind(key = "mail.from")
-	public String mailFrom;
-	/**
-	 * Receivers, split by a comma
-	 */
-	@Bind(key = "mail.to")
-	public String mailTo;
-	/**
-	 * The connection encryption.
-	 */
-	@Bind(key = "mail.smtp.encryption")
-	public EncryptionEnum mailSmtpEncryption = EncryptionEnum.NONE;
-	/**
-	 * Optional SMTP authentication.
-	 */
-	@Bind(key = "mail.smtp.username")
-	public String mailSmtpUsername;
-	/**
-	 * Optional SMTP authentification.
-	 */
-	@Bind(key = "mail.smtp.password")
-	public String mailSmtpPassword;
+    /**
+     * Clones given config.
+     */
+    public Config(final Config other) {
+        super();
+        Binder.copy(other, this);
+    }
+    /**
+     * Triggers a problem when there is less than minFreeDiskSpaceMb of free space on some drive
+     */
+    @Bind(key = "minFreeDiskSpaceMb", min = 0)
+    public int minFreeDiskSpaceMb = 100;
+    /**
+     * Triggers a problem when GC uses over gcCpuTreshold% or more of CPU continuously for gcCpuTresholdSamples seconds.
+     */
+    @Bind(key = "gcCpuTreshold", min = 0)
+    public int gcCpuTreshold = 50;
+    /**
+     * Triggers a problem when GC uses over gcCpuTreshold% or more of CPU continuously for gcCpuTresholdSamples seconds.
+     */
+    @Bind(key = "gcCpuTresholdSamples", min = 1)
+    public int gcCpuTresholdSamples = 3;
+    /**
+     * If the memory usage after GC goes above this value the {@link #CLASS_GC_MEMORY_CLEANUP} problem is reported.
+     */
+    @Bind(key = "memAfterGcUsageTreshold", min = 0, max = 100)
+    public int memAfterGcUsageTreshold = 85;
+    /**
+     * If the memory usage goes above this value the pool name is reported in the {@link #CLASS_MEMORY_STATUS} report. This never triggers a problem.
+     */
+    @Bind(key = "memUsageTreshold", min = 0, max = 100)
+    public int memUsageTreshold = 90;
+    /**
+     * The SMTP server host/port. If this is commented then no mails are sent.
+     */
+    @Bind(key = "mail.smtp.host", required = false)
+    public String mailSmtpHost;
+    /**
+     * SMTP server port, defaults to 25 (465 for SSL)
+     */
+    @Bind(key = "mail.smtp.port", min = -1, max = 65535)
+    public int mailSmtpPort = -1;
+    /**
+     * The "from" address
+     */
+    @Bind(key = "mail.from", required = false)
+    public String mailFrom;
+    /**
+     * Receivers, split by a comma
+     */
+    @Bind(key = "mail.to", required = false)
+    public String mailTo;
+    /**
+     * The connection encryption.
+     */
+    @Bind(key = "mail.smtp.encryption", required = false)
+    public EncryptionEnum mailSmtpEncryption = EncryptionEnum.NONE;
+    /**
+     * Optional SMTP authentication.
+     */
+    @Bind(key = "mail.smtp.username", required = false)
+    public String mailSmtpUsername;
+    /**
+     * Optional SMTP authentification.
+     */
+    @Bind(key = "mail.smtp.password", password = true, required = false)
+    public String mailSmtpPassword;
 }

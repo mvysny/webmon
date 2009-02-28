@@ -36,6 +36,15 @@ public final class NotificationDelivery {
     }
 
     /**
+     * Checks if sending mail is enabled in given config object.
+     * @param config the configuration object
+     * @return true if {@link Config#mailSmtpHost} is non-empty, false otherwise.
+     */
+    public static boolean isEmailEnabled(final Config config) {
+        return config.mailSmtpHost != null && config.mailSmtpHost.trim().length() != 0;
+    }
+
+    /**
      * Sends a mail with given report.
      * @param config the mail server configuration.
      * @param testing if true then a testing mail is sent
@@ -43,7 +52,7 @@ public final class NotificationDelivery {
      * @throws org.apache.commons.mail.EmailException if sending mail fails.
      */
     public static void sendEmail(final Config config, final boolean testing, final List<ProblemReport> reports) throws EmailException {
-        if (config.mailSmtpHost == null || config.mailSmtpHost.trim().length() == 0) {
+        if (!isEmailEnabled(config)) {
             return;
         }
         final Email mail = new SimpleEmail();
@@ -56,10 +65,12 @@ public final class NotificationDelivery {
     private static void configure(final Email mail, final Config config) throws EmailException {
         mail.setHostName(config.mailSmtpHost);
         config.mailSmtpEncryption.activate(mail);
-        if (mail.isSSL()) {
-            mail.setSslSmtpPort(Integer.toString(config.mailSmtpPort));
-        } else {
-            mail.setSmtpPort(config.mailSmtpPort);
+        if (config.mailSmtpPort > 0) {
+            if (mail.isSSL()) {
+                mail.setSslSmtpPort(Integer.toString(config.mailSmtpPort));
+            } else {
+                mail.setSmtpPort(config.mailSmtpPort);
+            }
         }
         if (config.mailSmtpUsername != null) {
             mail.setAuthentication(config.mailSmtpUsername, config.mailSmtpPassword);
