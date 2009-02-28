@@ -29,9 +29,12 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.PasswordTextField;
-import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.validation.IValidator;
+import org.apache.wicket.validation.validator.EmailAddressValidator;
+import org.apache.wicket.validation.validator.RangeValidator;
 import sk.baka.webvm.analyzer.NotificationDelivery;
 import sk.baka.webvm.analyzer.ProblemAnalyzer;
 import sk.baka.webvm.config.Bind;
@@ -55,6 +58,7 @@ public final class Configure extends WebPage {
 
         public ConfigForm(final String componentName) {
             super(componentName);
+            add(new FeedbackPanel("feedback"));
             for (final Field field : Config.class.getFields()) {
                 final Bind annotation = field.getAnnotation(Bind.class);
                 if (annotation == null) {
@@ -67,7 +71,11 @@ public final class Configure extends WebPage {
                 } else if (annotation.password()) {
                     f = new PasswordTextField(annotation.key(), new PropertyModel(config, field.getName()));
                 } else {
-                    f = new TextField(annotation.key(), new PropertyModel(config, field.getName()));
+                    f = new TextField<Object>(annotation.key(), new PropertyModel<Object>(config, field.getName()));
+                    if ((annotation.min() != Integer.MIN_VALUE) || (annotation.max() != Integer.MAX_VALUE)) {
+                        // we know there will be only ints annotated
+                        f.add((IValidator) new RangeValidator<Integer>(annotation.min(), annotation.max()));
+                    }
                 }
                 f.setRequired(annotation.required());
                 add(f);
@@ -78,8 +86,7 @@ public final class Configure extends WebPage {
                 @Override
                 public void onSubmit() {
                     if (!NotificationDelivery.isEmailEnabled(config)) {
-                        // TODO show the error to the user
-                        System.out.println("No SMTP host name is entered, mail notification is disabled");
+                        error("No SMTP host name is entered, mail notification is disabled");
                         return;
                     }
                     final ProblemAnalyzer pa = new ProblemAnalyzer();
@@ -87,8 +94,7 @@ public final class Configure extends WebPage {
                     try {
                         NotificationDelivery.sendEmail(config, true, pa.getProblems(WicketApplication.getHistory().getVmstatHistory()));
                     } catch (Exception ex) {
-                        // TODO show the error to the user
-                        ex.printStackTrace();
+                        error("Failed to send a message: " + ex.toString());
                     }
                 }
             });
@@ -97,6 +103,7 @@ public final class Configure extends WebPage {
         @Override
         public final void onSubmit() {
             // TODO save config and re-configure components
+            System.out.println(config.minFreeDiskSpaceMb);
         }
     }
 }
