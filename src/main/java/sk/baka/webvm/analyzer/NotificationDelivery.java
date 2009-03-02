@@ -21,16 +21,13 @@ package sk.baka.webvm.analyzer;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
-import org.apache.commons.mail.SimpleEmail;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.XMPPConnection;
@@ -88,8 +85,8 @@ public final class NotificationDelivery extends BackgroundService {
         final HtmlEmail mail = new HtmlEmail();
         configure(mail, config);
         mail.setSubject("WebVM: Problems notification" + (testing ? " (testing mail)" : ""));
-        mail.setHtmlMsg("<html><body>\n" + ProblemReport.toHtml(reports) + "\n</body></html>");
         mail.setMsg(ProblemReport.toString(reports, "\n"));
+        mail.setHtmlMsg("<html><body>\n" + ProblemReport.toHtml(reports) + "\n</body></html>");
         mail.send();
     }
 
