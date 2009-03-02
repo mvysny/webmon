@@ -20,19 +20,35 @@ package sk.baka.webvm.analyzer;
 
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Message;
 import sk.baka.webvm.config.Config;
+import sk.baka.webvm.misc.BackgroundService;
 
 /**
  * Delivers miscellaneous notifications (mail, jabber).
  * @author Martin Vysny
  */
-public final class NotificationDelivery {
+public final class NotificationDelivery extends BackgroundService {
 
-    private NotificationDelivery() {
-        throw new AssertionError();
+    /**
+     * Creates new deliverer.
+     */
+    public NotificationDelivery() {
+        super(1);
     }
 
     /**
@@ -41,7 +57,20 @@ public final class NotificationDelivery {
      * @return true if {@link Config#mailSmtpHost} is non-empty, false otherwise.
      */
     public static boolean isEmailEnabled(final Config config) {
-        return config.mailSmtpHost != null && config.mailSmtpHost.trim().length() != 0;
+        return !isBlank(config.mailSmtpHost);
+    }
+
+    private static boolean isBlank(final String str) {
+        return str == null || str.trim().length() == 0;
+    }
+
+    /**
+     * Checks if sending mail is enabled in given config object.
+     * @param config the configuration object
+     * @return true if {@link Config#mailSmtpHost} is non-empty, false otherwise.
+     */
+    public static boolean isJabberEnabled(final Config config) {
+        return !isBlank(config.jabberServer);
     }
 
     /**
@@ -85,4 +114,79 @@ public final class NotificationDelivery {
             mail.addTo(t.nextToken().trim());
         }
     }
+
+    public static void sendJabber(final Config config, final boolean testing, final List<ProblemReport> reports) throws XMPPException {
+        XMPPConnection connection = new XMPPConnection(config.jabberServer);
+        connection.connect();
+        try {
+            connection.login(config.jabberUsername, config.jabberPassword);
+            final StringTokenizer t = new StringTokenizer(config.jabberRecipients, ",");
+            for (; t.hasMoreTokens();) {
+                final String recipient = t.nextToken().trim();
+                final Chat chat = connection.getChatManager().createChat(recipient, new MessageListener() {
+
+                    public void processMessage(Chat chat, Message message) {
+                        // do nothing
+                    }
+                });
+                chat.sendMessage(ProblemReport.toString(reports, "\n"));
+            }
+        } finally {
+            connection.disconnect();
+        }
+    }
+
+    /**
+     * Delivers given report asynchronously.
+     * @param reports the reports to deliver.
+     */
+    public void deliverAsync(final List<ProblemReport> reports) throws InterruptedException {
+        asyncQueue.put(reports);
+    }
+    private final BlockingQueue<List<ProblemReport>> asyncQueue = new LinkedBlockingQueue<List<ProblemReport>>();
+
+    @Override
+    protected void started(ScheduledExecutorService executor) {
+        executor.execute(new Notificator());
+    }
+    private volatile Config config;
+
+    /**
+     * Sets the new configuration file.
+     * @param config the new config file.
+     */
+    public void configure(final Config config) {
+        this.config = new Config(config);
+    }
+
+    @Override
+    protected void stopped() {
+        // do nothing
+    }
+
+    private class Notificator implements Runnable {
+
+        public void run() {
+            while (true) {
+                final List<ProblemReport> reports;
+                try {
+                    reports = asyncQueue.take();
+                } catch (InterruptedException ex) {
+                    // we are terminating.
+                    return;
+                }
+                try {
+                    NotificationDelivery.sendEmail(config, false, reports);
+                } catch (Exception ex) {
+                    log.log(Level.SEVERE, "Failed to send email", ex);
+                }
+                try {
+                    NotificationDelivery.sendJabber(config, false, reports);
+                } catch (Exception ex) {
+                    log.log(Level.SEVERE, "Failed to send jabber message", ex);
+                }
+            }
+        }
+    }
+    private static final Logger log = Logger.getLogger(NotificationDelivery.class.getName());
 }

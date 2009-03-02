@@ -22,9 +22,8 @@ import sk.baka.webvm.misc.*;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.List;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,7 +33,7 @@ import sk.baka.webvm.config.Config;
  * Samples the VM history regularly. You need to invoke {@link #start()} to start the sampler, {@link #stop()} to stop it. Thread-safe.
  * @author Martin Vysny
  */
-public final class HistorySampler {
+public final class HistorySampler extends BackgroundService {
 
 	private static final Logger log = Logger.getLogger(HistorySampler.class.getName());
 	private final ProblemAnalyzer analyzer;
@@ -54,6 +53,7 @@ public final class HistorySampler {
 	 * @param analyzer a configured instance of the analyzer
 	 */
 	public HistorySampler(final SamplerConfig vmstatConfig, final SamplerConfig problemConfig, final ProblemAnalyzer analyzer) {
+        super(1);
 		this.vmstatConfig = vmstatConfig;
 		this.problemConfig = problemConfig;
 		vmstatHistory = new SimpleFixedSizeFIFO<HistorySample>(vmstatConfig.getHistoryLength());
@@ -71,35 +71,29 @@ public final class HistorySampler {
 	 */
 	public static final SamplerConfig HISTORY_PROBLEMS = new SamplerConfig(20, 10 * 1000, 500);
 
+    private final NotificationDelivery notificator = new NotificationDelivery();
+
     /**
      * Sets the new configuration file.
      * @param config the new config file.
      */
     public void configure(final Config config) {
         this.config = new Config(config);
+        notificator.configure(config);
     }
 
-	/**
-	 * Starts the sampling process in a background thread.
-	 */
-	public void start() {
-		if (executor != null) {
-			throw new IllegalStateException("Already started.");
-		}
-		executor = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
-
-			private final ThreadFactory def = Executors.defaultThreadFactory();
-
-			public Thread newThread(Runnable r) {
-				final Thread result = def.newThread(r);
-				result.setDaemon(true);
-				return result;
-			}
-		});
+    @Override
+	protected void started(final ScheduledExecutorService executor) {
+        notificator.start();
 		executor.scheduleWithFixedDelay(new Sampler(), vmstatConfig.getInitialDelay(), vmstatConfig.getHistorySampleDelayMs(), TimeUnit.MILLISECONDS);
 		executor.scheduleWithFixedDelay(new ProblemSampler(), problemConfig.getInitialDelay(), problemConfig.getHistorySampleDelayMs(), TimeUnit.MILLISECONDS);
 	}
-	private ScheduledThreadPoolExecutor executor = null;
+
+    @Override
+    protected void stopped() {
+        notificator.stop();
+    }
+
 	private final SimpleFixedSizeFIFO<HistorySample> vmstatHistory;
 
 	/**
@@ -108,16 +102,6 @@ public final class HistorySampler {
 	 */
 	public List<HistorySample> getVmstatHistory() {
 		return vmstatHistory.toList();
-	}
-
-	/**
-	 * Disposes of this sampler. This instance is no longer usable and cannot be started again.
-	 */
-	public void stop() {
-		executor.shutdownNow();
-		executor = null;
-		vmstatHistory.clear();
-		problemHistory.clear();
 	}
 
 	private final class Sampler implements Runnable {
@@ -185,7 +169,7 @@ public final class HistorySampler {
 					}
 				}
 				problemHistory.add(currentProblems);
-				onProblemHistoryUpdated();
+				notificator.deliverAsync(currentProblems);
 			} catch (Throwable e) {
 				log.log(Level.SEVERE, "The ProblemSampler timer failed", e);
 			}
@@ -194,13 +178,5 @@ public final class HistorySampler {
 
 	public List<List<ProblemReport>> getProblemHistory() {
 		return problemHistory.toList();
-	}
-
-	private void onProblemHistoryUpdated() {
-		try {
-            NotificationDelivery.sendEmail(config, false, problemHistory.getNewest());
-		} catch (Exception ex) {
-			log.log(Level.SEVERE, "Failed to send email", ex);
-		}
 	}
 }
