@@ -19,6 +19,14 @@
 package sk.baka.webvm;
 
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.Context;
@@ -67,7 +75,7 @@ public final class Jndi extends WebPage {
             }
         });
         tree.getTreeState().expandAll();
-	tree.setRootLess(true);
+        tree.setRootLess(true);
         return tree;
     }
 
@@ -99,8 +107,15 @@ public final class Jndi extends WebPage {
             throws NamingException {
         final NamingEnumeration<NameClassPair> ne = ctx.list("");
         try {
-            for (; ne.hasMore();) {
-                final NameClassPair pair = ne.next();
+            // sort the JNDI listing first
+            final List<NameClassPair> children = Collections.list(ne);
+            Collections.sort(children, new Comparator<NameClassPair>() {
+
+                public int compare(NameClassPair o1, NameClassPair o2) {
+                    return o1.getName().compareToIgnoreCase(o2.getName());
+                }
+            });
+            for (final NameClassPair pair : children) {
                 try {
                     listUnprotected(ctx, parent, pair, depth);
                 } catch (final Exception e) {
@@ -108,26 +123,34 @@ public final class Jndi extends WebPage {
                     sb.append("Failed to examine ");
                     sb.append(pair.getName());
                     sb.append(": ");
-                    sb.append(e.getClass().getName());
-                    sb.append(": ");
                     sb.append(e.toString());
-                    parent.insert(new DefaultMutableTreeNode(sb.toString()), parent.getChildCount());
+                    addWarningNode(parent, sb.toString());
                 }
             }
         } finally {
             closeQuietly(ne);
         }
     }
+    private static final int MAX_DEPTH = 5;
 
     private static void listUnprotected(final Context ctx, final MutableTreeNode parent, final NameClassPair pair, final int depth)
             throws NamingException, ClassNotFoundException {
-        final String name = pair.getName();
-        final Class<?> clazz = loadClass(pair, ctx);
-        final boolean recursive = Context.class.isAssignableFrom(clazz);
-        final boolean isLinkRef = LinkRef.class.isAssignableFrom(clazz);
-        final boolean isProxy = Proxy.isProxyClass(clazz) || pair.getClassName().startsWith("$Proxy");
         final StringBuilder sb = new StringBuilder();
+        final String name = pair.getName();
         sb.append(name);
+        boolean recursive = false;
+        boolean isLinkRef = false;
+        boolean isProxy = false;
+        boolean classLoadFailure = false;
+        Class<?> clazz = null;
+        try {
+            clazz = loadClass(pair, ctx);
+            recursive = Context.class.isAssignableFrom(clazz);
+            isLinkRef = LinkRef.class.isAssignableFrom(clazz);
+            isProxy = Proxy.isProxyClass(clazz) || pair.getClassName().startsWith("$Proxy");
+        } catch (ClassNotFoundException ex) {
+            classLoadFailure = true;
+        }
         // Display reference targets
         if (isLinkRef) {
             final Object obj = ctx.lookupLink(name);
@@ -146,17 +169,44 @@ public final class Jndi extends WebPage {
                 sb.append(',');
             }
             sb.setCharAt(sb.length() - 1, ')');
+        } else if (recursive) {
+            sb.append(" (Context)");
         } else {
-            sb.append(" (class: " + pair.getClassName() + ")");
+            sb.append(" (class: ");
+            sb.append(pair.getClassName());
+            sb.append(")");
+        }
+        if (classLoadFailure) {
+            sb.append(" - failed to load class");
+        }
+        if (String.class.isAssignableFrom(clazz)) {
+            sb.append(": ");
+            final String str = (String) ctx.lookup(name);
+            if (str == null) {
+                sb.append("null");
+            } else {
+                sb.append("\"");
+                sb.append(str);
+                sb.append("\"");
+            }
         }
         final MutableTreeNode node = new DefaultMutableTreeNode(sb.toString());
-        parent.insert(node, parent.getChildCount());
-        //sometimes there is an StackOverflow exception, we rather check it with primitive condition
-        if ((recursive) && (depth < 10)) {
-            final Object value = ctx.lookup(name);
-            final Context subctx = (Context) value;
-            list(subctx, node, depth + 1);
+        if (recursive) {
+            //sometimes there is an StackOverflow exception, we rather check it with primitive condition
+            if (depth < MAX_DEPTH) {
+                final Object value = ctx.lookup(name);
+                final Context subctx = (Context) value;
+                list(subctx, node, depth + 1);
+            } else {
+                addWarningNode(node, "Maximum depth of " + MAX_DEPTH + " reached");
+            }
         }
+        parent.insert(node, parent.getChildCount());
+    }
+
+    private static void addWarningNode(final MutableTreeNode node,
+            final String text) {
+        node.insert(new DefaultMutableTreeNode(text), node.getChildCount());
     }
 
     /**
@@ -179,7 +229,7 @@ public final class Jndi extends WebPage {
             if (!pair.getClassName().startsWith("$Proxy")) {
                 throw e;
             }
-        // try some other methods of obtaining the class.
+            // try some other methods of obtaining the class.
         }
         // We have to get the class from the binding
         final Object p = ctx.lookup(pair.getName());
