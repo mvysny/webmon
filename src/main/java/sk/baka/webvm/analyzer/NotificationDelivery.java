@@ -29,6 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.SimpleEmail;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.MessageListener;
@@ -84,9 +85,10 @@ public final class NotificationDelivery extends BackgroundService {
         if (!isEmailEnabled(config)) {
             return;
         }
-        final Email mail = new SimpleEmail();
+        final HtmlEmail mail = new HtmlEmail();
         configure(mail, config);
         mail.setSubject("WebVM: Problems notification" + (testing ? " (testing mail)" : ""));
+        mail.setHtmlMsg("<html><body>\n" + ProblemReport.toHtml(reports) + "\n</body></html>");
         mail.setMsg(ProblemReport.toString(reports, "\n"));
         mail.send();
     }
@@ -123,13 +125,13 @@ public final class NotificationDelivery extends BackgroundService {
             final StringTokenizer t = new StringTokenizer(config.jabberRecipients, ",");
             for (; t.hasMoreTokens();) {
                 final String recipient = t.nextToken().trim();
-                final Chat chat = connection.getChatManager().createChat(recipient, new MessageListener() {
+                final Chat chat = connection.getChatManager().createChat(recipient, "WebVM", new MessageListener() {
 
                     public void processMessage(Chat chat, Message message) {
                         // do nothing
                     }
                 });
-                chat.sendMessage(ProblemReport.toString(reports, "\n"));
+                chat.sendMessage("WebVM Problems report: " + (testing ? "(testing)" : "") + "\n" + ProblemReport.toString(reports, "\n"));
             }
         } finally {
             connection.disconnect();

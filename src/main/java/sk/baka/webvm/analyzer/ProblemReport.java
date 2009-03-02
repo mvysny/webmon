@@ -164,7 +164,7 @@ public final class ProblemReport implements Serializable {
 
     @Override
     public String toString() {
-        return pclass + ": " + diagnosis;
+        return (isProblem ? "WARN" : "OK  ") + ": " + pclass + ": " + diagnosis;
     }
 
     private static Map<String, ProblemReport> toMap(final Iterable<? extends ProblemReport> reports, final boolean filterProblems) {
