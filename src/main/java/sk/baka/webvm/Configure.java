@@ -98,6 +98,23 @@ public final class Configure extends WebPage {
                     }
                 }
             });
+            add(new Button("sendTestJabber") {
+
+                @Override
+                public void onSubmit() {
+                    if (!NotificationDelivery.isJabberEnabled(config)) {
+                        error("No Jabber server is entered, jabber notification is disabled");
+                        return;
+                    }
+                    final ProblemAnalyzer pa = new ProblemAnalyzer();
+                    pa.configure(config);
+                    try {
+                        NotificationDelivery.sendJabber(config, true, pa.getProblems(WicketApplication.getHistory().getVmstatHistory()));
+                    } catch (Exception ex) {
+                        error("Failed to send a message: " + ex.toString());
+                    }
+                }
+            });
         }
 
         @Override

@@ -47,7 +47,7 @@
 								<td><input type="text" wicket:id="mail.from"></input></td>
 							</tr>
 							<tr>
-								<td>Receivers, split by a comma</td>
+								<td>Recipients, split by a comma</td>
 								<td><input type="text" wicket:id="mail.to"></input></td>
 							</tr>
 							<tr>
@@ -64,6 +64,27 @@
 							</tr>
 						</table>
 						<input type="submit" wicket:id="sendTestMail" value="Send test mail"/>
+                        <h2>Jabber settings</h2>
+                        Note that the Jabber client will use the most secure method when connecting to the server.
+                        <table>
+							<tr>
+								<td>Jabber server</td>
+								<td><input type="text" wicket:id="jabber.server"></input></td>
+							</tr>
+							<tr>
+								<td>Jabber user name</td>
+								<td><input type="text" wicket:id="jabber.username"></input></td>
+							</tr>
+							<tr>
+								<td>Jabber user password</td>
+								<td><input type="password" wicket:id="jabber.password"></input></td>
+							</tr>
+							<tr>
+								<td>Recipients, split by a comma</td>
+								<td><input type="text" wicket:id="jabber.recipients"></input></td>
+							</tr>
+                        </table>
+						<input type="submit" wicket:id="sendTestJabber" value="Send test jabber"/>
                         <div wicket:id="feedback">[Feedback Panel]</div>
 						<input type="submit" wicket:id="submit" value="Save"/>
 					</form>

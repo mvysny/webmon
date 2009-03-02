@@ -100,4 +100,24 @@ public final class Config implements Serializable {
      */
     @Bind(key = "mail.smtp.password", password = true, required = false)
     public String mailSmtpPassword;
+    /**
+     * Jabber server.
+     */
+    @Bind(key="jabber.server", required = false)
+    public String jabberServer;
+    /**
+     * Jabber user name.
+     */
+    @Bind(key="jabber.username", required = false)
+    public String jabberUsername;
+    /**
+     * Jabber password.
+     */
+    @Bind(key="jabber.password", required = false, password=true)
+    public String jabberPassword;
+    /**
+     * Jabber recipients, split by a comma
+     */
+    @Bind(key="jabber.recipients", required = false)
+    public String jabberRecipients;
 }
