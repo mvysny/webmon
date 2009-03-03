@@ -51,7 +51,7 @@ public final class Problems extends WebPage {
                 return WicketApplication.getAnalyzer().getProblems(WicketApplication.getHistory().getVmstatHistory());
             }
         };
-        border.add(new ListView<ProblemReport>("problemList", model) {
+        final ListView<ProblemReport> list = new ListView<ProblemReport>("problemList", model) {
 
             @Override
             protected void populateItem(ListItem<ProblemReport> item) {
@@ -65,7 +65,8 @@ public final class Problems extends WebPage {
                 item.add(desc);
                 item.add(new Label("problemDiagnosis", pr.diagnosis));
             }
-        });
+        };
+        border.add(list);
         border.add(new Link<Void>("performGCLink") {
 
             @Override

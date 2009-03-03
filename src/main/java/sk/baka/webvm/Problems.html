@@ -13,12 +13,11 @@
                 <h2 class="title">Potential problems report (also see Classloader analysis for further problems)</h2>
                 <div class="entry">
                     <table border="1">
-                        <thead><tr><th>Problem type</th><th>Status</th><th>Diagnosis</th><th>Description</th></tr></thead>
+                        <thead><tr><th>Problem type</th><th>Status</th><th>Description, diagnosis</th></tr></thead>
                         <tr wicket:id="problemList">
                             <td wicket:id="problemClass"/>
                             <td wicket:id="problemSeverity"/>
-                            <td><pre wicket:id="problemDiagnosis"/></td>
-                            <td wicket:id="problemDesc"/>
+                            <td><span wicket:id="problemDesc"/><pre wicket:id="problemDiagnosis"/></td>
                         </tr>
                     </table>
                     <a wicket:id="performGCLink">Perform GC</a>
