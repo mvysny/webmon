@@ -77,9 +77,11 @@ public final class Memory extends WebPage {
                 } else {
                     sb.append("Not collectable;");
                 }
-                sb.append(" After last GC: ");
+                sb.append("<br/>After last GC: ");
                 sb.append(MgmtUtils.toString(bean.getCollectionUsage()));
-                item.add(new Label("poolCollects", sb.toString()));
+                Label label = new Label("poolCollects", sb.toString());
+                label.setEscapeModelStrings(false);
+                item.add(label);
                 item.add(new Label("poolCollectsPerc", MgmtUtils.getUsagePerc(bean.getCollectionUsage())));
                 item.add(new Label("poolPeak", MgmtUtils.toString(bean.getPeakUsage())));
                 item.add(new Label("poolPeakPerc", MgmtUtils.getUsagePerc(bean.getPeakUsage())));
@@ -88,12 +90,14 @@ public final class Memory extends WebPage {
                     sb.append(bean.getUsageThresholdCount());
                     sb.append(" collections on ");
                     sb.append(bean.getUsageThreshold() / 1024 / 1024);
-                    sb.append("M usage; ");
+                    sb.append("M usage;<br/>");
                 } else {
-                    sb.append("Not collectable; ");
+                    sb.append("Not collectable;<br/>");
                 }
                 sb.append(MgmtUtils.toString(bean.getUsage()));
-                item.add(new Label("poolUsage", sb.toString()));
+                label = new Label("poolUsage", sb.toString());
+                label.setEscapeModelStrings(false);
+                item.add(label);
                 item.add(new Label("poolUsagePerc", MgmtUtils.getUsagePerc(bean.getUsage())));
             }
         });
