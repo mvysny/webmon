@@ -16,8 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with WebVM.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sk.baka.webvm.analyzer;
+package sk.baka.webvm.misc;
 
+import sk.baka.webvm.analyzer.*;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;

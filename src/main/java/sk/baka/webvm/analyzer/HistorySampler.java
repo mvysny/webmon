@@ -18,6 +18,8 @@
  */
 package sk.baka.webvm.analyzer;
 
+import sk.baka.webvm.misc.NotificationDelivery;
+import sk.baka.webvm.misc.SimpleFixedSizeFIFO;
 import sk.baka.webvm.misc.*;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
