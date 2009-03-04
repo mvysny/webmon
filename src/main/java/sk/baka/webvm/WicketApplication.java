@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.util.lang.PackageName;
 import sk.baka.webvm.analyzer.HistorySampler;
 import sk.baka.webvm.analyzer.ProblemAnalyzer;
 import sk.baka.webvm.config.Binder;
@@ -90,12 +91,7 @@ public final class WicketApplication extends WebApplication {
         SAMPLER = new HistorySampler(ANALYZER);
         SAMPLER.configure(CONFIG);
         SAMPLER.start();
-        mountBookmarkablePage("/graphs.html", Graphs.class);
-        mountBookmarkablePage("/problems.html", Problems.class);
-        mountBookmarkablePage("/memory.html", Memory.class);
-        mountBookmarkablePage("/sysinfo.html", SysInfo.class);
-        mountBookmarkablePage("/jndi.html", Jndi.class);
-        mountBookmarkablePage("/configure.html", Configure.class);
+        mount("a", PackageName.forClass(getClass()));
     }
 
     @Override
