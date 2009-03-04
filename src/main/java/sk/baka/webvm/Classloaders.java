@@ -24,7 +24,6 @@ import java.io.Serializable;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.List;
@@ -35,10 +34,15 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
 import org.apache.commons.io.FileUtils;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.tree.BaseTree;
+import org.apache.wicket.markup.html.tree.ITreeStateListener;
 import org.apache.wicket.markup.html.tree.LabelTree;
+import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 /**
@@ -50,23 +54,77 @@ public final class Classloaders extends WebPage {
     public Classloaders(PageParameters params) {
         final AppBorder border = new AppBorder("appBorder");
         add(border);
-        border.add(newClassloaderHierarchy());
+        tree = newClassloaderHierarchy();
+        border.add(tree);
     }
 
-    private static LabelTree newClassloaderHierarchy() {
-        final LabelTree tree = new LabelTree("classloaderHierarchy", new LoadableDetachableModel<TreeModel>() {
+    private LabelTree tree;
+
+    private boolean isCollapsed = false;
+
+    private LabelTree newClassloaderHierarchy() {
+        final LinkTree tree = new LinkTree("classloaderHierarchy", new LoadableDetachableModel<TreeModel>() {
 
             @Override
             protected TreeModel load() {
                 final MutableTreeNode root = new DefaultMutableTreeNode("root");
                 analyzeClassloader(root, Thread.currentThread().getContextClassLoader());
-                return new DefaultTreeModel(root);
+                final TreeModel model = new DefaultTreeModel(root);
+                return model;
             }
-        });
+        }) {
+            @Override
+            protected void onNodeLinkClicked(Object node, BaseTree tree, AjaxRequestTarget target) {
+                super.onNodeLinkClicked(node, tree, target);
+                final DefaultTreeModel t=(DefaultTreeModel) tree.getModelObject();
+                final MutableTreeNode parent=(MutableTreeNode)node;
+                t.insertNodeInto(new DefaultMutableTreeNode("Halo, sakra"), parent, 0);
+                //tree.getTreeState().expandNode(parent);
+                //((MutableTreeNode)node).setUserObject("HU");
+                //((DefaultTreeModel) tree.getModelObject()).nodeChanged((TreeNode)node);
+                if(isCollapsed){
+                tree.getTreeState().expandAll();
+                }else{
+                tree.getTreeState().collapseAll();
+                }
+                isCollapsed=!isCollapsed;
+                tree.updateTree(target);
+                //target.addComponent(tree);
+                System.out.println("onNodeLinkClicked "+node);
+            }
+        };
         tree.getTreeState().expandAll();
+        tree.getTreeState().addTreeStateListener(new Listener());
         tree.setRootLess(true);
         return tree;
     }
+
+    private static class Listener implements ITreeStateListener, Serializable {
+           public void allNodesCollapsed() {
+                System.out.println("allNodesCollapsed");
+            }
+
+            public void allNodesExpanded() {
+                System.out.println("allNodesExpanded");
+            }
+
+            public void nodeCollapsed(Object node) {
+                System.out.println("node collapsed"+node);
+            }
+
+            public void nodeExpanded(Object node) {
+                System.out.println("node expanded"+node);
+            }
+
+            public void nodeSelected(Object node) {
+                System.out.println("node selected"+node);
+            }
+
+            public void nodeUnselected(Object node) {
+                System.out.println("node unselected"+node);
+            }
+    }
+
     private static final int MAX_CLASSLOADER_NAME_LENGTH = 60;
 
     private static void analyzeClassloader(final MutableTreeNode root, final ClassLoader cl) {
@@ -160,32 +218,13 @@ public final class Classloaders extends WebPage {
     }
 
     private static void enumerateResources(DefaultMutableTreeNode node, File file) {
-
-        if (file.isDirectory()) {
-            @SuppressWarnings("unchecked")
-            final Collection<File> files = FileUtils.listFiles(file, null, true);
-            for (final File f : files) {
-                final File absFile = f.getAbsoluteFile();
-                assert absFile.getAbsolutePath().startsWith(
-                        file.getAbsolutePath());
-                final String classFilename = absFile.getAbsolutePath().substring(file.getAbsolutePath().length());
-                final String classname = classNameFromFileName(classFilename);
-                result.add(classname);
+        try {
+            for (final Model m : listCPItem("", file)) {
+                node.add(new DefaultMutableTreeNode(m));
             }
-            return result;
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-        final ZipFile zfile = new ZipFile(file);
-        for (final Enumeration<? extends ZipEntry> e = zfile.entries(); e.hasMoreElements();) {
-            final ZipEntry entry = e.nextElement();
-            if (!entry.getName().endsWith(".class")) {
-                // skip
-                continue;
-            }
-            final String classname = classNameFromFileName(entry.getName());
-            result.add(classname);
-        }
-        zfile.close();
-        return result;
     }
 
     /**
@@ -204,7 +243,7 @@ public final class Classloaders extends WebPage {
     private static List<Model> listZip(String pkg, File cpItem) throws ZipException, IOException {
         final List<Model> result = new ArrayList<Model>();
         final ZipFile zfile = new ZipFile(cpItem);
-        final String prefix = pkg + "/";
+        final String prefix = pkg.length() == 0 ? "" : pkg + "/";
         for (final Enumeration<? extends ZipEntry> e = zfile.entries(); e.hasMoreElements();) {
             final ZipEntry entry = e.nextElement();
             final String name = entry.getName();
@@ -212,6 +251,10 @@ public final class Classloaders extends WebPage {
                 continue;
             }
             final String itemname = name.substring(prefix.length());
+            final int slash=itemname.indexOf('/');
+            if ((slash >= 0) && (slash < itemname.length() - 1)) {
+                continue;
+            }
             final Model m = new Model(entry.isDirectory(), itemname, cpItem);
             result.add(m);
         }
