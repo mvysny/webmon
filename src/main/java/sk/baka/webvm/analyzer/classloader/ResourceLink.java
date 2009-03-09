@@ -31,7 +31,6 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-
 /**
  * Represents an on-disk package or a package item.
  * @author Martin Vysny
@@ -45,9 +44,9 @@ public abstract class ResourceLink implements Serializable {
      */
     public static ResourceLink newFor(final File file) {
         if (file.isDirectory()) {
-            return new DirResourceLink(file);
+            return new DirResourceLink(file, true);
         } else {
-            return new JarResourceLink(file, "");
+            return new JarResourceLink(file, "", true);
         }
     }
 
@@ -70,7 +69,7 @@ public abstract class ResourceLink implements Serializable {
     public abstract InputStream open() throws IOException;
 
     /**
-     * Returns the package/resource name. Does not include names of the parent packages nor any slash characters. Name of the root package is not defined.
+     * Returns the package/resource name. Does not include names of the parent packages nor any slash characters. Name of the root package is a full directory/jar file name.
      * @return the name of the resource denoted by this link.
      */
     public abstract String getName();
@@ -80,6 +79,7 @@ public abstract class ResourceLink implements Serializable {
         return getName();
     }
 }
+
 /**
  * Provides package information for a directory containing classpath items.
  * @author Martin Vysny
@@ -87,9 +87,11 @@ public abstract class ResourceLink implements Serializable {
 final class DirResourceLink extends ResourceLink {
 
     private final File file;
+    private final boolean isRoot;
 
-    DirResourceLink(final File file) {
+    DirResourceLink(final File file, final boolean isRoot) {
         this.file = file;
+        this.isRoot = isRoot;
     }
 
     @Override
@@ -97,7 +99,7 @@ final class DirResourceLink extends ResourceLink {
         final File[] children = file.listFiles();
         final List<ResourceLink> result = new ArrayList<ResourceLink>(children.length);
         for (final File child : children) {
-            result.add(new DirResourceLink(child));
+            result.add(new DirResourceLink(child, false));
         }
         return result;
     }
@@ -114,7 +116,7 @@ final class DirResourceLink extends ResourceLink {
 
     @Override
     public String getName() {
-        return file.getName();
+        return isRoot ? file.getAbsolutePath() : file.getName();
     }
 }
 
@@ -126,10 +128,12 @@ final class JarResourceLink extends ResourceLink {
 
     private final File jarFile;
     private final String fullEntryName;
+    private final boolean isRoot;
 
-    JarResourceLink(final File jarFile, final String fullEntryName) {
+    JarResourceLink(final File jarFile, final String fullEntryName, final boolean isRoot) {
         this.jarFile = jarFile;
         this.fullEntryName = fullEntryName;
+        this.isRoot = isRoot;
     }
 
     @Override
@@ -151,7 +155,7 @@ final class JarResourceLink extends ResourceLink {
                 if ((slash >= 0) && (slash < itemname.length() - 1)) {
                     continue;
                 }
-                final ResourceLink link = new JarResourceLink(jarFile, itemname);
+                final ResourceLink link = new JarResourceLink(jarFile, name, false);
                 result.add(link);
             }
             return result;
@@ -182,6 +186,9 @@ final class JarResourceLink extends ResourceLink {
 
     @Override
     public String getName() {
+        if (isRoot) {
+            return jarFile.getAbsolutePath();
+        }
         String fullName = fullEntryName;
         if (fullEntryName.endsWith("/")) {
             fullName = fullName.substring(0, fullEntryName.length() - 1);

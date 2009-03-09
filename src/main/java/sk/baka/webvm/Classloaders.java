@@ -23,6 +23,8 @@ import java.io.Serializable;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
@@ -54,7 +56,6 @@ public final class Classloaders extends WebPage {
         analyzeClassloader(root, Thread.currentThread().getContextClassLoader());
         final TreeModel model = new DefaultTreeModel(root);
         final LabelTree result = new LabelTree("classloaderHierarchy", model);
-        result.getTreeState().expandAll();
         result.getTreeState().addTreeStateListener(new Listener());
         result.setRootLess(true);
         return result;
@@ -95,9 +96,14 @@ public final class Classloaders extends WebPage {
                 return;
             }
             n.removeAllChildren();
-            final List<ResourceLink> children = parent.list();
-            for (final ResourceLink link : children) {
-                n.add(new DefaultMutableTreeNode(link));
+            try {
+                final List<ResourceLink> children = parent.list();
+                for (final ResourceLink link : children) {
+                    n.add(new TreeNode(link));
+                }
+            } catch (Exception ex) {
+                log.log(Level.SEVERE, "Error while retrieving resources", ex);
+                n.add(new DefaultMutableTreeNode("Error while retrieving resources: " + ex.toString()));
             }
             final DefaultTreeModel model = getModel();
             model.nodeStructureChanged(n);
@@ -111,7 +117,20 @@ public final class Classloaders extends WebPage {
             // do nothing
         }
     }
+    private static final Logger log = Logger.getLogger(Classloaders.class.getName());
     private static final int MAX_CLASSLOADER_NAME_LENGTH = 60;
+
+    private static class TreeNode extends DefaultMutableTreeNode {
+
+        public TreeNode(final ResourceLink link) {
+            super(link);
+        }
+
+        @Override
+        public boolean isLeaf() {
+            return !((ResourceLink) getUserObject()).isPackage();
+        }
+    }
 
     private static void analyzeClassloader(final MutableTreeNode root, final ClassLoader cl) {
         ClassLoader current = cl;
@@ -138,13 +157,8 @@ public final class Classloaders extends WebPage {
             return;
         }
         for (final URL url : clUrls) {
-            final DefaultMutableTreeNode node = new DefaultMutableTreeNode();
             final File file = FileUtils.toFile(url);
-            if (file == null) {
-                node.setUserObject(url);
-                continue;
-            }
-            node.setUserObject(ResourceLink.newFor(file));
+            final DefaultMutableTreeNode node = (file == null) ? new DefaultMutableTreeNode(url) : new TreeNode(ResourceLink.newFor(file));
             result.add(node);
         }
     }
