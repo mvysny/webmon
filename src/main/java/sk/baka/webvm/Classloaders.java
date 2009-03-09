@@ -97,7 +97,7 @@ public final class Classloaders extends WebPage {
             }
             n.removeAllChildren();
             try {
-                final List<ResourceLink> children = parent.list();
+                final List<ResourceLink> children = parent.listAndGroup();
                 for (final ResourceLink link : children) {
                     n.add(new TreeNode(link));
                 }
