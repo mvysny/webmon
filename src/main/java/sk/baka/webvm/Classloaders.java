@@ -26,6 +26,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -86,7 +88,7 @@ public final class Classloaders extends WebPage {
                 // download the resource
                 getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(toStream(parent), parent.getName()));
                 setRedirect(true);
-                // TODO mvy: does not work as expected
+            // TODO mvy: does not work as expected
             }
         };
         result.getTreeState().addTreeStateListener(new Listener());
@@ -156,6 +158,21 @@ public final class Classloaders extends WebPage {
         n.removeAllChildren();
         try {
             final List<ResourceLink> children = parent.listAndGroup();
+            Collections.sort(children, new Comparator<ResourceLink>() {
+
+                public int compare(ResourceLink o1, ResourceLink o2) {
+                    if (o1.isPackage()) {
+                        if (!o2.isPackage()) {
+                            return -1;
+                        }
+                    } else {
+                        if (o2.isPackage()) {
+                            return 1;
+                        }
+                    }
+                    return o1.getName().compareToIgnoreCase(o2.getName());
+                }
+            });
             for (final ResourceLink link : children) {
                 n.add(new TreeNode(link));
             }
