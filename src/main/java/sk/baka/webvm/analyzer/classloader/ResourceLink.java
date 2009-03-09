@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
@@ -48,6 +49,52 @@ public abstract class ResourceLink implements Serializable {
         } else {
             return new JarResourceLink(file, "", true);
         }
+    }
+
+    /**
+     * Lists all direct child packages and items of this package. It is invalid to call this method on a non-package resource. Groups single-package-child
+     * names together.
+     * @return list of all children.
+     */
+    public final List<ResourceLink> listAndGroup() throws IOException {
+        final List<ResourceLink> result = list();
+        for (int i = 0; i < result.size(); i++) {
+            result.set(i, groupIfNecessary(result.get(i)));
+        }
+        return result;
+    }
+
+    private ResourceLink groupIfNecessary(final ResourceLink child) throws IOException {
+        if (!child.isPackage()) {
+            return child;
+        }
+        ResourceLink singlePackage = child;
+        ResourceLink prevPackage = null;
+        final StringBuilder sb = new StringBuilder(child.getName());
+        do {
+            final List<ResourceLink> children = singlePackage.list();
+            prevPackage = singlePackage;
+            singlePackage = getSinglePackage(children);
+            if (singlePackage != null) {
+                sb.append('.');
+                sb.append(singlePackage.getName());
+            }
+        } while (singlePackage != null);
+        if (prevPackage == child) {
+            return child;
+        }
+        return new ResourceLinkGroup(sb.toString(), prevPackage);
+    }
+
+    private static ResourceLink getSinglePackage(final Collection<? extends ResourceLink> contents) {
+        if (contents.size() != 1) {
+            return null;
+        }
+        final ResourceLink link = contents.iterator().next();
+        if (!link.isPackage()) {
+            return null;
+        }
+        return link;
     }
 
     /**
@@ -195,5 +242,41 @@ final class JarResourceLink extends ResourceLink {
         }
         final int lastSlash = fullName.lastIndexOf('/');
         return fullName.substring(lastSlash + 1, fullName.length());
+    }
+}
+
+/**
+ * A delegate for a real resource link. Serves for multiple package grouping. Always a package.
+ * @author Martin Vysny
+ */
+final class ResourceLinkGroup extends ResourceLink {
+
+    private final String name;
+    private final ResourceLink delegate;
+
+    public ResourceLinkGroup(final String name, final ResourceLink delegate) {
+        this.name = name;
+        this.delegate = delegate;
+
+    }
+
+    @Override
+    public List<ResourceLink> list() throws IOException {
+        return delegate.list();
+    }
+
+    @Override
+    public boolean isPackage() {
+        return true;
+    }
+
+    @Override
+    public InputStream open() throws IOException {
+        throw new IOException("Not a file");
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 }
