@@ -19,10 +19,15 @@
 package sk.baka.webvm;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -30,10 +35,18 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeModel;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.tree.BaseTree;
 import org.apache.wicket.markup.html.tree.ITreeStateListener;
 import org.apache.wicket.markup.html.tree.LabelTree;
+import org.apache.wicket.markup.html.tree.LinkTree;
+import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
+import org.apache.wicket.util.resource.IResourceStream;
+import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
+import org.apache.wicket.util.time.Time;
 import sk.baka.webvm.analyzer.classloader.CLEnum;
 import sk.baka.webvm.analyzer.classloader.ResourceLink;
 
@@ -55,10 +68,103 @@ public final class Classloaders extends WebPage {
         final MutableTreeNode root = new DefaultMutableTreeNode("root");
         analyzeClassloader(root, Thread.currentThread().getContextClassLoader());
         final TreeModel model = new DefaultTreeModel(root);
-        final LabelTree result = new LabelTree("classloaderHierarchy", model);
+        final LinkTree result = new LinkTree("classloaderHierarchy", model) {
+
+            @Override
+            protected void onNodeLinkClicked(Object node, BaseTree tree, AjaxRequestTarget target) {
+                final DefaultMutableTreeNode n = (DefaultMutableTreeNode) node;
+                if (!(n.getUserObject() instanceof ResourceLink)) {
+                    tree.getTreeState().expandNode(node);
+                    return;
+                }
+                final ResourceLink parent = (ResourceLink) n.getUserObject();
+                if (parent.isPackage()) {
+                    expandNode(node);
+                    tree.getTreeState().expandNode(node);
+                    return;
+                }
+                // download the resource
+                getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(toStream(parent), parent.getName()));
+                setRedirect(true);
+                // TODO mvy: does not work as expected
+            }
+        };
         result.getTreeState().addTreeStateListener(new Listener());
         result.setRootLess(true);
         return result;
+    }
+
+    private IResourceStream toStream(final ResourceLink link) {
+        return new IResourceStream() {
+
+            public String getContentType() {
+                return URLConnection.getFileNameMap().getContentTypeFor(link.getName());
+            }
+
+            public long length() {
+                try {
+                    return link.getLength();
+                } catch (IOException ex) {
+                    Logger.getLogger(Classloaders.class.getName()).log(Level.WARNING, null, ex);
+                    return -1;
+                }
+            }
+
+            public InputStream getInputStream() throws ResourceStreamNotFoundException {
+                final InputStream result;
+                try {
+                    result = link.open();
+                } catch (IOException ex) {
+                    throw new ResourceStreamNotFoundException(ex);
+                }
+                streams.add(result);
+                return result;
+            }
+            private final List<InputStream> streams = new ArrayList<InputStream>();
+
+            public void close() throws IOException {
+                for (final InputStream is : streams) {
+                    IOUtils.closeQuietly(is);
+                }
+                streams.clear();
+            }
+
+            public Locale getLocale() {
+                return locale;
+            }
+            private Locale locale;
+
+            public void setLocale(Locale locale) {
+                this.locale = locale;
+            }
+
+            public Time lastModifiedTime() {
+                return Time.milliseconds(1);
+            }
+        };
+    }
+
+    private void expandNode(final Object node) {
+        final DefaultMutableTreeNode n = (DefaultMutableTreeNode) node;
+        if (!(n.getUserObject() instanceof ResourceLink)) {
+            return;
+        }
+        final ResourceLink parent = (ResourceLink) n.getUserObject();
+        if (!parent.isPackage()) {
+            return;
+        }
+        n.removeAllChildren();
+        try {
+            final List<ResourceLink> children = parent.listAndGroup();
+            for (final ResourceLink link : children) {
+                n.add(new TreeNode(link));
+            }
+        } catch (Exception ex) {
+            log.log(Level.SEVERE, "Error while retrieving resources", ex);
+            n.add(new DefaultMutableTreeNode("Error while retrieving resources: " + ex.toString()));
+        }
+        final DefaultTreeModel model = getModel();
+        model.nodeStructureChanged(n);
     }
 
     private DefaultTreeModel getModel() {
@@ -87,26 +193,7 @@ public final class Classloaders extends WebPage {
         }
 
         public void nodeExpanded(Object node) {
-            final DefaultMutableTreeNode n = (DefaultMutableTreeNode) node;
-            if (!(n.getUserObject() instanceof ResourceLink)) {
-                return;
-            }
-            final ResourceLink parent = (ResourceLink) n.getUserObject();
-            if (!parent.isPackage()) {
-                return;
-            }
-            n.removeAllChildren();
-            try {
-                final List<ResourceLink> children = parent.listAndGroup();
-                for (final ResourceLink link : children) {
-                    n.add(new TreeNode(link));
-                }
-            } catch (Exception ex) {
-                log.log(Level.SEVERE, "Error while retrieving resources", ex);
-                n.add(new DefaultMutableTreeNode("Error while retrieving resources: " + ex.toString()));
-            }
-            final DefaultTreeModel model = getModel();
-            model.nodeStructureChanged(n);
+            expandNode(node);
         }
 
         public void nodeSelected(Object node) {
