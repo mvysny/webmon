@@ -42,6 +42,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.tree.BaseTree;
+import org.apache.wicket.markup.html.tree.BaseTree.LinkType;
 import org.apache.wicket.markup.html.tree.ITreeStateListener;
 import org.apache.wicket.markup.html.tree.LabelTree;
 import org.apache.wicket.markup.html.tree.LinkTree;
@@ -88,11 +89,12 @@ public final class Classloaders extends WebPage {
                 // download the resource
                 getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(toStream(parent), parent.getName()));
                 setRedirect(true);
-            // TODO mvy: does not work as expected
             }
         };
         result.getTreeState().addTreeStateListener(new Listener());
         result.setRootLess(true);
+        result.setLinkType(LinkType.REGULAR);
+        result.invalidateAll();
         return result;
     }
 
