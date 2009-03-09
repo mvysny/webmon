@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+
 /**
  * Represents an on-disk package or a package item.
  * @author Martin Vysny
@@ -50,6 +51,12 @@ public abstract class ResourceLink implements Serializable {
             return new JarResourceLink(file, "", true);
         }
     }
+
+    /**
+     * Returns length of underlying resource.
+     * @return the length or -1 if not known or invoked on a package.
+     */
+    public abstract long getLength() throws IOException;
 
     /**
      * Lists all direct child packages and items of this package. It is invalid to call this method on a non-package resource. Groups single-package-child
@@ -165,6 +172,11 @@ final class DirResourceLink extends ResourceLink {
     public String getName() {
         return isRoot ? file.getAbsolutePath() : file.getName();
     }
+
+    @Override
+    public long getLength() {
+        return file.length();
+    }
 }
 
 /**
@@ -243,8 +255,14 @@ final class JarResourceLink extends ResourceLink {
         final int lastSlash = fullName.lastIndexOf('/');
         return fullName.substring(lastSlash + 1, fullName.length());
     }
-}
 
+    @Override
+    public long getLength() throws IOException {
+        final ZipFile zfile = new ZipFile(jarFile);
+        final ZipEntry entry = zfile.getEntry(fullEntryName);
+        return entry.getSize();
+    }
+}
 /**
  * A delegate for a real resource link. Serves for multiple package grouping. Always a package.
  * @author Martin Vysny
@@ -278,5 +296,10 @@ final class ResourceLinkGroup extends ResourceLink {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public long getLength() {
+        return -1;
     }
 }
