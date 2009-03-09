@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright 2009 Martin Vysny.
+ *
+ * This file is part of WebVM.
+ *
+ * WebVM is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * WebVM is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with WebVM.  If not, see <http://www.gnu.org/licenses />.
+-->
+<document>
+    <properties>
+        <title>WebVM changelog</title>
+        <author email="vysny@baka.sk">Martin Vysny</author>
+    </properties>
+    <body>
+        <release version="0.2" date="?">
+        		<action dev="vyzivus" type="update">
+        			All problems reports triggers are now configurable in web.xml
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added problem trigger descriptions
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added JNDI list
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added disk free space problem checks
+        		</action>
+        		<action dev="vyzivus" type="fix">
+        			Fixed Wicket page naming
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Graphs page is now reloaded automatically each 2 seconds.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Problems report is now sampled each 30 seconds and stored into its own history. This history is fed to RSS. RSS shouldn't receive duplicate events anymore.
+        		</action>
+            <action dev="vyzivus" type="update">
+                RSS problem report is now formatted in a HTML table
+            </action>
+            <action dev="vyzivus" type="fix">
+                Fixed the app name: from Sysinfo to WebVM
+            </action>
+        </release>
+        <release version="0.1" date="23. February 2009">
+            <action dev="vyzivus" type="add">
+                Initial release
+            </action>
+        </release>
+    </body>
+</document>
