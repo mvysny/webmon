@@ -11,6 +11,9 @@
             <div class="post">
                 <h2 class="title">Classloaders</h2>
                 <div class="entry">
+                    Note that classloader resources are downloadable. The items are downloaded from jar/directory files, <strong>not</strong> using the
+                    <code>ClassLoader.getResource()</code> method. Results of <code>ClassLoader.getResource()</code> depends on the ClassLoader
+                    implementation and may differ from files downloadable here.
                     <div class="entry" wicket:id="classloaderHierarchy"></div>
                 </div>
             </div>
