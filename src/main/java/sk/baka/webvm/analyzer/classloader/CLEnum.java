@@ -18,7 +18,12 @@
  */
 package sk.baka.webvm.analyzer.classloader;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Enumeration;
+import org.apache.commons.io.IOUtils;
 
 /**
  * Auto-detection of the class loader type.
@@ -27,26 +32,55 @@ import java.util.EnumSet;
 public enum CLEnum {
 
     WAR {
+
         @Override
         protected boolean matches(final ClassLoader cl) {
-            return cl.getResource("WEB-INF/web.xml") != null;
+            try {
+                final Enumeration<URL> e = cl.getResources("WEB-INF/web.xml");
+                if (e == null) {
+                    return false;
+                }
+                for (final URL url : Collections.list(e)) {
+                    final InputStream in = url.openStream();
+                    try {
+                        final String webXml = IOUtils.toString(in);
+                        if (webXml.contains("WebVM")) {
+                            return true;
+                        }
+                    } finally {
+                        IOUtils.closeQuietly(in);
+                    }
+                }
+            } catch (Exception ex) {
+                return false;
+            }
+            return false;
         }
     }, EJBJAR {
+
         @Override
         protected boolean matches(final ClassLoader cl) {
             return cl.getResource("META-INF/ejb-jar.xml") != null;
         }
     }, EAR {
+
         protected boolean matches(final ClassLoader cl) {
             return cl.getResource("META-INF/application.xml") != null;
         }
     }, SYSTEM {
+
         protected boolean matches(final ClassLoader cl) {
             return cl == ClassLoader.getSystemClassLoader();
         }
     }, ROOT {
+
         protected boolean matches(final ClassLoader cl) {
             return cl.getParent() == null;
+        }
+    }, SERVER {
+
+        protected boolean matches(final ClassLoader cl) {
+            return false;
         }
     };
 
@@ -63,6 +97,9 @@ public enum CLEnum {
             if (e.matches(cl)) {
                 result.add(e);
             }
+        }
+        if (result.isEmpty()) {
+            result.add(SERVER);
         }
         return result;
     }
