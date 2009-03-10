@@ -131,12 +131,14 @@ a:hover {
 	color: #FFFFFF;
 }
 
-#menu .current_page_item {
+#menu a.current_page_item {
+	color: #FFFFFF;
 }
 
+/*
 #menu .current_page_item a {
 }
-
+*/
 /* Page */
 
 #page {

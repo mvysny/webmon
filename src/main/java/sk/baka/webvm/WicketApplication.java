@@ -92,6 +92,8 @@ public final class WicketApplication extends WebApplication {
         SAMPLER.configure(CONFIG);
         SAMPLER.start();
         mount("a", PackageName.forClass(getClass()));
+        getMarkupSettings().setDefaultBeforeDisabledLink("<a href=\"#\" class=\"current_page_item\">");
+        getMarkupSettings().setDefaultAfterDisabledLink("</a>");
     }
 
     @Override
