@@ -22,14 +22,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -41,6 +45,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.tree.BaseTree;
 import org.apache.wicket.markup.html.tree.BaseTree.LinkType;
 import org.apache.wicket.markup.html.tree.ITreeStateListener;
@@ -52,6 +59,7 @@ import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.apache.wicket.util.time.Time;
 import sk.baka.webvm.analyzer.classloader.CLEnum;
+import sk.baka.webvm.analyzer.classloader.ClassLoaderUtils;
 import sk.baka.webvm.analyzer.classloader.ResourceLink;
 
 /**
@@ -64,9 +72,45 @@ public final class Classloaders extends WebPage {
         final AppBorder border = new AppBorder("appBorder");
         add(border);
         tree = newClassloaderHierarchy();
+        analyzeClashes(border);
         border.add(tree);
     }
     private LabelTree tree;
+
+    private void analyzeClashes(AppBorder border) {
+        final Map<URI, List<Integer>> clashes = getClashes();
+        final List<URI> uris = new ArrayList<URI>(clashes.keySet());
+        border.add(new ListView<URI>("clRow", uris) {
+
+            @Override
+            protected void populateItem(ListItem<URI> item) {
+                final URI uri = item.getModelObject();
+                item.add(new Label("clURI", uri.toString()));
+                final List<Integer> clNumbers = clashes.get(uri);
+                item.add(new Label("clClassLoader", clNumbers.toString()));
+            }
+        });
+    }
+
+    private Map<URI, List<Integer>> getClashes() {
+        final List<ClassLoader> cls = ClassLoaderUtils.getClassLoaderChain(Thread.currentThread().getContextClassLoader());
+        final Map<URI, List<ClassLoader>> clashes;
+        try {
+            clashes = ClassLoaderUtils.getClassLoaderURIs(Thread.currentThread().getContextClassLoader());
+        } catch (URISyntaxException ex) {
+            throw new RuntimeException(ex);
+        }
+        ClassLoaderUtils.filterClashes(clashes);
+        final Map<URI, List<Integer>> result = new HashMap<URI, List<Integer>>();
+        for (final Map.Entry<URI, List<ClassLoader>> e : clashes.entrySet()) {
+            final List<Integer> clNumbers = new ArrayList<Integer>();
+            for (final ClassLoader cl : e.getValue()) {
+                clNumbers.add(cls.indexOf(cl) + 1);
+            }
+            result.put(e.getKey(), clNumbers);
+        }
+        return result;
+    }
 
     private LabelTree newClassloaderHierarchy() {
         final MutableTreeNode root = new DefaultMutableTreeNode("root");
@@ -102,6 +146,7 @@ public final class Classloaders extends WebPage {
         };
         result.getTreeState().addTreeStateListener(new Listener());
         result.setRootLess(true);
+        // resource download does not work with AJAX links - fix this
         result.setLinkType(LinkType.REGULAR);
         result.invalidateAll();
         return result;
@@ -268,7 +313,7 @@ public final class Classloaders extends WebPage {
     private static void addClassLoaderURLs(final DefaultMutableTreeNode result, final URLClassLoader cl) {
         final URL[] clUrls = cl.getURLs();
         if (clUrls == null || clUrls.length == 0) {
-            result.add(new DefaultMutableTreeNode("ClassLoader search URL path is empty"));
+            result.add(new DefaultMutableTreeNode("URLClassLoader.getURLs() is empty"));
             return;
         }
         for (final URL url : clUrls) {
