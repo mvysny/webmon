@@ -128,11 +128,24 @@ public abstract class ResourceLink implements Serializable {
      */
     public abstract String getName();
 
+    /**
+     * Checks if this resource link denotes a root of a jar/directory.
+     * @return true if this is a jar/directory root, false otherwise.
+     */
+    public abstract boolean isRoot();
+
+    /**
+     * Returns a file link to the resource container containing these links. Required to be valid only for {@link #isRoot() root} links.
+     * @return file denoting the container or null.
+     */
+    public abstract File getContainer();
+
     @Override
     public String toString() {
         return getName();
     }
 }
+
 
 /**
  * Provides package information for a directory containing classpath items.
@@ -177,8 +190,17 @@ final class DirResourceLink extends ResourceLink {
     public long getLength() {
         return file.length();
     }
-}
 
+    @Override
+    public boolean isRoot() {
+        return isRoot;
+    }
+
+    @Override
+    public File getContainer() {
+        return isRoot ? file : null;
+    }
+}
 /**
  * Provides package information for an on-disk jar file.
  * @author Martin Vysny
@@ -262,6 +284,16 @@ final class JarResourceLink extends ResourceLink {
         final ZipEntry entry = zfile.getEntry(fullEntryName);
         return entry.getSize();
     }
+
+    @Override
+    public boolean isRoot() {
+        return isRoot;
+    }
+
+    @Override
+    public File getContainer() {
+        return jarFile;
+    }
 }
 /**
  * A delegate for a real resource link. Serves for multiple package grouping. Always a package.
@@ -301,5 +333,15 @@ final class ResourceLinkGroup extends ResourceLink {
     @Override
     public long getLength() {
         return -1;
+    }
+
+    @Override
+    public boolean isRoot() {
+        return false;
+    }
+
+    @Override
+    public File getContainer() {
+        return delegate.getContainer();
     }
 }
