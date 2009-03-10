@@ -24,12 +24,10 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import sk.baka.webvm.analyzer.ProblemAnalyzer;
 
 /**
  * Shows the "Problems" page and provides the problems analysis.
@@ -67,14 +65,6 @@ public final class Problems extends WebPage {
             }
         };
         border.add(list);
-        border.add(new Link<Void>("performGCLink") {
-
-            @Override
-            public void onClick() {
-                System.gc();
-                setResponsePage(Problems.class);
-            }
-        });
     }
 }
 
