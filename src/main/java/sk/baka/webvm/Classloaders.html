@@ -17,6 +17,19 @@
                     <div class="entry" wicket:id="classloaderHierarchy"></div>
                 </div>
             </div>
+            <div class="post">
+                <h2 class="title">Clashes</h2>
+                <div class="entry">
+                    List of ClassLoaders which loads the same URLs
+                    <table border="1">
+                        <thead><tr><th>URI</th><th>ClassLoader</th></tr></thead>
+                        <tr wicket:id="clRow">
+                            <td wicket:id="clURI"></td>
+                            <td wicket:id="clClassLoader"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
         </div>
     </body>
 </html>
