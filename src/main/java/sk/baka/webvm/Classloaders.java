@@ -47,6 +47,7 @@ import org.apache.wicket.markup.html.tree.ITreeStateListener;
 import org.apache.wicket.markup.html.tree.LabelTree;
 import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
+import org.apache.wicket.util.resource.FileResourceStream;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.apache.wicket.util.time.Time;
@@ -81,6 +82,14 @@ public final class Classloaders extends WebPage {
                     return;
                 }
                 final ResourceLink parent = (ResourceLink) n.getUserObject();
+                if (parent.isRoot()) {
+                    final File container = parent.getContainer();
+                    if (container != null && container.isFile()) {
+                        getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(new FileResourceStream(container), container.getName()));
+                        setRedirect(true);
+                        return;
+                    }
+                }
                 if (parent.isPackage()) {
                     expandNode(node);
                     tree.getTreeState().expandNode(node);
