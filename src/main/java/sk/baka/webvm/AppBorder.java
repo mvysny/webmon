@@ -22,6 +22,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.border.Border;
+import org.apache.wicket.markup.html.link.Link;
 
 /**
  * Defines a border for the entire application.
@@ -37,5 +38,13 @@ public class AppBorder extends Border {
         super(componentName);
         final DateFormat formatter = DateFormat.getTimeInstance(DateFormat.MEDIUM);
         add(new Label("currentTime", formatter.format(new Date())));
+        add(new Link<Void>("performGCLink") {
+
+            @Override
+            public void onClick() {
+                System.gc();
+                setResponsePage(getPage().getClass());
+            }
+        });
     }
 }

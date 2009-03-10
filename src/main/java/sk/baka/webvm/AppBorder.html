@@ -24,6 +24,25 @@
                 </div>
             </div>
             <div id="page">
+                <div id="sidebar">
+                    <ul>
+                        <li id="search" style="background: none;">
+                            <form id="searchform" method="get" action="">
+                                <div>
+                                    <input type="text" name="s" id="s" size="15" />
+                                    <br />
+                                    <input type="submit" value="Search" />
+                                </div>
+                            </form>
+                        </li>
+                        <li id="categories">
+                            <h2>Operations</h2>
+                            <ul>
+                                <li><a wicket:id="performGCLink">Perform GC</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
                 <div id="content">
                     <wicket:body/>
                 </div>

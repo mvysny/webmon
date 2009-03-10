@@ -76,14 +76,6 @@ public class HomePage extends WebPage {
         border.add(new Label("gcCount", Long.toString(collectors)));
         border.add(new Label("gcAmount", Long.toString(collections)));
         border.add(new Label("gcTime", Long.toString(collectTime)));
-        border.add(new Link<Void>("performGCLink") {
-
-            @Override
-            public void onClick() {
-                System.gc();
-                setResponsePage(HomePage.class);
-            }
-        });
         // system info
         border.add(new Label("os", System.getProperty("os.name") + " " + System.getProperty("os.version") + "; " + System.getProperty("os.arch") + "; CPU#: " + Runtime.getRuntime().availableProcessors()));
         border.add(new Label("java", System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + " by " + System.getProperty("java.vm.vendor")));

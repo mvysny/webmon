@@ -101,14 +101,6 @@ public final class Memory extends WebPage {
                 item.add(new Label("poolUsagePerc", MgmtUtils.getUsagePerc(bean.getUsage())));
             }
         });
-        border.add(new Link<Void>("performGCLink") {
-
-            @Override
-            public void onClick() {
-                System.gc();
-                setResponsePage(Memory.class);
-            }
-        });
     }
 
     private void displayMemInfo(final AppBorder border, final List<? extends MemoryManagerMXBean> b, final String listId, final String nameId, final String validId, final String propsId) {
