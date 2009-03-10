@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm;
 
+import java.text.DateFormat;
 import java.util.Date;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.border.Border;
@@ -33,7 +34,8 @@ public class AppBorder extends Border {
      * @param componentName the component id
      */
     public AppBorder(final String componentName) {
-		super(componentName);
-		add(new Label("currentTime", new Date().toString()));
-	}
+        super(componentName);
+        final DateFormat formatter = DateFormat.getTimeInstance(DateFormat.MEDIUM);
+        add(new Label("currentTime", formatter.format(new Date())));
+    }
 }
