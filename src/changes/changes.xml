@@ -27,7 +27,7 @@
         		<action dev="vyzivus" type="update">
 					The "Perform GC" link moved to a sidebar.
         		</action>
-        		<action dev="vyzivus" type="add">
+        		<action dev="vyzivus" type="add" issue="1">
 					Added the ClassLoader analysis page. Resources and jar files are downloadable.
         		</action>
         		<action dev="vyzivus" type="add">
