@@ -20,6 +20,7 @@ package sk.baka.webvm;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import sk.baka.webvm.misc.Producer;
 
 /**
  * Provides list of system properties and environment properties.
@@ -44,30 +46,44 @@ public final class SysInfo extends WebPage {
     public SysInfo(PageParameters params) {
         final AppBorder border = new AppBorder("appBorder");
         add(border);
-        listMap(border, (Map<String, String>) (Map) System.getProperties(), "systemProperties", "sysPropName", "sysPropValue");
-        listMap(border, System.getenv(), "env", "envName", "envValue");
+        listMap(border, new Producer<Map<String, String>>() {
+
+            public Map<String, String> produce() {
+                return (Map<String, String>) (Map) System.getProperties();
+            }
+        }, "systemProperties", "sysPropName", "sysPropValue");
+        listMap(border, new Producer<Map<String, String>>() {
+
+            public Map<String, String> produce() {
+                return System.getenv();
+            }
+        }, "env", "envName", "envValue");
     }
 
-    private void listMap(final AppBorder border, final Map<String, String> map, final String listId, final String keyId, final String valueId) {
-        final Map<String, String> clonedMap = new HashMap<String, String>(map);
-        final List<String> keys = new ArrayList<String>(clonedMap.keySet());
-        Collections.sort(keys);
-        final IModel<List<String>> model = new LoadableDetachableModel<List<String>>() {
+    private void listMap(final AppBorder border, final Producer<Map<String, String>> producer, final String listId, final String keyId, final String valueId) {
+        final IModel<List<Map.Entry<String, String>>> model = new LoadableDetachableModel<List<Map.Entry<String, String>>>() {
 
             @Override
-            protected List<String> load() {
-                return keys;
+            protected List<Map.Entry<String, String>> load() {
+                final Map<String, String> map = producer.produce();
+                final List<Map.Entry<String, String>> result = new ArrayList<Map.Entry<String, String>>(map.entrySet());
+                Collections.sort(result, new Comparator<Map.Entry<String, String>>() {
+
+                    public int compare(Map.Entry<String, String> o1, Map.Entry<String, String> o2) {
+                        return o1.getKey().compareToIgnoreCase(o2.getKey());
+                    }
+                });
+                return result;
             }
         };
-        border.add(new ListView<String>(listId, model) {
+        border.add(new ListView<Map.Entry<String, String>>(listId, model) {
 
             @Override
-            protected void populateItem(ListItem<String> item) {
-                final String propertyName = item.getModelObject();
-                item.add(new Label(keyId, propertyName));
-                item.add(new Label(valueId, clonedMap.get(propertyName)));
+            protected void populateItem(ListItem<Map.Entry<String, String>> item) {
+                final Map.Entry<String, String> property = item.getModelObject();
+                item.add(new Label(keyId, property.getKey()));
+                item.add(new Label(valueId, property.getValue()));
             }
         });
     }
 }
-
