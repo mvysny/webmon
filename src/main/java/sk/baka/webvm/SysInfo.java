@@ -20,6 +20,7 @@ package sk.baka.webvm;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.wicket.PageParameters;
@@ -48,7 +49,8 @@ public final class SysInfo extends WebPage {
     }
 
     private void listMap(final AppBorder border, final Map<String, String> map, final String listId, final String keyId, final String valueId) {
-        final List<String> keys = new ArrayList<String>(map.keySet());
+        final Map<String, String> clonedMap = new HashMap<String, String>(map);
+        final List<String> keys = new ArrayList<String>(clonedMap.keySet());
         Collections.sort(keys);
         final IModel<List<String>> model = new LoadableDetachableModel<List<String>>() {
 
@@ -63,7 +65,7 @@ public final class SysInfo extends WebPage {
             protected void populateItem(ListItem<String> item) {
                 final String propertyName = item.getModelObject();
                 item.add(new Label(keyId, propertyName));
-                item.add(new Label(valueId, map.get(propertyName)));
+                item.add(new Label(valueId, clonedMap.get(propertyName)));
             }
         });
     }
