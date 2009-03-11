@@ -26,12 +26,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
 
 /**
  * Represents an on-disk package or a package item.
@@ -50,6 +51,35 @@ public abstract class ResourceLink implements Serializable {
         } else {
             return new JarResourceLink(file, "", true);
         }
+    }
+
+    /**
+     * Returns a list of names from given list of links
+     * @param links not null
+     * @return never null
+     */
+    public static List<String> getNames(final List<ResourceLink> links) {
+        final List<String> result = new ArrayList<String>(links.size());
+        for (final ResourceLink link : links) {
+            result.add(link.getName());
+        }
+        return result;
+    }
+
+    /**
+     * Finds first link with given name.
+     * @param links a list of links, must not be null
+     * @param name the name of the resource.
+     * @return the link with given name, never null
+     * @throws RuntimeException if no such link exists
+     */
+    public static ResourceLink findFirstByName(final List<ResourceLink> links, final String name) {
+        for (final ResourceLink link : links) {
+            if (link.getName().equals(name)) {
+                return link;
+            }
+        }
+        throw new RuntimeException("No such link: " + name);
     }
 
     /**
@@ -146,7 +176,6 @@ public abstract class ResourceLink implements Serializable {
     }
 }
 
-
 /**
  * Provides package information for a directory containing classpath items.
  * @author Martin Vysny
@@ -201,6 +230,7 @@ final class DirResourceLink extends ResourceLink {
         return isRoot ? file : null;
     }
 }
+
 /**
  * Provides package information for an on-disk jar file.
  * @author Martin Vysny
@@ -225,19 +255,22 @@ final class JarResourceLink extends ResourceLink {
         final List<ResourceLink> result = new ArrayList<ResourceLink>();
         final ZipFile zfile = new ZipFile(jarFile);
         try {
+            final Set<String> resultNames = new HashSet<String>();
             for (final Enumeration<? extends ZipEntry> e = zfile.entries(); e.hasMoreElements();) {
                 final ZipEntry entry = e.nextElement();
                 final String name = entry.getName();
                 if (!name.startsWith(fullEntryName) || name.equals(fullEntryName)) {
                     continue;
                 }
-                final String itemname = name.substring(fullEntryName.length());
+                String itemname = name.substring(fullEntryName.length());
                 final int slash = itemname.indexOf('/');
-                if ((slash >= 0) && (slash < itemname.length() - 1)) {
-                    continue;
+                if (slash >= 0) {
+                    itemname = itemname.substring(0, slash + 1);
                 }
-                final ResourceLink link = new JarResourceLink(jarFile, name, false);
-                result.add(link);
+                if (resultNames.add(itemname)) {
+                    final ResourceLink link = new JarResourceLink(jarFile, fullEntryName + itemname, false);
+                    result.add(link);
+                }
             }
             return result;
         } finally {
@@ -280,8 +313,14 @@ final class JarResourceLink extends ResourceLink {
 
     @Override
     public long getLength() throws IOException {
+        if (isPackage()) {
+            return -1;
+        }
         final ZipFile zfile = new ZipFile(jarFile);
         final ZipEntry entry = zfile.getEntry(fullEntryName);
+        if (entry == null) {
+            throw new IOException("No such entry: " + fullEntryName);
+        }
         return entry.getSize();
     }
 
@@ -294,7 +333,16 @@ final class JarResourceLink extends ResourceLink {
     public File getContainer() {
         return jarFile;
     }
+
+    @Override
+    public String toString() {
+        if (isRoot()) {
+            return getName() + " [" + (jarFile.length() / 1024) + "K]";
+        }
+        return super.toString();
+    }
 }
+
 /**
  * A delegate for a real resource link. Serves for multiple package grouping. Always a package.
  * @author Martin Vysny
