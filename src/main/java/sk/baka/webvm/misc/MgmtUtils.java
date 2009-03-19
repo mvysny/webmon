@@ -18,7 +18,14 @@
  */
 package sk.baka.webvm.misc;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Provides utilities for the java.util.management package.
@@ -96,5 +103,31 @@ public final class MgmtUtils {
             return "?";
         }
         return (100 - (mu.getUsed() * 100 / mu.getMax())) + "%";
+    }
+    private static final SortedMap<String, MemoryPoolMXBean> MEMORY_POOLS;
+
+
+    static {
+        final SortedMap<String, MemoryPoolMXBean> pools = new TreeMap<String, MemoryPoolMXBean>();
+        final List<MemoryPoolMXBean> beans = ManagementFactory.getMemoryPoolMXBeans();
+        if (beans != null && !beans.isEmpty()) {
+            final StringBuilder sb = new StringBuilder();
+            for (final MemoryPoolMXBean bean : beans) {
+                final MemoryUsage usage = bean.getUsage();
+                if (usage == null || !bean.isUsageThresholdSupported()) {
+                    continue;
+                }
+                pools.put(bean.getName(), bean);
+            }
+        }
+        MEMORY_POOLS = Collections.unmodifiableSortedMap(pools);
+    }
+
+    /**
+     * Returns all known memory pools which are garbage-collectable and provide meaningful usage information.
+     * @return map of memory pools, never null, may be empty.
+     */
+    public static SortedMap<String, MemoryPoolMXBean> getMemoryPools() {
+        return MEMORY_POOLS;
     }
 }

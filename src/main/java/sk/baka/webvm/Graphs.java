@@ -18,12 +18,15 @@
  */
 package sk.baka.webvm;
 
+import java.lang.management.MemoryPoolMXBean;
+import java.util.ArrayList;
 import sk.baka.webvm.analyzer.HistorySample;
 import sk.baka.webvm.misc.TextGraph;
 import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import sk.baka.webvm.misc.MgmtUtils;
 
 /**
  * Shows the JVM memory usage and GC CPU usage graphs.
@@ -53,6 +56,32 @@ public final class Graphs extends WebPage {
         }
         // TODO draw the graph directly to a writer
         border.add(new Label("memoryUsage", tg.draw(10)));
+        // draw all memory graphs
+        final List<TextGraph> graphs = new ArrayList<TextGraph>();
+        for (final MemoryPoolMXBean pool : MgmtUtils.getMemoryPools().values()) {
+            final TextGraph graph = new TextGraph();
+            graph.setRange(0, (int) (pool.getUsage().getMax() / 1024 / 1024));
+            graphs.add(graph);
+        }
+        for (final HistorySample hs : history) {
+            int i = 0;
+            for (final int usage : hs.getMemPoolUsage()) {
+                graphs.get(i++).addValue(usage);
+            }
+        }
+        int i = 0;
+        final StringBuilder sb = new StringBuilder();
+        for (final String pool : MgmtUtils.getMemoryPools().keySet()) {
+            final TextGraph graph = graphs.get(i++);
+            sb.append("<h2>[");
+            sb.append(pool);
+            sb.append("] memory usage:");
+            sb.append("</h2><pre class=\"graph\">");
+            sb.append(graph.draw(10));
+            sb.append("</pre>");
+        }
+        final Label graphLabel = new Label("memPoolUsages", sb.toString());
+        graphLabel.setEscapeModelStrings(false);
+        border.add(graphLabel);
     }
 }
-
