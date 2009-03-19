@@ -19,6 +19,9 @@
 package sk.baka.webvm.analyzer;
 
 import java.io.Serializable;
+import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.MemoryUsage;
+import sk.baka.webvm.misc.MgmtUtils;
 
 /**
  * Holds history data for a single time unit.
@@ -28,6 +31,15 @@ public final class HistorySample implements Serializable {
 
     private final int gcCpuUsage;
     private final long sampleTime;
+    private final int[] memPoolUsage;
+
+    /**
+     * Usages in megabytes of memory pools, ordered as returned by the {@link MgmtUtils#getMemoryPools()}.
+     * @return
+     */
+    public int[] getMemPoolUsage() {
+        return memPoolUsage;
+    }
 
     /**
      * The time this sample was taken.
@@ -63,5 +75,12 @@ public final class HistorySample implements Serializable {
         this.gcCpuUsage = gcCpuUsage;
         this.memUsage = memUsage;
         this.sampleTime = System.currentTimeMillis();
+        memPoolUsage = new int[MgmtUtils.getMemoryPools().size()];
+        int i = 0;
+        for (final MemoryPoolMXBean bean : MgmtUtils.getMemoryPools().values()) {
+            final MemoryUsage usage = bean.getUsage();
+            final long used = usage.getUsed() / 1024 / 1024;
+            memPoolUsage[i++] = (int) used;
+        }
     }
 }
