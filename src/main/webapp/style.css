@@ -369,3 +369,7 @@ a:hover {
 pre.graph {
 	font-size: 8px;
 }
+
+table {
+	text-align: left;
+}
