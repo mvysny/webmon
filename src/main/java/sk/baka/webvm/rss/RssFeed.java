@@ -44,11 +44,20 @@ public final class RssFeed extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        final String contextRoot = getContextRoot(request);
+        final String link;
+        if (contextRoot != null) {
+            link = contextRoot + "/a/Problems";
+        } else {
+            link = "a/Problems";
+        }
         response.setContentType("application/rss+xml");
         PrintWriter out = response.getWriter();
         try {
             out.println("<?xml version=\"1.0\"?>\n<rss version=\"2.0\">");
-            out.println("  <channel>\n    <title>WebVM feeds</title>\n    <link>problems.html</link>\n    <description>WebVM: Remote server problems</description>");
+            out.println("  <channel>\n    <title>WebVM feeds</title>\n    <link>");
+            out.println(link);
+            out.println("</link>\n    <description>WebVM: Remote server problems</description>");
             out.println("    <language>en-us</language>\n    <ttl>1</ttl>\n");
             final List<List<ProblemReport>> ph = WicketApplication.getHistory().getProblemHistory();
             for (final List<ProblemReport> problems : ph) {
@@ -67,6 +76,15 @@ public final class RssFeed extends HttpServlet {
         } finally {
             out.close();
         }
+    }
+
+    private static String getContextRoot(HttpServletRequest request) {
+        final String requrl = request.getRequestURL().toString();
+        final int contextRootEnd = requrl.indexOf("/rss.xml");
+        if (contextRootEnd < 0) {
+            return null;
+        }
+        return requrl.substring(0, contextRootEnd);
     }
 
     /** 
