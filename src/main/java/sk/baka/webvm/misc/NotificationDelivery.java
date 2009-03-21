@@ -35,7 +35,6 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import sk.baka.webvm.config.Config;
-import sk.baka.webvm.misc.BackgroundService;
 
 /**
  * Delivers miscellaneous notifications (mail, jabber).
@@ -47,7 +46,7 @@ public final class NotificationDelivery extends BackgroundService {
      * Creates new deliverer.
      */
     public NotificationDelivery() {
-        super(1);
+        super("Notificator", 1);
     }
 
     /**

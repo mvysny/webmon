@@ -18,14 +18,11 @@
  */
 package sk.baka.webvm.analyzer;
 
-import sk.baka.webvm.misc.NotificationDelivery;
-import sk.baka.webvm.misc.SimpleFixedSizeFIFO;
 import sk.baka.webvm.misc.*;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -55,7 +52,7 @@ public final class HistorySampler extends BackgroundService {
 	 * @param analyzer a configured instance of the analyzer
 	 */
 	public HistorySampler(final SamplerConfig vmstatConfig, final SamplerConfig problemConfig, final ProblemAnalyzer analyzer) {
-        super(1);
+        super("Sampler", 1);
 		this.vmstatConfig = vmstatConfig;
 		this.problemConfig = problemConfig;
 		vmstatHistory = new SimpleFixedSizeFIFO<HistorySample>(vmstatConfig.getHistoryLength());
