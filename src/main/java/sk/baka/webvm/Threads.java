@@ -53,6 +53,9 @@ public final class Threads extends WebPage {
         int i = 0;
         for (final HistorySample sample : samples) {
             for (final ThreadInfo info : sample.getThreads()) {
+                if (info == null) {
+                    continue;
+                }
                 List<ThreadInfo> list = history.get(info.getThreadId());
                 if (list == null) {
                     list = new ArrayList<ThreadInfo>(samples.size());
