@@ -64,7 +64,9 @@ public final class RssFeed extends HttpServlet {
                 final Date snapshotTaken = new Date(problems.get(0).created);
                 out.print("    <item>\n      <title>WebVM: Problems report for ");
                 out.print(snapshotTaken);
-                out.print("</title>\n      <link>problems.html</link>\n      <description>Problems report:&lt;br/&gt;");
+                out.print("</title>\n      <link>");
+                out.print(link);
+                out.print("</link>\n      <description>Problems report:&lt;br/&gt;");
                 out.print(ProblemReport.escape(ProblemReport.toHtml(problems)));
                 out.print("</description>\n      <pubDate>");
                 out.print(snapshotTaken);
