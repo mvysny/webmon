@@ -11,24 +11,28 @@
             <div class="post">
                 <h2 class="title">System properties</h2>
                 <div class="entry">
-                    <table border="1">
+                    <table id="table">
                         <thead><tr><th>Property name</th><th>Property value</th></tr></thead>
-                        <tr wicket:id="systemProperties">
-                            <td wicket:id="sysPropName"></td>
-                            <td wicket:id="sysPropValue"></td>
-                        </tr>
+                        <tbody>
+                            <tr wicket:id="systemProperties">
+                                <td wicket:id="sysPropName"></td>
+                                <td wicket:id="sysPropValue"></td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
             <div class="post">
                 <h2 class="title">Environment values</h2>
                 <div class="entry">
-                    <table border="1">
+                    <table id="table">
                         <thead><tr><th>Property name</th><th>Property value</th></tr></thead>
-                        <tr wicket:id="env">
-                            <td wicket:id="envName"></td>
-                            <td wicket:id="envValue"></td>
-                        </tr>
+                        <tbody>
+                            <tr wicket:id="env">
+                                <td wicket:id="envName"></td>
+                                <td wicket:id="envValue"></td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>

@@ -11,65 +11,80 @@
             <div class="post">
                 <h2 class="title">Memory managers</h2>
                 <div class="entry">
-                    <table border="1">
-                        <thead><tr>
-                            <th>Name</th>
-                            <th>Valid</th>
-                            <th>Properties</th>
-                        </tr></thead>
-                        <tr wicket:id="memoryManagers">
-                            <td wicket:id="memManName"/>
-                            <td wicket:id="memManValid"/>
-                            <td wicket:id="memManProperties"/>
-                        </tr>
+                    <table id="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Valid</th>
+                                <th>Properties</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr wicket:id="memoryManagers">
+                                <td wicket:id="memManName"/>
+                                <td wicket:id="memManValid"/>
+                                <td wicket:id="memManProperties"/>
+                            </tr>
+                        </tbody>
                     </table>
-            </div></div>
+                </div>
+            </div>
             <div class="post">
                 <h2 class="title">Garbage collectors</h2>
                 <div class="entry">
-                    <table border="1">
-                        <thead><tr>
-                            <th>Name</th>
-                            <th>Valid</th>
-                            <th>Properties</th>
-                        </tr></thead>
-                        <tr wicket:id="gc">
-                            <td wicket:id="gcName"/>
-                            <td wicket:id="gcValid"/>
-                            <td wicket:id="gcProperties"/>
-                        </tr>
+                    <table id="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Valid</th>
+                                <th>Properties</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr wicket:id="gc">
+                                <td wicket:id="gcName"/>
+                                <td wicket:id="gcValid"/>
+                                <td wicket:id="gcProperties"/>
+                            </tr>
+                        </tbody>
                     </table>
-            </div></div>
+                </div>
+            </div>
             <div class="post">
                 <h2 class="title">Memory pools</h2>
                 <div class="entry">
                     The pool usage is displayed in the following format:
                     <code>[<i>used</i> (<i>committed</i>) / <i>max</i> - <i>usage</i>%]</code>
-                    <table border="1">
-                        <thead><tr>
-                            <th>Pool name</th>
-                            <th>Pool type</th>
-                            <th>Valid</th>
-                            <th>Current usage</th>
-                            <th>%</th>
-                            <th>Peak usage</th>
-                            <th>%</th>
-                            <th>Garbage Collects</th>
-                            <th>%</th>
-                        </tr></thead>
-                        <tr wicket:id="memoryPool">
-                            <td wicket:id="poolName"/>
-                            <td wicket:id="poolType"/>
-                            <td wicket:id="poolValid"/>
-                            <td wicket:id="poolUsage"/>
-                            <td wicket:id="poolUsagePerc"/>
-                            <td wicket:id="poolPeak"/>
-                            <td wicket:id="poolPeakPerc"/>
-                            <td wicket:id="poolCollects"/>
-                            <td><b wicket:id="poolCollectsPerc"/></td>
-                        </tr>
+                    <table id="table">
+                        <thead>
+                            <tr>
+                                <th>Pool name</th>
+                                <th>Pool type</th>
+                                <th>Valid</th>
+                                <th>Current usage</th>
+                                <th>%</th>
+                                <th>Peak usage</th>
+                                <th>%</th>
+                                <th>Garbage Collects</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr wicket:id="memoryPool">
+                                <td wicket:id="poolName"/>
+                                <td wicket:id="poolType"/>
+                                <td wicket:id="poolValid"/>
+                                <td wicket:id="poolUsage"/>
+                                <td wicket:id="poolUsagePerc"/>
+                                <td wicket:id="poolPeak"/>
+                                <td wicket:id="poolPeakPerc"/>
+                                <td wicket:id="poolCollects"/>
+                                <td><b wicket:id="poolCollectsPerc"/></td>
+                            </tr>
+                        </tbody>
                     </table>
-            </div></div>
+                </div>
+            </div>
         </div>
     </body>
 </html>
