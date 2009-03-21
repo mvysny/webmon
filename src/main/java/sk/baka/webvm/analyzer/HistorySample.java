@@ -19,8 +19,10 @@
 package sk.baka.webvm.analyzer;
 
 import java.io.Serializable;
+import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
+import java.lang.management.ThreadInfo;
 import sk.baka.webvm.misc.MgmtUtils;
 
 /**
@@ -29,9 +31,11 @@ import sk.baka.webvm.misc.MgmtUtils;
  */
 public final class HistorySample implements Serializable {
 
+    private final int memUsage;
     private final int gcCpuUsage;
     private final long sampleTime;
     private final int[] memPoolUsage;
+    private final ThreadInfo[] threads;
 
     /**
      * Usages in megabytes of memory pools, ordered as returned by the {@link MgmtUtils#getMemoryPools()}.
@@ -64,7 +68,14 @@ public final class HistorySample implements Serializable {
     public int getMemUsage() {
         return memUsage;
     }
-    private final int memUsage;
+
+    /**
+     * Returns a thread dump. Does not contain any stacktraces.
+     * @return a list of thread information objects.
+     */
+    public ThreadInfo[] getThreads() {
+        return threads;
+    }
 
     /**
      * Creates new history sample bean.
@@ -82,5 +93,6 @@ public final class HistorySample implements Serializable {
             final long used = usage.getUsed() / 1024 / 1024;
             memPoolUsage[i++] = (int) used;
         }
+        threads = ManagementFactory.getThreadMXBean().getThreadInfo(ManagementFactory.getThreadMXBean().getAllThreadIds());
     }
 }
