@@ -3,34 +3,36 @@
 <html xmlns:wicket>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-		<meta http-equiv="refresh" content="2"/>
+        <meta http-equiv="refresh" content="2"/>
         <title>Threads</title>
-        <link rel="stylesheet" type="text/css" href="style.css"/>
+        <link rel="stylesheet" type="text/css" href="style.css" media="screen"/>
     </head>
     <body>
         <div wicket:id="appBorder">
             <div class="post">
                 <h2 class="title">Threads</h2>
-                Legend: <strong>-</strong> <a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#NEW">New</a>
-                <strong>R</strong> <a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#RUNNABLE">Runnable</a>
-                <strong>b</strong> <a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#BLOCKED">Blocked</a>
-                <strong>w</strong> <a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#WAITING">Waiting</a> or <a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#TIMED_WAITING">Timed waiting</a>
-                <strong>t</strong> <a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#TERMINATED">Terminated</a>
-                <table id="table">
-                    <caption>Thread list</caption>
-                    <thead>
-                        <tr>
-                            <th>Name</th><th>State</th><th>History</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr wicket:id="threads">
-                            <td wicket:id="threadName"/>
-                            <td wicket:id="threadState"/>
-                            <td><pre class="graph" wicket:id="threadHistory"/></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="entry">
+                    Legend: <strong>-</strong> <a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#NEW">New</a>
+                    <strong>R</strong> <a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#RUNNABLE">Runnable</a>
+                    <strong>b</strong> <a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#BLOCKED">Blocked</a>
+                    <strong>w</strong> <a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#WAITING">Waiting</a> or <a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#TIMED_WAITING">Timed waiting</a>
+                    <strong>t</strong> <a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#TERMINATED">Terminated</a>
+                    <table id="table">
+                        <caption>Thread list</caption>
+                        <thead>
+                            <tr>
+                                <th>Name</th><th>State</th><th>History</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr wicket:id="threads">
+                                <td wicket:id="threadName"/>
+                                <td wicket:id="threadState"/>
+                                <td><pre class="graph" wicket:id="threadHistory"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </body>
