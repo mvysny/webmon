@@ -31,6 +31,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileSystemUtils;
+import org.apache.commons.io.FileUtils;
 import sk.baka.webvm.config.Config;
 
 /**
@@ -288,15 +289,16 @@ public final class ProblemAnalyzer {
         boolean problem = false;
         for (final File root : File.listRoots()) {
             try {
-                final long freeSpaceMb = FileSystemUtils.freeSpaceKb(root.getAbsolutePath()) / 1024;
+                final long freeSpaceKb = FileSystemUtils.freeSpaceKb(root.getAbsolutePath());
+                final long freeSpaceMb = freeSpaceKb / 1024;
                 if (freeSpaceMb < config.minFreeDiskSpaceMb) {
                     problem = true;
-                    sb.append("Low disk space on ");
-                    sb.append(root.getAbsolutePath());
-                    sb.append(": ");
-                    sb.append(freeSpaceMb);
-                    sb.append("Mb\n");
+                    sb.append("Low disk space: ");
                 }
+                sb.append(root.getAbsolutePath());
+                sb.append("  ");
+                sb.append(FileUtils.byteCountToDisplaySize(freeSpaceKb * 1024));
+                sb.append(" free\n");
             } catch (Exception ex) {
                 sb.append("Failed to get free space on ");
                 sb.append(root.getAbsolutePath());
