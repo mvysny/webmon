@@ -100,20 +100,29 @@ public final class MgmtUtils {
      * @param mu the memory usage object.
      * @return [used (committed) / max], or [unknown] if null was given
      */
-    public static String toString(final MemoryUsage mu) {
+    public static String toString(final MemoryUsage mu, final boolean inMegs) {
         if (mu == null) {
             return "[unknown]";
         }
         final StringBuilder sb = new StringBuilder();
         sb.append('[');
-        sb.append(mu.getUsed() / 1024 / 1024);
-        sb.append("M (");
-        sb.append(mu.getCommitted() / 1024 / 1024);
-        sb.append("M)");
+        sb.append(mu.getUsed());
+        if (inMegs) {
+            sb.append("M");
+        }
+        sb.append(" (");
+        sb.append(mu.getCommitted());
+        if (inMegs) {
+            sb.append("M");
+        }
+        sb.append(")");
         if (mu.getMax() >= 0) {
             sb.append(" / ");
-            sb.append(mu.getMax() / 1024 / 1024);
-            sb.append("M - ");
+            sb.append(mu.getMax());
+            if (inMegs) {
+                sb.append("M");
+            }
+            sb.append(" - ");
             sb.append(mu.getUsed() * 100 / mu.getMax());
             sb.append('%');
         } else {

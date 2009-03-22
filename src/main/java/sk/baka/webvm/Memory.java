@@ -22,14 +22,13 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryManagerMXBean;
 import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
@@ -40,15 +39,13 @@ import sk.baka.webvm.misc.MgmtUtils;
  * Shows detailed memory information.
  * @author Martin Vysny
  */
-public final class Memory extends WebPage {
+public final class Memory extends WebVMPage {
 
     /**
      * Creates new object instance
      * @param params page parameters
      */
     public Memory(PageParameters params) {
-        final AppBorder border = new AppBorder("appBorder");
-        add(border);
         // fill in the memory info
         displayMemInfo(border, ManagementFactory.getMemoryManagerMXBeans(), "memoryManagers", "memManName", "memManValid", "memManProperties");
         displayMemInfo(border, ManagementFactory.getGarbageCollectorMXBeans(), "gc", "gcName", "gcValid", "gcProperties");
@@ -68,37 +65,28 @@ public final class Memory extends WebPage {
                 item.add(new Label("poolName", bean.getName()));
                 item.add(new Label("poolType", "" + bean.getType()));
                 item.add(new Label("poolValid", bean.isValid() ? "Y" : "N"));
-                final StringBuilder sb = new StringBuilder();
-                if (bean.isCollectionUsageThresholdSupported()) {
-                    sb.append(bean.getCollectionUsageThresholdCount());
-                    sb.append(" collections on ");
-                    sb.append(bean.getCollectionUsageThreshold() / 1024 / 1024);
-                    sb.append("M usage.");
-                } else {
-                    sb.append("Not collectable;");
-                }
-                sb.append("<br/>After last GC: ");
-                sb.append(MgmtUtils.toString(bean.getCollectionUsage()));
-                Label label = new Label("poolCollects", sb.toString());
-                label.setEscapeModelStrings(false);
-                item.add(label);
+                add(item, "poolCollects", bean.getCollectionUsage(), true);
                 item.add(new Label("poolCollectsPerc", MgmtUtils.getUsagePerc(bean.getCollectionUsage())));
-                item.add(new Label("poolPeak", MgmtUtils.toString(bean.getPeakUsage())));
+                add(item, "poolPeak", bean.getPeakUsage(), false);
                 item.add(new Label("poolPeakPerc", MgmtUtils.getUsagePerc(bean.getPeakUsage())));
-                sb.delete(0, sb.length());
-                if (bean.isUsageThresholdSupported()) {
-                    sb.append(bean.getUsageThresholdCount());
-                    sb.append(" collections on ");
-                    sb.append(bean.getUsageThreshold() / 1024 / 1024);
-                    sb.append("M usage;<br/>");
-                } else {
-                    sb.append("Not collectable;<br/>");
+                add(item, "poolUsage", bean.getUsage(), false);
+                item.add(new Label("poolUsagePerc", MgmtUtils.getUsagePerc(bean.getUsage())));
+            }
+
+            private void add(final ListItem<?> item, final String wid, MemoryUsage usage, final boolean gc) {
+                if (usage == null && gc) {
+                    item.add(new Label(wid, "Not collectable"));
+                    return;
                 }
-                sb.append(MgmtUtils.toString(bean.getUsage()));
-                label = new Label("poolUsage", sb.toString());
+                usage = MgmtUtils.getInMB(usage);
+                final StringBuilder sb = new StringBuilder();
+                if (usage != null) {
+                    sb.append(drawMemoryStatus(usage, 200));
+                }
+                sb.append(MgmtUtils.toString(usage, true));
+                final Label label = new Label(wid, sb.toString());
                 label.setEscapeModelStrings(false);
                 item.add(label);
-                item.add(new Label("poolUsagePerc", MgmtUtils.getUsagePerc(bean.getUsage())));
             }
         });
     }
