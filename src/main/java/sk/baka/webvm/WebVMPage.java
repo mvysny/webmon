@@ -79,8 +79,39 @@ public class WebVMPage extends WebPage {
         }
         dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
         // TODO draw the graph directly to a writer
-        final Label label = new Label(wid, dg.draw());
-        label.setEscapeModelStrings(false);
-        border.add(label);
+        unescaped(wid, dg.draw());
+    }
+
+    /**
+     * Shows given string unescaped.
+     * @param wid the wicket component
+     * @param value the value to show
+     */
+    public void unescaped(final String wid, final String value) {
+        final Label l = new Label(wid, value);
+        l.setEscapeModelStrings(false);
+        border.add(l);
+    }
+
+    /**
+     * Draws a memory usage status for given memory usage object
+     * @param usage the memory usage object, must be in megabytes as int arithmetics is used.
+     * @param wid the wicket component
+     */
+    public void drawMemoryStatus(final MemoryUsage usage, final String wid) {
+        final GraphStyle gs = new GraphStyle();
+        gs.vertical = false;
+        gs.width = 400;
+        gs.height = 20;
+        gs.showPercentage = true;
+        gs.colors = new String[]{"#7e43b2", "#ff7f7f"};
+        gs.border = "#999999";
+        gs.fontColors = new String[]{"#ffffff", null};
+        int max = (int) usage.getMax();
+        if (max == -1) {
+            max = (int) usage.getCommitted() * 5 / 4;
+        }
+        final String bar = DivGraph.drawStackedBar(gs, new int[]{(int) usage.getUsed(), (int) usage.getCommitted()}, max, false);
+        unescaped(wid, bar);
     }
 }

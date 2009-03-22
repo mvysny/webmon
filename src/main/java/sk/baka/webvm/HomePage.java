@@ -24,29 +24,21 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadMXBean;
 import java.util.List;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.WebPage;
-import sk.baka.webvm.misc.DivGraph;
-import sk.baka.webvm.misc.GraphStyle;
 import sk.baka.webvm.misc.MgmtUtils;
 
 /**
  * Homepage
  * @author Martin Vysny
  */
-public class HomePage extends WebPage {
+public class HomePage extends WebVMPage {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * Constructor that is invoked when page is invoked without a session.
-     * @param parameters
-     *            Page parameters
      */
-    public HomePage(final PageParameters parameters) {
-        final AppBorder border = new AppBorder("appBorder");
-        add(border);
+    public HomePage() {
         // memory info
         final MemoryUsage usage = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
         final long memFree = usage.getMax() - usage.getUsed();
@@ -92,22 +84,6 @@ public class HomePage extends WebPage {
         border.add(new Label("classesLoaded", Integer.toString(clbean.getLoadedClassCount())));
         border.add(new Label("classesLoadedTotal", Long.toString(clbean.getTotalLoadedClassCount())));
         border.add(new Label("classesUnloaded", Long.toString(clbean.getUnloadedClassCount())));
-        addMemoryStatus(border);
-    }
-
-    private void addMemoryStatus(AppBorder border) {
-        final GraphStyle gs = new GraphStyle();
-        gs.vertical = false;
-        gs.width = 400;
-        gs.height = 20;
-        gs.showPercentage = true;
-        gs.colors = new String[]{"#7e43b2", "#ff7f7f"};
-        gs.border = "#999999";
-        gs.fontColors = new String[]{"#ffffff", null};
-        final MemoryUsage usage = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
-        final String bar = DivGraph.drawStackedBar(gs, new int[]{(int) usage.getUsed(), (int) usage.getCommitted()}, (int) usage.getMax(), false);
-        final Label l = new Label("memStat", bar);
-        l.setEscapeModelStrings(false);
-        border.add(l);
+        drawMemoryStatus(MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime()), "memStat");
     }
 }
