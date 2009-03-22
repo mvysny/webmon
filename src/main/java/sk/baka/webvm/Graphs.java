@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import sk.baka.webvm.analyzer.HistorySampler;
 import sk.baka.webvm.misc.DivGraph;
 import sk.baka.webvm.misc.GraphStyle;
 import sk.baka.webvm.misc.MgmtUtils;
@@ -76,10 +77,13 @@ public final class Graphs extends WebPage {
         gs.colors = new String[]{"#7e43b2"};
         gs.height = 100;
         gs.width = 2;
+        gs.border = "black";
+        gs.yLegend = true;
         final DivGraph dg = new DivGraph(100, gs);
         for (final HistorySample hs : history) {
             dg.add(new int[]{hs.getGcCpuUsage()});
         }
+        dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
         final Label label = new Label("gcCPUUsage", dg.draw());
         label.setEscapeModelStrings(false);
         // TODO draw the graph directly to a writer
@@ -91,6 +95,8 @@ public final class Graphs extends WebPage {
         gs.height = 100;
         gs.width = 2;
         gs.colors = new String[]{"#7e43b2", "#ff7f7f"};
+        gs.border = "black";
+        gs.yLegend = true;
         long maxMem = Runtime.getRuntime().maxMemory();
         if (maxMem == Long.MAX_VALUE) {
             maxMem = 0;
@@ -106,6 +112,7 @@ public final class Graphs extends WebPage {
         for (final HistorySample hs : history) {
             dg.add(new int[]{hs.getHeapUsage(), hs.getHeapCommitted()});
         }
+        dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
         final Label label = new Label("memoryUsage", dg.draw());
         label.setEscapeModelStrings(false);
         // TODO draw the graph directly to a writer

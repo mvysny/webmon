@@ -65,6 +65,17 @@ public final class DivGraph {
     }
 
     /**
+     * Append several zero values until a desired data length is reached.
+     * @param desiredLength desired length of X axis.
+     */
+    public void fillWithZero(final int desiredLength) {
+        int[] empty = new int[style.colors.length];
+        while (values.size() < desiredLength) {
+            values.add(empty);
+        }
+    }
+
+    /**
      * Draws the graph and returns the html code.
      * @return the html code of the graph.
      * @deprecated use the more memory-friendly {@link #draw(java.lang.StringBuilder)}.
@@ -80,12 +91,40 @@ public final class DivGraph {
      * @param sb draw the graph here
      */
     public void draw(final StringBuilder sb) {
+        // draw border if necessary
+        sb.append("<table");
+        if (style.border != null) {
+            sb.append(" style=\"border: 1px solid ");
+            sb.append(style.border);
+            sb.append("; \"");
+        }
+        sb.append("><tr>");
+        // draw legend if necessary
+        if (style.yLegend) {
+            final int quarterHeight = style.height / 2;
+            sb.append("<td style=\"text-align: right; ");
+            sb.append("\">");
+            sb.append("<div style=\"border-top: 1px solid black; vertical-align: top; height: ");
+            sb.append(quarterHeight);
+            sb.append("px; \">");
+            sb.append(max);
+            sb.append("</div>");
+            sb.append("<div style=\"border-top: 1px solid black; vertical-align: top; height: ");
+            sb.append(quarterHeight);
+            sb.append("px; \">");
+            sb.append(max / 2);
+            sb.append("</div>");
+            sb.append("</td>");
+        }
+        sb.append("<td>");
+        // draw the graph itself
         final GraphStyle gs = new GraphStyle(style);
         gs.vertical = !style.vertical;
         gs.border = null;
         for (int i = 0; i < values.size(); i++) {
             drawStackedBar(gs, values.get(i), max, i < values.size() - 1, sb);
         }
+        sb.append("</td></tr></table>");
     }
 
     /**
@@ -115,6 +154,11 @@ public final class DivGraph {
         if (style.border != null) {
             sb.append("border: 1px solid ");
             sb.append(style.border);
+            sb.append("; ");
+        }
+        if (style.showPercentage || style.showValues) {
+            sb.append("text-align: ");
+            sb.append(style.vertical ? "center" : "right");
             sb.append("; ");
         }
         if (style.vertical) {
