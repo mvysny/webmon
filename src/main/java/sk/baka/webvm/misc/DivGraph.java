@@ -69,9 +69,11 @@ public final class DivGraph {
      * @return the html code of the graph.
      */
     public String draw() {
+        final GraphStyle gs = new GraphStyle(style);
+        gs.vertical = !style.vertical;
         final StringBuilder sb = new StringBuilder();
         for (final int[] vals : values) {
-            sb.append(drawStackedBar(style, vals, max));
+            sb.append(drawStackedBar(gs, vals, max));
         }
         return sb.toString();
     }
@@ -144,7 +146,7 @@ public final class DivGraph {
      * @throws IllegalArgumentException if the values is empty, max is not a positive number or maxPixels is not a positive number
      * @throws NullPointerException if the values array is null
      */
-    private static int[] toPixels(final int[] values, final int max, final int maxPixels) {
+    static int[] toPixels(final int[] values, final int max, final int maxPixels) {
         if (values.length == 0) {
             throw new IllegalArgumentException("values array is empty");
         }
