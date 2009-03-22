@@ -20,6 +20,7 @@ package sk.baka.webvm.misc;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.MemoryType;
 import java.lang.management.MemoryUsage;
 import java.util.Collections;
 import java.util.List;
@@ -32,15 +33,57 @@ import java.util.TreeMap;
  */
 public final class MgmtUtils {
 
+    /**
+     * Sums up all non-heap pools and return their memory usage.
+     * @return memory usage, null if no pool collects non-heap space.
+     */
+    public static MemoryUsage getNonHeapSummary() {
+        MemoryUsage result = null;
+        final List<MemoryPoolMXBean> beans = ManagementFactory.getMemoryPoolMXBeans();
+        for (final MemoryPoolMXBean bean : beans) {
+            if (bean.getType() != MemoryType.NON_HEAP) {
+                continue;
+            }
+            if (result == null) {
+                result = bean.getUsage();
+            } else {
+                result = add(result, bean.getUsage());
+            }
+        }
+        return result;
+    }
+    private static final boolean IS_NON_HEAP;
+
+
+    static {
+        IS_NON_HEAP = getNonHeapSummary() != null;
+    }
+
+    /**
+     * Checks if there is a non-heap pool.
+     * @return true if there is, false otherwise.
+     */
+    public static boolean isNonHeapPool() {
+        return IS_NON_HEAP;
+    }
+
     private MgmtUtils() {
         throw new AssertionError();
     }
 
+    /**
+     * Computes and returns the memory usage object, using information only from {@link Runtime}.
+     * @return non-null usage object.
+     */
     public static MemoryUsage getHeapFromRuntime() {
         long maxMem = Runtime.getRuntime().maxMemory();
         long heapSize = Runtime.getRuntime().totalMemory();
         long heapUsed = heapSize - Runtime.getRuntime().freeMemory();
         return new MemoryUsage(-1, heapUsed, heapSize, maxMem == Long.MAX_VALUE ? -1 : maxMem);
+    }
+
+    public static MemoryUsage add(final MemoryUsage u1, final MemoryUsage u2) {
+        return new MemoryUsage(u1.getInit() + u2.getInit(), u1.getUsed() + u2.getUsed(), u1.getCommitted() + u2.getCommitted(), u1.getMax() + u2.getMax());
     }
 
     /**

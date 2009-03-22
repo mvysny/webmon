@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm.misc;
 
+import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -256,5 +257,30 @@ public final class DivGraph {
         }
         result[values.length] = maxPixels - pixelSize;
         return result;
+    }
+
+    /**
+     * Converts a memory usage to a horizontal bar graph.
+     * @param usage the memory usage. Should be converted to megabytes as longs will be converted to integers.
+     * @param width width of result in pixels.
+     * @return a string representation of a horizontal bar line.
+     */
+    public static String getMemoryStatus(final MemoryUsage usage, final int width) {
+        final GraphStyle gs = new GraphStyle();
+        gs.vertical = false;
+        gs.width = width;
+        gs.height = 20;
+        gs.showPercentage = true;
+        gs.colors = new String[]{"#7e43b2", "#ff7f7f"};
+        gs.border = "#999999";
+        gs.fontColors = new String[]{"#ffffff", null};
+        final int max;
+        if (usage.getMax() != Long.MAX_VALUE) {
+            max = (int) usage.getMax();
+        } else {
+            max = (int) (usage.getCommitted() * 7 / 5);
+        }
+        final String bar = DivGraph.drawStackedBar(gs, new int[]{(int) usage.getUsed(), (int) usage.getCommitted()}, max, false);
+        return bar;
     }
 }

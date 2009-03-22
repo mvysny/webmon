@@ -18,7 +18,6 @@
  */
 package sk.baka.webvm.analyzer;
 
-import java.io.Serializable;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
@@ -29,21 +28,22 @@ import sk.baka.webvm.misc.MgmtUtils;
  * Holds history data for a single time unit.
  * @author Martin Vysny
  */
-public final class HistorySample implements Serializable {
+public final class HistorySample {
 
-    private final int heapUsage;
-    private final int heapCommitted;
     private final int gcCpuUsage;
     private final long sampleTime;
-    private final int[] memPoolUsage;
+    /**
+     * First is the heap usage, second is the non-heap usage. Second item may be null.
+     */
+    private final MemoryUsage[] memUsage = new MemoryUsage[2];
     private final ThreadInfo[] threads;
 
     /**
-     * Usages in megabytes of memory pools, ordered as returned by the {@link MgmtUtils#getMemoryPools()}.
-     * @return
+     * First is the heap usage, second is the non-heap usage. May be null.
+     * @return First is the heap usage, second is the non-heap usage. Second item may be null.
      */
-    public int[] getMemPoolUsage() {
-        return memPoolUsage;
+    public MemoryUsage[] getMemPoolUsage() {
+        return memUsage;
     }
 
     /**
@@ -63,22 +63,6 @@ public final class HistorySample implements Serializable {
     }
 
     /**
-     * Returns heap usage.
-     * @return heap being used at the beginning of this time slice, in MB.
-     */
-    public int getHeapUsage() {
-        return heapUsage;
-    }
-
-    /**
-     * Returns heap committed.
-     * @return heap committed at the beginning of this time slice, in MB.
-     */
-    public int getHeapCommitted() {
-        return heapCommitted;
-    }
-
-    /**
      * Returns a thread dump. Does not contain any stacktraces.
      * @return a list of thread information objects.
      */
@@ -93,17 +77,9 @@ public final class HistorySample implements Serializable {
      */
     public HistorySample(final int gcCpuUsage) {
         this.gcCpuUsage = gcCpuUsage;
-        final MemoryUsage heap = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
-        this.heapUsage = (int) heap.getUsed();
-        this.heapCommitted = (int) heap.getCommitted();
+        memUsage[0] = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
+        memUsage[1] = MgmtUtils.getInMB(MgmtUtils.getNonHeapSummary());
         this.sampleTime = System.currentTimeMillis();
-        memPoolUsage = new int[MgmtUtils.getMemoryPools().size()];
-        int i = 0;
-        for (final MemoryPoolMXBean bean : MgmtUtils.getMemoryPools().values()) {
-            final MemoryUsage usage = bean.getUsage();
-            final long used = usage.getUsed() / 1024 / 1024;
-            memPoolUsage[i++] = (int) used;
-        }
         threads = ManagementFactory.getThreadMXBean().getThreadInfo(ManagementFactory.getThreadMXBean().getAllThreadIds());
     }
 }
