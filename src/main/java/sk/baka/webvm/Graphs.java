@@ -23,9 +23,12 @@ import java.util.ArrayList;
 import sk.baka.webvm.analyzer.HistorySample;
 import sk.baka.webvm.misc.TextGraph;
 import java.util.List;
+import java.util.Random;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import sk.baka.webvm.misc.DivGraph;
+import sk.baka.webvm.misc.GraphStyle;
 import sk.baka.webvm.misc.MgmtUtils;
 
 /**
@@ -37,15 +40,20 @@ public final class Graphs extends WebPage {
     public Graphs(PageParameters params) {
         final AppBorder border = new AppBorder("appBorder");
         add(border);
-        TextGraph tg = new TextGraph();
-        tg.setRange(0, 100);
+        final GraphStyle gs = new GraphStyle();
+        gs.colors = new String[]{"#000000"};
+        gs.height = 100;
+        gs.width = 2;
+        final DivGraph dg = new DivGraph(100, gs);
         final List<HistorySample> history = WicketApplication.getHistory().getVmstatHistory();
         for (final HistorySample hs : history) {
-            tg.addValue(hs.getGcCpuUsage());
+            dg.add(new int[]{hs.getGcCpuUsage()});
         }
+        final Label label = new Label("gcCPUUsage", dg.draw());
+        label.setEscapeModelStrings(false);
         // TODO draw the graph directly to a writer
-        border.add(new Label("gcCPUUsage", tg.draw(10)));
-        tg = new TextGraph();
+        border.add(label);
+        TextGraph tg = new TextGraph();
         long maxMem = Runtime.getRuntime().maxMemory();
         if (maxMem != Long.MAX_VALUE) {
             maxMem = maxMem / 1024 / 1024;

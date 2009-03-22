@@ -27,9 +27,26 @@ import java.io.Serializable;
 public final class GraphStyle implements Serializable {
 
     /**
+     * Creates new object instance.
+     */
+    public GraphStyle() {
+    }
+
+    /**
+     * Copy-constructor.
+     */
+    public GraphStyle(final GraphStyle other) {
+        vertical = other.vertical;
+        width = other.width;
+        height = other.height;
+        colors = other.colors;
+        showValues = other.showValues;
+        showPercentage = other.showPercentage;
+    }
+    /**
      * Vertical draws vertical (zero is in the left side) or horizontal bar (zero is on the bottom).
      */
-    public boolean vertical = true;
+    public boolean vertical = false;
     /**
      * The width of the graph in pixels. Must be a positive integer.
      */
