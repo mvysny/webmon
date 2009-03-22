@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import sk.baka.webvm.analyzer.HistorySample;
 import sk.baka.webvm.misc.TextGraph;
 import java.util.List;
-import java.util.Random;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -40,30 +39,9 @@ public final class Graphs extends WebPage {
     public Graphs(PageParameters params) {
         final AppBorder border = new AppBorder("appBorder");
         add(border);
-        final GraphStyle gs = new GraphStyle();
-        gs.colors = new String[]{"#000000"};
-        gs.height = 100;
-        gs.width = 2;
-        final DivGraph dg = new DivGraph(100, gs);
         final List<HistorySample> history = WicketApplication.getHistory().getVmstatHistory();
-        for (final HistorySample hs : history) {
-            dg.add(new int[]{hs.getGcCpuUsage()});
-        }
-        final Label label = new Label("gcCPUUsage", dg.draw());
-        label.setEscapeModelStrings(false);
-        // TODO draw the graph directly to a writer
-        border.add(label);
-        TextGraph tg = new TextGraph();
-        long maxMem = Runtime.getRuntime().maxMemory();
-        if (maxMem != Long.MAX_VALUE) {
-            maxMem = maxMem / 1024 / 1024;
-            tg.setRange(0, (int) maxMem);
-        }
-        for (final HistorySample hs : history) {
-            tg.addValue(hs.getMemUsage());
-        }
-        // TODO draw the graph directly to a writer
-        border.add(new Label("memoryUsage", tg.draw(10)));
+        drawGcCpuUsage(border, history);
+        drawHeapUsage(border, history);
         // draw all memory graphs
         final List<TextGraph> graphs = new ArrayList<TextGraph>();
         for (final MemoryPoolMXBean pool : MgmtUtils.getMemoryPools().values()) {
@@ -91,5 +69,46 @@ public final class Graphs extends WebPage {
         final Label graphLabel = new Label("memPoolUsages", sb.toString());
         graphLabel.setEscapeModelStrings(false);
         border.add(graphLabel);
+    }
+
+    private void drawGcCpuUsage(AppBorder border, final List<HistorySample> history) {
+        final GraphStyle gs = new GraphStyle();
+        gs.colors = new String[]{"#7e43b2"};
+        gs.height = 100;
+        gs.width = 2;
+        final DivGraph dg = new DivGraph(100, gs);
+        for (final HistorySample hs : history) {
+            dg.add(new int[]{hs.getGcCpuUsage()});
+        }
+        final Label label = new Label("gcCPUUsage", dg.draw());
+        label.setEscapeModelStrings(false);
+        // TODO draw the graph directly to a writer
+        border.add(label);
+    }
+
+    private void drawHeapUsage(AppBorder border, final List<HistorySample> history) {
+        final GraphStyle gs = new GraphStyle();
+        gs.height = 100;
+        gs.width = 2;
+        gs.colors = new String[]{"#7e43b2", "#ff7f7f"};
+        long maxMem = Runtime.getRuntime().maxMemory();
+        if (maxMem == Long.MAX_VALUE) {
+            maxMem = 0;
+            for (final HistorySample hs : history) {
+                if (maxMem < hs.getHeapCommitted()) {
+                    maxMem = hs.getHeapCommitted();
+                }
+            }
+        } else {
+            maxMem = maxMem / 1024 / 1024;
+        }
+        final DivGraph dg = new DivGraph((int) maxMem, gs);
+        for (final HistorySample hs : history) {
+            dg.add(new int[]{hs.getHeapUsage(), hs.getHeapCommitted()});
+        }
+        final Label label = new Label("memoryUsage", dg.draw());
+        label.setEscapeModelStrings(false);
+        // TODO draw the graph directly to a writer
+        border.add(label);
     }
 }
