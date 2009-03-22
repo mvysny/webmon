@@ -72,8 +72,8 @@ public final class DivGraph {
         final GraphStyle gs = new GraphStyle(style);
         gs.vertical = !style.vertical;
         final StringBuilder sb = new StringBuilder();
-        for (final int[] vals : values) {
-            sb.append(drawStackedBar(gs, vals, max));
+        for (int i = 0; i < values.size(); i++) {
+            sb.append(drawStackedBar(gs, values.get(i), max, i < values.size() - 1));
         }
         return sb.toString();
     }
@@ -85,14 +85,17 @@ public final class DivGraph {
      * @param max the maximum value. A transparent div will be added at the end if necessary.
      * @return a html source
      */
-    public static String drawStackedBar(final GraphStyle style, final int[] values, final int max) {
+    public static String drawStackedBar(final GraphStyle style, final int[] values, final int max, final boolean floatLeft) {
         style.validate();
         final int[] pixels = toPixels(values, max, style.vertical ? style.height : style.width);
         final StringBuilder sb = new StringBuilder();
         sb.append("<div style=\"");
         if (style.vertical) {
             // if multiple stacked bars are drawn, make sure they are positioned horizontally.
-            sb.append("float: left; width: ");
+            if (floatLeft) {
+                sb.append("float:left; ");
+            }
+            sb.append("width: ");
         } else {
             sb.append("height: ");
         }

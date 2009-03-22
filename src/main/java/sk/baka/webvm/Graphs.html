@@ -3,7 +3,7 @@
 <html xmlns:wicket>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-		<meta http-equiv="refresh" content="2"/>
+        <meta http-equiv="refresh" content="2"/>
         <title>Graphs</title>
         <link rel="stylesheet" type="text/css" href="style.css" media="screen"/>
     </head>
@@ -11,13 +11,15 @@
         <div wicket:id="appBorder">
             <div class="post">
                 <h2 class="title">GC CPU Usage (%)</h2>
-                <div class="entry"><div wicket:id="gcCPUUsage"/><div style="float: none;"><!-- --></div></div>
+                <div class="entry">
+                    <div wicket:id="gcCPUUsage"></div>
+                </div>
             </div>
             <div class="post">
                 <h2 class="title">Memory Usage (MB)</h2>
                 <div class="entry">
-                    <div wicket:id="memoryUsage"/><div style="float: none;"><!-- --></div>
-                    <div class="graph" wicket:id="memPoolUsages"/>
+                    <div wicket:id="memoryUsage"></div>
+                    <div class="graph" wicket:id="memPoolUsages"></div>
                 </div>
             </div>
         </div>
