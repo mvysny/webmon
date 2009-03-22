@@ -18,10 +18,11 @@
  */
 package sk.baka.webvm;
 
-import java.lang.management.MemoryPoolMXBean;
-import java.util.ArrayList;
+import java.lang.management.ClassLoadingMXBean;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
+import java.lang.management.ThreadMXBean;
 import sk.baka.webvm.analyzer.HistorySample;
-import sk.baka.webvm.misc.TextGraph;
 import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
@@ -36,18 +37,58 @@ import sk.baka.webvm.misc.MgmtUtils;
  */
 public final class Graphs extends WebVMPage {
 
-    public Graphs(PageParameters params) {
+    /**
+     * Creates the page instance.
+     */
+    public Graphs() {
         final List<HistorySample> history = WicketApplication.getHistory().getVmstatHistory();
-        drawGcCpuUsage(border, history);
-        drawMemoryUsageGraph(history, "heapUsage", 0);
+        drawGcCpuUsage(history);
+        drawMemoryUsageGraph(history, "heapUsageGraph", 0);
+        final MemoryUsage heap = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
+        border.add(new Label("heapUsage", Long.toString(heap.getUsed()) + "M"));
+        border.add(new Label("heapSize", Long.toString(heap.getCommitted()) + "M"));
         if (MgmtUtils.isNonHeapPool()) {
-            drawMemoryUsageGraph(history, "nonHeapUsage", 1);
+            drawMemoryUsageGraph(history, "nonHeapUsageGraph", 1);
+            final MemoryUsage nonHeap = MgmtUtils.getInMB(MgmtUtils.getNonHeapSummary());
+            border.add(new Label("nonHeapUsage", Long.toString(nonHeap.getUsed()) + "M"));
+            border.add(new Label("nonHeapSize", Long.toString(nonHeap.getCommitted()) + "M"));
         } else {
-            border.add(new Label("nonHeapUsage", "No information available"));
+            border.add(new Label("nonHeapUsageGraph", "No information available"));
+            border.add(new Label("nonHeapUsage", "-"));
+            border.add(new Label("nonHeapSize", "-"));
         }
+        drawClassesGraph(history);
+        drawThreadsGraph(history);
     }
 
-    private void drawGcCpuUsage(AppBorder border, final List<HistorySample> history) {
+    private void drawClassesGraph(List<HistorySample> history) {
+        final GraphStyle gs = new GraphStyle();
+        gs.colors = new String[]{"#ff7f7f"};
+        gs.height = 100;
+        gs.width = 2;
+        gs.border = "black";
+        gs.yLegend = true;
+        int maxClasses = 0;
+        for (final HistorySample hs : history) {
+            if (maxClasses < hs.getClassesLoaded()) {
+                maxClasses = hs.getClassesLoaded();
+            }
+        }
+        maxClasses = maxClasses * 5 / 4;
+        final DivGraph dg = new DivGraph(maxClasses, gs);
+        for (final HistorySample hs : history) {
+            dg.add(new int[]{hs.getClassesLoaded()});
+        }
+        dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
+        // TODO draw the graph directly to a writer
+        unescaped("classesGraph", dg.draw());
+        final ClassLoadingMXBean bean = ManagementFactory.getClassLoadingMXBean();
+        border.add(new Label("classesCurrentlyLoaded", Integer.toString(bean.getLoadedClassCount())));
+        border.add(new Label("classesLoadedTotal", Long.toString(bean.getTotalLoadedClassCount())));
+        border.add(new Label("classesUnloadedTotal", Long.toString(bean.getUnloadedClassCount())));
+    }
+
+    private void drawGcCpuUsage(final List<HistorySample> history) {
         final GraphStyle gs = new GraphStyle();
         gs.colors = new String[]{"#7e43b2"};
         gs.height = 100;
@@ -59,9 +100,35 @@ public final class Graphs extends WebVMPage {
             dg.add(new int[]{hs.getGcCpuUsage()});
         }
         dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
-        final Label label = new Label("gcCPUUsage", dg.draw());
-        label.setEscapeModelStrings(false);
         // TODO draw the graph directly to a writer
-        border.add(label);
+        unescaped("gcCPUUsageGraph", dg.draw());
+        final HistorySample last = history.isEmpty() ? null : history.get(history.size() - 1);
+        border.add(new Label("gcCPUUsagePerc", last == null ? "-" : Integer.toString(last.getGcCpuUsage())));
+    }
+
+    private void drawThreadsGraph(List<HistorySample> history) {
+        final GraphStyle gs = new GraphStyle();
+        gs.colors = new String[]{"#7e43b2", "#ff7f7f"};
+        gs.height = 100;
+        gs.width = 2;
+        gs.border = "black";
+        gs.yLegend = true;
+        int maxThreads = 0;
+        for (final HistorySample hs : history) {
+            if (maxThreads < hs.getThreadCount()) {
+                maxThreads = hs.getThreadCount();
+            }
+        }
+        maxThreads = maxThreads * 5 / 4;
+        final DivGraph dg = new DivGraph(maxThreads, gs);
+        for (final HistorySample hs : history) {
+            dg.add(new int[]{hs.getDaemonThreadCount(), hs.getThreadCount()});
+        }
+        dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
+        // TODO draw the graph directly to a writer
+        unescaped("threadsGraph", dg.draw());
+        final ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+        border.add(new Label("liveThreads", Integer.toString(bean.getThreadCount())));
+        border.add(new Label("daemonThreads", Long.toString(bean.getDaemonThreadCount())));
     }
 }
