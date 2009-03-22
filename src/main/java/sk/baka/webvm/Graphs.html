@@ -11,23 +11,47 @@
         <div wicket:id="appBorder">
             <div class="post">
                 <table>
-                    <tr>
+                    <tr style="vertical-align: top;">
                         <td>
                             <h2 class="title">GC CPU Usage (%)</h2>
                             <div class="entry">
-                                <div wicket:id="gcCPUUsage"></div>
+                                <div wicket:id="gcCPUUsageGraph"></div>
+                                <table><tr><td><div class="legendBlue"/></td><td>Current GC usage: <strong wicket:id="gcCPUUsagePerc"/>%</td></tr></table>
                             </div>
                         </td>
                         <td>
                             <h2 class="title">Heap Usage (MB)</h2>
                             <div class="entry">
-                                <div wicket:id="heapUsage"></div>
+                                <div wicket:id="heapUsageGraph"></div>
+                                <table><tr><td><div class="legendBlue"/></td><td>Heap usage - <strong wicket:id="heapUsage"/></td><td><div class="legendBrown"/></td><td>Heap size - <strong wicket:id="heapSize"/></td></tr></table>
                             </div>
                         </td>
                         <td>
                             <h2 class="title">Non-heap Usage (MB)</h2>
                             <div class="entry">
-                                <div wicket:id="nonHeapUsage"></div>
+                                <div wicket:id="nonHeapUsageGraph"></div>
+                                <table><tr><td><div class="legendBlue"/></td><td>Non-heap usage - <strong wicket:id="nonHeapUsage"/></td><td><div class="legendBrown"/></td><td>non-heap size - <strong wicket:id="nonHeapSize"/></td></tr></table>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="post">
+                <table>
+                    <tr style="vertical-align: top;">
+                        <td>
+                            <h2 class="title">Classes</h2>
+                            <div class="entry">
+                                <div wicket:id="classesGraph"></div>
+                                <table><tr><td><div class="legendBrown"/></td><td> Loaded classes: <strong wicket:id="classesCurrentlyLoaded"/></td></tr></table>
+                                Loaded since VM start: <strong wicket:id="classesLoadedTotal"/><br/>Unloaded since VM start: <strong wicket:id="classesUnloadedTotal"/>
+                            </div>
+                        </td>
+                        <td>
+                            <h2 class="title">Threads</h2>
+                            <div class="entry">
+                                <div wicket:id="threadsGraph"></div>
+                                <table><tr><td><div class="legendBrown"/></td><td>Live threads - <strong wicket:id="liveThreads"/></td><td><div class="legendBlue"/></td><td>daemon threads - <strong wicket:id="daemonThreads"/></td></tr></table>
                             </div>
                         </td>
                     </tr>

@@ -377,3 +377,17 @@ table {
 #table tbody td {
     border: 1px solid #999999;
 }
+
+div.legendBrown {
+    border: 1px solid #000000;
+    width: 15px;
+    height: 8px;
+    background-color: #ff7f7f;
+}
+
+div.legendBlue {
+    border: 1px solid #000000;
+    width: 15px;
+    height: 8px;
+    background-color: #7e43b2;
+}

@@ -22,6 +22,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import sk.baka.webvm.misc.MgmtUtils;
 
 /**
@@ -37,6 +38,26 @@ public final class HistorySample {
      */
     private final MemoryUsage[] memUsage = new MemoryUsage[2];
     private final ThreadInfo[] threads;
+    /**
+     * Count of classes currently loaded in the VM.
+     */
+    private final int classesLoaded;
+    /**
+     * Current count of daemon threads.
+     */
+    private final int daemonThreadCount;
+    /**
+     * Current count of all threads.
+     */
+    private final int threadCount;
+
+    /**
+     * Returns a number of classes currently loaded in the VM.
+     * @return Count of classes currently loaded in the VM.
+     */
+    public int getClassesLoaded() {
+        return classesLoaded;
+    }
 
     /**
      * First is the heap usage, second is the non-heap usage. May be null.
@@ -63,6 +84,22 @@ public final class HistorySample {
     }
 
     /**
+     * Returns current count of all threads.
+     * @return current count of all threads.
+     */
+    public int getThreadCount() {
+        return threadCount;
+    }
+
+    /**
+     * Returns current count of daemon threads.
+     * @return Current count of daemon threads.
+     */
+    public int getDaemonThreadCount() {
+        return daemonThreadCount;
+    }
+
+    /**
      * Returns a thread dump. Does not contain any stacktraces.
      * @return a list of thread information objects.
      */
@@ -80,6 +117,10 @@ public final class HistorySample {
         memUsage[0] = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
         memUsage[1] = MgmtUtils.getInMB(MgmtUtils.getNonHeapSummary());
         this.sampleTime = System.currentTimeMillis();
-        threads = ManagementFactory.getThreadMXBean().getThreadInfo(ManagementFactory.getThreadMXBean().getAllThreadIds());
+        final ThreadMXBean tbean = ManagementFactory.getThreadMXBean();
+        threads = tbean.getThreadInfo(tbean.getAllThreadIds());
+        threadCount = tbean.getThreadCount();
+        daemonThreadCount = tbean.getDaemonThreadCount();
+        classesLoaded = ManagementFactory.getClassLoadingMXBean().getLoadedClassCount();
     }
 }
