@@ -10,15 +10,21 @@
     <body>
         <div wicket:id="appBorder">
             <div class="post">
+                <table><tr><td>
                 <h2 class="title">GC CPU Usage (%)</h2>
                 <div class="entry">
                     <div wicket:id="gcCPUUsage"></div>
                 </div>
+                </td><td>
+                <h2 class="title">Heap Usage (MB)</h2>
+                <div class="entry">
+                    <div wicket:id="memoryUsage"></div>
+                </div>
+                </td></tr></table>
             </div>
             <div class="post">
                 <h2 class="title">Memory Usage (MB)</h2>
                 <div class="entry">
-                    <div wicket:id="memoryUsage"></div>
                     <div class="graph" wicket:id="memPoolUsages"></div>
                 </div>
             </div>
