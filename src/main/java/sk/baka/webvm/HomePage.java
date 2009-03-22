@@ -27,7 +27,8 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.link.Link;
+import sk.baka.webvm.misc.DivGraph;
+import sk.baka.webvm.misc.GraphStyle;
 import sk.baka.webvm.misc.MgmtUtils;
 
 /**
@@ -91,5 +92,22 @@ public class HomePage extends WebPage {
         border.add(new Label("classesLoaded", Integer.toString(clbean.getLoadedClassCount())));
         border.add(new Label("classesLoadedTotal", Long.toString(clbean.getTotalLoadedClassCount())));
         border.add(new Label("classesUnloaded", Long.toString(clbean.getUnloadedClassCount())));
+        addMemoryStatus(border);
+    }
+
+    private void addMemoryStatus(AppBorder border) {
+        final GraphStyle gs = new GraphStyle();
+        gs.vertical = false;
+        gs.width = 400;
+        gs.height = 20;
+        gs.showPercentage = true;
+        gs.colors = new String[]{"#7e43b2", "#ff7f7f"};
+        gs.border = "#999999";
+        gs.fontColors = new String[]{"#ffffff", null};
+        final MemoryUsage usage = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
+        final String bar = DivGraph.drawStackedBar(gs, new int[]{(int) usage.getUsed(), (int) usage.getCommitted()}, (int) usage.getMax(), false);
+        final Label l = new Label("memStat", bar);
+        l.setEscapeModelStrings(false);
+        border.add(l);
     }
 }

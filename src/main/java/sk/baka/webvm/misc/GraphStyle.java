@@ -42,7 +42,17 @@ public final class GraphStyle implements Serializable {
         colors = other.colors;
         showValues = other.showValues;
         showPercentage = other.showPercentage;
+        yLegend = other.yLegend;
+        border = other.border;
     }
+    /**
+     * Draw a legend for the Y axis.
+     */
+    public boolean yLegend = false;
+    /**
+     * Draw a thin border around the table if not null. Use a regular HTML color specification.
+     */
+    public String border = null;
     /**
      * Vertical draws vertical (zero is in the left side) or horizontal bar (zero is on the bottom).
      */
@@ -59,6 +69,10 @@ public final class GraphStyle implements Serializable {
      * Display data in given colors. Use CSS-style notation, like "red" or "#00ffee". null color is a transparent color, i.e. a div without a background.
      */
     public String[] colors = null;
+    /**
+     * Display data captions in given colors. Use CSS-style notation, like "red" or "#00ffee". null color is a transparent color, i.e. a div without a background. Optional.
+     */
+    public String[] fontColors = null;
     /**
      * Draw values to the graph.
      */
@@ -80,6 +94,11 @@ public final class GraphStyle implements Serializable {
         }
         if (colors.length == 0) {
             throw new IllegalArgumentException("colors must contain at least one color");
+        }
+        if ((showValues || showPercentage) && (fontColors != null)) {
+            if (colors.length != fontColors.length) {
+                throw new IllegalArgumentException("fontColors must have the same length as colors");
+            }
         }
     }
 }
