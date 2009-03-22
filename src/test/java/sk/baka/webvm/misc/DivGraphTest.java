@@ -44,4 +44,12 @@ public class DivGraphTest extends TestCase {
         int[] result = DivGraph.toPixels(new int[]{20}, 10, 10);
         assertTrue(Arrays.equals(new int[]{10, 0}, result));
     }
+
+    /**
+     * Tests an example with three values.
+     */
+    public void testToPixelsThreeValues() {
+        int[] result = DivGraph.toPixels(new int[]{1, 2, 3}, 10, 10);
+        assertTrue(Arrays.equals(new int[]{1, 1, 1, 7}, result));
+    }
 }

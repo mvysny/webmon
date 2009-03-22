@@ -154,22 +154,21 @@ public final class DivGraph {
         int i = 0;
         // when a value reaches maximum there is no need to draw other (greater) values.
         boolean isMaximumReached = false;
+        int pixelSize = 0;
+        int prevPixelSize = 0;
         for (int value : values) {
-            if (value >= max && !isMaximumReached) {
+            prevPixelSize = pixelSize;
+            if (value >= max) {
                 isMaximumReached = true;
             }
             if (isMaximumReached) {
-                result[i++] = maxPixels;
-                continue;
-            }
-            final int pixelSize = value * maxPixels / max;
-            int prevPixelSize = 0;
-            if (i > 0) {
-                prevPixelSize = result[i - 1];
+                pixelSize = maxPixels;
+            } else {
+                pixelSize = value * maxPixels / max;
             }
             result[i++] = pixelSize - prevPixelSize;
         }
-        result[values.length] = maxPixels - result[values.length - 1];
+        result[values.length] = maxPixels - pixelSize;
         return result;
     }
 }

@@ -31,7 +31,8 @@ import sk.baka.webvm.misc.MgmtUtils;
  */
 public final class HistorySample implements Serializable {
 
-    private final int memUsage;
+    private final int heapUsage;
+    private final int heapCommitted;
     private final int gcCpuUsage;
     private final long sampleTime;
     private final int[] memPoolUsage;
@@ -62,11 +63,19 @@ public final class HistorySample implements Serializable {
     }
 
     /**
-     * Returns memory usage.
-     * @return memory being used at the beginning of this time slice, in MB.
+     * Returns heap usage.
+     * @return heap being used at the beginning of this time slice, in MB.
      */
-    public int getMemUsage() {
-        return memUsage;
+    public int getHeapUsage() {
+        return heapUsage;
+    }
+
+    /**
+     * Returns heap committed.
+     * @return heap committed at the beginning of this time slice, in MB.
+     */
+    public int getHeapCommitted() {
+        return heapCommitted;
     }
 
     /**
@@ -82,9 +91,11 @@ public final class HistorySample implements Serializable {
      * @param gcCpuUsage average CPU usage of GC for this time slice in percent.
      * @param memUsage memory being used at the beginning of this time slice in MB.
      */
-    public HistorySample(final int gcCpuUsage, final int memUsage) {
+    public HistorySample(final int gcCpuUsage) {
         this.gcCpuUsage = gcCpuUsage;
-        this.memUsage = memUsage;
+        final MemoryUsage heap = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
+        this.heapUsage = (int) heap.getUsed();
+        this.heapCommitted = (int) heap.getCommitted();
         this.sampleTime = System.currentTimeMillis();
         memPoolUsage = new int[MgmtUtils.getMemoryPools().size()];
         int i = 0;

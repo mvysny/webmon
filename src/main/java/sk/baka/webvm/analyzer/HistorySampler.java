@@ -111,7 +111,7 @@ public final class HistorySampler extends BackgroundService {
 		public void run() {
 			try {
 				final int cpuUsageByGC = getGCCPUUsage();
-				vmstatHistory.add(new HistorySample(cpuUsageByGC, (int) (MgmtUtils.getHeapFromRuntime().getUsed() / 1024 / 1024)));
+				vmstatHistory.add(new HistorySample(cpuUsageByGC));
 			} catch (Throwable e) {
 				log.log(Level.SEVERE, "The Sampler thread failed", e);
 			}
