@@ -67,15 +67,25 @@ public final class DivGraph {
     /**
      * Draws the graph and returns the html code.
      * @return the html code of the graph.
+     * @deprecated use the more memory-friendly {@link #draw(java.lang.StringBuilder)}.
      */
     public String draw() {
+        final StringBuilder sb = new StringBuilder();
+        draw(sb);
+        return sb.toString();
+    }
+
+    /**
+     * Draws the graph and returns the html code.
+     * @param sb draw the graph here
+     */
+    public void draw(final StringBuilder sb) {
         final GraphStyle gs = new GraphStyle(style);
         gs.vertical = !style.vertical;
-        final StringBuilder sb = new StringBuilder();
+        gs.border = null;
         for (int i = 0; i < values.size(); i++) {
-            sb.append(drawStackedBar(gs, values.get(i), max, i < values.size() - 1));
+            drawStackedBar(gs, values.get(i), max, i < values.size() - 1, sb);
         }
-        return sb.toString();
     }
 
     /**
@@ -86,10 +96,27 @@ public final class DivGraph {
      * @return a html source
      */
     public static String drawStackedBar(final GraphStyle style, final int[] values, final int max, final boolean floatLeft) {
+        final StringBuilder sb = new StringBuilder();
+        drawStackedBar(style, values, max, floatLeft, sb);
+        return sb.toString();
+    }
+
+    /**
+     * Draws a stacked bar graph.
+     * @param style the graph style, must be valid.
+     * @param values the values to draw. The array must be sorted from least to highest. Negative values are not permitted.
+     * @param max the maximum value. A transparent div will be added at the end if necessary.
+     * @return a html source
+     */
+    public static void drawStackedBar(final GraphStyle style, final int[] values, final int max, final boolean floatLeft, final StringBuilder sb) {
         style.validate();
         final int[] pixels = toPixels(values, max, style.vertical ? style.height : style.width);
-        final StringBuilder sb = new StringBuilder();
         sb.append("<div style=\"");
+        if (style.border != null) {
+            sb.append("border: 1px solid ");
+            sb.append(style.border);
+            sb.append("; ");
+        }
         if (style.vertical) {
             // if multiple stacked bars are drawn, make sure they are positioned horizontally.
             if (floatLeft) {
@@ -101,7 +128,9 @@ public final class DivGraph {
         }
         sb.append(style.vertical ? style.width : style.height);
         sb.append("px;\">");
-        for (int i = pixels.length - 1; i >= 0; i--) {
+        // go from pixels.length-1 to 0 when vertical
+        // go from 0 to pixels.length-1 when horizontal
+        for (int i = style.vertical ? pixels.length - 1 : 0; style.vertical ? i >= 0 : i < pixels.length; i += style.vertical ? -1 : 1) {
             final boolean isEmpty = pixels[i] == 0;
             if (isEmpty) {
                 continue;
@@ -112,6 +141,17 @@ public final class DivGraph {
                 sb.append("background-color: ");
                 sb.append(style.colors[i]);
                 sb.append("; ");
+                if (style.fontColors != null) {
+                    final String fontColor = style.fontColors[i];
+                    if (fontColor != null) {
+                        sb.append("color: ");
+                        sb.append(fontColor);
+                        sb.append("; ");
+                    }
+                }
+            }
+            if (!isMax && !style.vertical) {
+                sb.append("float: left; ");
             }
             sb.append(style.vertical ? "height: " : "width: ");
             sb.append(pixels[i]);
@@ -137,7 +177,6 @@ public final class DivGraph {
             sb.append("</div>");
         }
         sb.append("</div>");
-        return sb.toString();
     }
 
     /**

@@ -73,7 +73,7 @@ public final class Graphs extends WebPage {
 
     private void drawGcCpuUsage(AppBorder border, final List<HistorySample> history) {
         final GraphStyle gs = new GraphStyle();
-        gs.colors = new String[]{"#7e43b2", "#000000"};
+        gs.colors = new String[]{"#7e43b2"};
         gs.height = 100;
         gs.width = 2;
         final DivGraph dg = new DivGraph(100, gs);
