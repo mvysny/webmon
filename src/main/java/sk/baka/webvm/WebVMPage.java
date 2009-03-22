@@ -97,11 +97,22 @@ public class WebVMPage extends WebPage {
      * Draws a memory usage status for given memory usage object
      * @param usage the memory usage object, must be in megabytes as int arithmetics is used.
      * @param wid the wicket component
+     * @param width the width of the bar in pixels.
      */
-    public void drawMemoryStatus(final MemoryUsage usage, final String wid) {
+    public void drawMemoryStatus(final MemoryUsage usage, final String wid, final int width) {
+        final String bar = drawMemoryStatus(usage, width);
+        unescaped(wid, bar);
+    }
+
+    /**
+     * Draws a memory usage status for given memory usage object
+     * @param usage the memory usage object, must be in megabytes as int arithmetics is used.
+     * @param width the width of the bar in pixels.
+     */
+    public static String drawMemoryStatus(final MemoryUsage usage, final int width) {
         final GraphStyle gs = new GraphStyle();
         gs.vertical = false;
-        gs.width = 400;
+        gs.width = width;
         gs.height = 20;
         gs.showPercentage = true;
         gs.colors = new String[]{"#7e43b2", "#ff7f7f"};
@@ -112,6 +123,6 @@ public class WebVMPage extends WebPage {
             max = (int) usage.getCommitted() * 5 / 4;
         }
         final String bar = DivGraph.drawStackedBar(gs, new int[]{(int) usage.getUsed(), (int) usage.getCommitted()}, max, false);
-        unescaped(wid, bar);
+        return bar;
     }
 }
