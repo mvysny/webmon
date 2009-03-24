@@ -19,7 +19,6 @@
 package sk.baka.webvm.analyzer;
 
 import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
@@ -31,81 +30,36 @@ import sk.baka.webvm.misc.MgmtUtils;
  */
 public final class HistorySample {
 
-    private final int gcCpuUsage;
-    private final long sampleTime;
-    /**
-     * First is the heap usage, second is the non-heap usage. Second item may be null.
-     */
-    private final MemoryUsage[] memUsage = new MemoryUsage[2];
-    private final ThreadInfo[] threads;
-    /**
-     * Count of classes currently loaded in the VM.
-     */
-    private final int classesLoaded;
-    /**
-     * Current count of daemon threads.
-     */
-    private final int daemonThreadCount;
-    /**
-     * Current count of all threads.
-     */
-    private final int threadCount;
-
-    /**
-     * Returns a number of classes currently loaded in the VM.
-     * @return Count of classes currently loaded in the VM.
-     */
-    public int getClassesLoaded() {
-        return classesLoaded;
-    }
-
-    /**
-     * First is the heap usage, second is the non-heap usage. May be null.
-     * @return First is the heap usage, second is the non-heap usage. Second item may be null.
-     */
-    public MemoryUsage[] getMemPoolUsage() {
-        return memUsage;
-    }
-
-    /**
-     * The time this sample was taken.
-     * @return the time.
-     */
-    public long getSampleTime() {
-        return sampleTime;
-    }
-
     /**
      * Returns GC CPU Usage.
      * @return average CPU usage of GC for this time slice in percent, 0-100.
      */
-    public int getGcCpuUsage() {
-        return gcCpuUsage;
-    }
-
+    public final int gcCpuUsage;
+    /**
+     * The time this sample was taken.
+     */
+    public final long sampleTime;
+    /**
+     * First is the heap usage, second is the non-heap usage. Second item may be null.
+     */
+    public final MemoryUsage[] memPoolUsage = new MemoryUsage[2];
+    /**
+     * A thread dump. Does not contain any stacktraces.
+     */
+    public final ThreadInfo[] threads;
+    /**
+     * Count of classes currently loaded in the VM.
+     */
+    public final int classesLoaded;
+    /**
+     * Current count of daemon threads.
+     */
+    public final int daemonThreadCount;
     /**
      * Returns current count of all threads.
      * @return current count of all threads.
      */
-    public int getThreadCount() {
-        return threadCount;
-    }
-
-    /**
-     * Returns current count of daemon threads.
-     * @return Current count of daemon threads.
-     */
-    public int getDaemonThreadCount() {
-        return daemonThreadCount;
-    }
-
-    /**
-     * Returns a thread dump. Does not contain any stacktraces.
-     * @return a list of thread information objects.
-     */
-    public ThreadInfo[] getThreads() {
-        return threads;
-    }
+    public final int threadCount;
 
     /**
      * Creates new history sample bean.
@@ -114,8 +68,8 @@ public final class HistorySample {
      */
     public HistorySample(final int gcCpuUsage) {
         this.gcCpuUsage = gcCpuUsage;
-        memUsage[0] = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
-        memUsage[1] = MgmtUtils.getInMB(MgmtUtils.getNonHeapSummary());
+        memPoolUsage[0] = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
+        memPoolUsage[1] = MgmtUtils.getInMB(MgmtUtils.getNonHeapSummary());
         this.sampleTime = System.currentTimeMillis();
         final ThreadMXBean tbean = ManagementFactory.getThreadMXBean();
         threads = tbean.getThreadInfo(tbean.getAllThreadIds());

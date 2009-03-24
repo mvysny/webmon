@@ -61,11 +61,11 @@ public class WebVMPage extends WebPage {
         gs.colors = new String[]{"#7e43b2", "#ff7f7f"};
         gs.border = "black";
         gs.yLegend = true;
-        long maxMem = history.get(0).getMemPoolUsage()[index].getMax();
+        long maxMem = history.get(0).memPoolUsage[index].getMax();
         if (maxMem == -1) {
             maxMem = 0;
             for (final HistorySample hs : history) {
-                final MemoryUsage usage = hs.getMemPoolUsage()[index];
+                final MemoryUsage usage = hs.memPoolUsage[index];
                 if (maxMem < usage.getCommitted()) {
                     maxMem = usage.getCommitted();
                 }
@@ -74,7 +74,7 @@ public class WebVMPage extends WebPage {
         }
         final DivGraph dg = new DivGraph((int) maxMem, gs);
         for (final HistorySample hs : history) {
-            final MemoryUsage usage = hs.getMemPoolUsage()[index];
+            final MemoryUsage usage = hs.memPoolUsage[index];
             dg.add(new int[]{(int) usage.getUsed(), (int) usage.getCommitted()});
         }
         dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());

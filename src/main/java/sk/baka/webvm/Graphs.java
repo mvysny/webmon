@@ -24,7 +24,6 @@ import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadMXBean;
 import sk.baka.webvm.analyzer.HistorySample;
 import java.util.List;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import sk.baka.webvm.analyzer.HistorySampler;
 import sk.baka.webvm.misc.DivGraph;
@@ -70,14 +69,14 @@ public final class Graphs extends WebVMPage {
         gs.yLegend = true;
         int maxClasses = 0;
         for (final HistorySample hs : history) {
-            if (maxClasses < hs.getClassesLoaded()) {
-                maxClasses = hs.getClassesLoaded();
+            if (maxClasses < hs.classesLoaded) {
+                maxClasses = hs.classesLoaded;
             }
         }
         maxClasses = maxClasses * 5 / 4;
         final DivGraph dg = new DivGraph(maxClasses, gs);
         for (final HistorySample hs : history) {
-            dg.add(new int[]{hs.getClassesLoaded()});
+            dg.add(new int[]{hs.classesLoaded});
         }
         dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
         // TODO draw the graph directly to a writer
@@ -97,13 +96,13 @@ public final class Graphs extends WebVMPage {
         gs.yLegend = true;
         final DivGraph dg = new DivGraph(100, gs);
         for (final HistorySample hs : history) {
-            dg.add(new int[]{hs.getGcCpuUsage()});
+            dg.add(new int[]{hs.gcCpuUsage});
         }
         dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
         // TODO draw the graph directly to a writer
         unescaped("gcCPUUsageGraph", dg.draw());
         final HistorySample last = history.isEmpty() ? null : history.get(history.size() - 1);
-        border.add(new Label("gcCPUUsagePerc", last == null ? "-" : Integer.toString(last.getGcCpuUsage())));
+        border.add(new Label("gcCPUUsagePerc", last == null ? "-" : Integer.toString(last.gcCpuUsage)));
     }
 
     private void drawThreadsGraph(List<HistorySample> history) {
@@ -115,14 +114,14 @@ public final class Graphs extends WebVMPage {
         gs.yLegend = true;
         int maxThreads = 0;
         for (final HistorySample hs : history) {
-            if (maxThreads < hs.getThreadCount()) {
-                maxThreads = hs.getThreadCount();
+            if (maxThreads < hs.threadCount) {
+                maxThreads = hs.threadCount;
             }
         }
         maxThreads = maxThreads * 5 / 4;
         final DivGraph dg = new DivGraph(maxThreads, gs);
         for (final HistorySample hs : history) {
-            dg.add(new int[]{hs.getDaemonThreadCount(), hs.getThreadCount()});
+            dg.add(new int[]{hs.daemonThreadCount, hs.threadCount});
         }
         dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
         // TODO draw the graph directly to a writer

@@ -52,7 +52,7 @@ public final class Threads extends WebPage {
         // compute the map
         int i = 0;
         for (final HistorySample sample : samples) {
-            for (final ThreadInfo info : sample.getThreads()) {
+            for (final ThreadInfo info : sample.threads) {
                 if (info == null) {
                     continue;
                 }
