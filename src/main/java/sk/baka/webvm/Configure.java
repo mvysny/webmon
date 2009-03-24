@@ -22,8 +22,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Set;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -43,11 +41,9 @@ import sk.baka.webvm.config.Config;
  * The WebVM configuration. The configuration is not persistent.
  * @author Martin Vysny
  */
-public final class Configure extends WebPage {
+public final class Configure extends WebVMPage {
 
-    public Configure(PageParameters params) {
-        final AppBorder border = new AppBorder("appBorder");
-        add(border);
+    public Configure() {
         border.add(new ConfigForm("configForm"));
     }
 

@@ -35,8 +35,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.tree.LabelTree;
 import org.apache.wicket.model.LoadableDetachableModel;
 
@@ -44,11 +42,9 @@ import org.apache.wicket.model.LoadableDetachableModel;
  * Prints the JNDI tree
  * @author Martin Vysny
  */
-public final class Jndi extends WebPage {
+public final class Jndi extends WebVMPage {
 
-    public Jndi(PageParameters params) {
-        final AppBorder border = new AppBorder("appBorder");
-        add(border);
+    public Jndi() {
         border.add(newJndiTree("jndiTree", null));
         border.add(newJndiTree("jndiJavaTree", "java:"));
     }

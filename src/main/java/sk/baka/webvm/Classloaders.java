@@ -66,11 +66,9 @@ import sk.baka.webvm.analyzer.classloader.ResourceLink;
  * Performs the class loader analysis.
  * @author Martin Vysny
  */
-public final class Classloaders extends WebPage {
+public final class Classloaders extends WebVMPage {
 
-    public Classloaders(PageParameters params) {
-        final AppBorder border = new AppBorder("appBorder");
-        add(border);
+    public Classloaders() {
         tree = newClassloaderHierarchy();
         analyzeClashes(border);
         border.add(tree);
