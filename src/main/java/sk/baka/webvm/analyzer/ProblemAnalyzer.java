@@ -130,26 +130,32 @@ public final class ProblemAnalyzer {
     public ProblemReport getGCCPUUsageReport(final List<HistorySample> history) {
         int tresholdViolationCount = 0;
         int maxTresholdViolationCount = 0;
-        int avgTreshold = 0;
+        int totalAvgTreshold = 0;
+        int avgTresholdViolation = 0;
+        int maxAvgTresholdViolation = 0;
         for (final HistorySample h : history) {
-            avgTreshold += h.getGcCpuUsage();
-            if (h.getGcCpuUsage() >= config.gcCpuTreshold) {
+            totalAvgTreshold += h.gcCpuUsage;
+            if (h.gcCpuUsage >= config.gcCpuTreshold) {
                 tresholdViolationCount++;
+                avgTresholdViolation += h.gcCpuUsage;
                 if (maxTresholdViolationCount < tresholdViolationCount) {
                     maxTresholdViolationCount = tresholdViolationCount;
+                    maxAvgTresholdViolation = avgTresholdViolation;
                 }
             } else {
                 tresholdViolationCount = 0;
+                avgTresholdViolation = 0;
             }
         }
-        avgTreshold = history.size() == 0 ? 0 : avgTreshold / history.size();
+        maxAvgTresholdViolation = maxTresholdViolationCount == 0 ? 0 : maxAvgTresholdViolation / maxTresholdViolationCount;
+        totalAvgTreshold = history.size() == 0 ? 0 : totalAvgTreshold / history.size();
         if (maxTresholdViolationCount >= config.gcCpuTresholdSamples) {
             return new ProblemReport(true, CLASS_GC_CPU_USAGE, "GC spent more than " + config.gcCpuTreshold + "% (avg. " +
-                    avgTreshold + "%) of CPU for " + (maxTresholdViolationCount * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds",
+                    maxAvgTresholdViolation + "%) of CPU for " + (maxTresholdViolationCount * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds",
                     getGcCpuUsageDesc());
         }
         return new ProblemReport(false, CLASS_GC_CPU_USAGE, "Avg. GC CPU usage last " +
-                (history.size() * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds: " + avgTreshold + "%",
+                (history.size() * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds: " + totalAvgTreshold + "%",
                 getGcCpuUsageDesc());
     }
 
