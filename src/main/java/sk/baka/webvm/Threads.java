@@ -26,7 +26,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -37,13 +36,11 @@ import sk.baka.webvm.analyzer.HistorySample;
  * Shows the thread history.
  * @author vyzivus
  */
-public final class Threads extends WebPage {
+public final class Threads extends WebVMPage {
 
     public Threads(PageParameters params) {
-        final AppBorder border = new AppBorder("appBorder");
-        add(border);
         final SortedMap<Long, List<ThreadInfo>> threadAnalysis = analyzeThreads();
-        drawThreads(border, threadAnalysis);
+        drawThreads(threadAnalysis);
     }
 
     private SortedMap<Long, List<ThreadInfo>> analyzeThreads() {
@@ -73,7 +70,7 @@ public final class Threads extends WebPage {
         return history;
     }
 
-    private void drawThreads(final AppBorder border, final SortedMap<Long, List<ThreadInfo>> threadAnalysis) {
+    private void drawThreads(final SortedMap<Long, List<ThreadInfo>> threadAnalysis) {
         border.add(new ListView<List<ThreadInfo>>("threads", new Detachable(threadAnalysis)) {
 
             @Override

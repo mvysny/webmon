@@ -23,8 +23,6 @@ import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -34,11 +32,9 @@ import org.apache.wicket.model.LoadableDetachableModel;
  * Performs and displays a full thread dump.
  * @author vyzivus
  */
-public final class ThreadDump extends WebPage {
+public final class ThreadDump extends WebVMPage {
 
-    public ThreadDump(PageParameters params) {
-        final AppBorder border = new AppBorder("appBorder");
-        add(border);
+    public ThreadDump() {
         border.add(new ListView<ThreadInfo>("threadList", new LoadableDetachableModel<List<ThreadInfo>>() {
 
             @Override

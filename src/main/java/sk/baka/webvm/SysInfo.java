@@ -23,8 +23,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -36,15 +34,13 @@ import sk.baka.webvm.misc.Producer;
  * Provides list of system properties and environment properties.
  * @author Martin Vysny
  */
-public final class SysInfo extends WebPage {
+public final class SysInfo extends WebVMPage {
 
     /**
      * Creates new object
      * @param params page parameters
      */
-    public SysInfo(PageParameters params) {
-        final AppBorder border = new AppBorder("appBorder");
-        add(border);
+    public SysInfo() {
         listMap(border, new Producer<Map<String, String>>() {
 
             public Map<String, String> produce() {

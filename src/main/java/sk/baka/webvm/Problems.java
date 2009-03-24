@@ -20,9 +20,7 @@ package sk.baka.webvm;
 
 import sk.baka.webvm.analyzer.ProblemReport;
 import java.util.List;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -33,15 +31,13 @@ import org.apache.wicket.model.LoadableDetachableModel;
  * Shows the "Problems" page and provides the problems analysis.
  * @author Martin Vysny
  */
-public final class Problems extends WebPage {
+public final class Problems extends WebVMPage {
 
     /**
      * Creates new instance
      * @param params page parameters
      */
-    public Problems(PageParameters params) {
-        final AppBorder border = new AppBorder("appBorder");
-        add(border);
+    public Problems() {
         final IModel<List<ProblemReport>> model = new LoadableDetachableModel<List<ProblemReport>>() {
 
             @Override
