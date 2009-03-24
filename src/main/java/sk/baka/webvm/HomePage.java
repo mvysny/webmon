@@ -84,6 +84,6 @@ public class HomePage extends WebVMPage {
         border.add(new Label("classesLoaded", Integer.toString(clbean.getLoadedClassCount())));
         border.add(new Label("classesLoadedTotal", Long.toString(clbean.getTotalLoadedClassCount())));
         border.add(new Label("classesUnloaded", Long.toString(clbean.getUnloadedClassCount())));
-        drawMemoryStatus(MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime()), "memStat", 400);
+        drawMemoryStatus(MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime()), "memStat", 300);
     }
 }
