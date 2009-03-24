@@ -167,11 +167,11 @@ public final class DivGraph {
             if (floatLeft) {
                 sb.append("float:left; ");
             }
-            sb.append("width: ");
-        } else {
-            sb.append("height: ");
         }
-        sb.append(style.vertical ? style.width : style.height);
+        sb.append("width: ");
+        sb.append(style.width);
+        sb.append("px; height: ");
+        sb.append(style.height);
         sb.append("px;\">");
         // go from pixels.length-1 to 0 when vertical
         // go from 0 to pixels.length-1 when horizontal
@@ -180,8 +180,8 @@ public final class DivGraph {
             if (isEmpty) {
                 continue;
             }
-            sb.append("<div style=\"");
             final boolean isMax = i == pixels.length - 1;
+            sb.append("<div style=\"");
             if (!isMax) {
                 sb.append("background-color: ");
                 sb.append(style.colors[i]);
@@ -216,7 +216,7 @@ public final class DivGraph {
                     }
                 }
             }
-            if (!style.showValues && !style.showPercentage) {
+            if (isMax || (!style.showValues && !style.showPercentage)) {
                 sb.append("<!-- -->");
             }
             sb.append("</div>");
