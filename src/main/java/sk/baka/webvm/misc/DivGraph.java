@@ -19,9 +19,6 @@
 package sk.baka.webvm.misc;
 
 import java.lang.management.MemoryUsage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Draws a graph using div elements.
