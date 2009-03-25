@@ -65,8 +65,8 @@ public final class Graphs extends WebVMPage {
     private void drawClassesGraph(List<HistorySample> history) {
         final GraphStyle gs = new GraphStyle();
         gs.colors = new String[]{"#ff7f7f"};
-        gs.height = 100;
-        gs.width = 2;
+        gs.height = 120;
+        gs.width = 300;
         gs.border = "black";
         gs.yLegend = true;
         int maxClasses = 0;
@@ -76,12 +76,11 @@ public final class Graphs extends WebVMPage {
             }
         }
         maxClasses = maxClasses * 5 / 4;
-        final DivGraph dg = new DivGraph(maxClasses, gs);
+        final BluffGraph dg = new BluffGraph(maxClasses, gs);
         for (final HistorySample hs : history) {
             dg.add(new int[]{hs.classesLoaded});
         }
         dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
-        // TODO draw the graph directly to a writer
         unescaped("classesGraph", dg.draw());
         final ClassLoadingMXBean bean = ManagementFactory.getClassLoadingMXBean();
         border.add(new Label("classesCurrentlyLoaded", Integer.toString(bean.getLoadedClassCount())));

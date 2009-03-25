@@ -71,13 +71,12 @@ public final class BluffGraph extends AbstractGraph {
         if (!style.yLegend) {
             sb.append("  g.hide_line_numbers = true;");
         }
-        sb.append("  g.hide_legend = true;");
-        sb.append("  g.set_margins(0);\n");
-        sb.append("  g.sort = true;\n");
-        sb.append("  g.theme_37signals();\n");
+        sb.append("  g.hide_legend = true;g.set_margins(0);g.sort = false;g.theme_37signals();\n");
         for (int i = 0; i < style.colors.length; i++) {
             sb.append("  g.data(\"\", [");
             boolean first = true;
+            // hack to suppress the "No Data" message
+            boolean zeroesOnly = true;
             for (final int[] vals : this.values) {
                 if (first) {
                     first = false;
@@ -90,7 +89,13 @@ public final class BluffGraph extends AbstractGraph {
                         val -= vals[j];
                     }
                 }
+                if (val != 0) {
+                    zeroesOnly = false;
+                }
                 sb.append(val);
+            }
+            if (zeroesOnly) {
+                sb.append('1');
             }
             sb.append("], '");
             sb.append(style.colors[i]);
