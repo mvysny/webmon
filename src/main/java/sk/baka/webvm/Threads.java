@@ -109,16 +109,16 @@ public final class Threads extends WebVMPage {
         }
         switch (info.getThreadState()) {
             case NEW:
-                return '-';
+                return '.';
             case BLOCKED:
-                return 'b';
+                return 'x';
             case RUNNABLE:
-                return 'R';
+                return '|';
             case TERMINATED:
-                return 't';
+                return '_';
             case TIMED_WAITING:
             case WAITING:
-                return 'w';
+                return 'z';
         }
         throw new AssertionError();
     }
