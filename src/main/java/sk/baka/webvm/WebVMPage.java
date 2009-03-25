@@ -24,6 +24,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import sk.baka.webvm.analyzer.HistorySample;
 import sk.baka.webvm.analyzer.HistorySampler;
+import sk.baka.webvm.misc.BluffGraph;
 import sk.baka.webvm.misc.DivGraph;
 import sk.baka.webvm.misc.GraphStyle;
 
@@ -56,8 +57,8 @@ public class WebVMPage extends WebPage {
             return;
         }
         final GraphStyle gs = new GraphStyle();
-        gs.height = 100;
-        gs.width = 2;
+        gs.height = 120;
+        gs.width = 300;
         gs.colors = new String[]{"#7e43b2", "#ff7f7f"};
         gs.border = "black";
         gs.yLegend = true;
@@ -72,7 +73,7 @@ public class WebVMPage extends WebPage {
             }
             maxMem = maxMem * 5 / 4;
         }
-        final DivGraph dg = new DivGraph((int) maxMem, gs);
+        final BluffGraph dg = new BluffGraph((int) maxMem, gs);
         for (final HistorySample hs : history) {
             final MemoryUsage usage = hs.memPoolUsage[index];
             dg.add(new int[]{(int) usage.getUsed(), (int) usage.getCommitted()});
