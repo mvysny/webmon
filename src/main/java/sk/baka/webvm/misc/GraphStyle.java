@@ -89,7 +89,19 @@ public final class GraphStyle implements Serializable {
     /**
      * The graph legend.
      */
-    public String[] legend = null;
+    public GraphStyleEnum style = GraphStyleEnum.StackedBar;
+
+    public static enum GraphStyleEnum {
+
+        /**
+         * A stacked bar graph.
+         */
+        StackedBar,
+        /**
+         * A line graph.
+         */
+        Line;
+    }
 
     /**
      * Validates this value object.
@@ -108,6 +120,9 @@ public final class GraphStyle implements Serializable {
             if (colors.length != fontColors.length) {
                 throw new IllegalArgumentException("fontColors must have the same length as colors");
             }
+        }
+        if (style == null) {
+            throw new IllegalArgumentException("style is null");
         }
     }
 }

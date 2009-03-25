@@ -92,25 +92,25 @@ public final class Graphs extends WebVMPage {
     private void drawGcCpuUsage(final List<HistorySample> history) {
         final GraphStyle gs = new GraphStyle();
         gs.colors = new String[]{"#7e43b2"};
-        gs.height = 150;
+        gs.height = 120;
         gs.width = 300;
         gs.border = "black";
         gs.yLegend = true;
-        final HistorySample last = history.isEmpty() ? null : history.get(history.size() - 1);
-        gs.legend = new String[]{"Current GC usage: " + (last == null ? "?" : Integer.toString(last.gcCpuUsage)) + "%"};
         final AbstractGraph dg = new BluffGraph(100, gs);
         for (final HistorySample hs : history) {
             dg.add(new int[]{hs.gcCpuUsage});
         }
         dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
         unescaped("gcCPUUsageGraph", dg.draw());
+        final HistorySample last = history.isEmpty() ? null : history.get(history.size() - 1);
+        border.add(new Label("gcCPUUsagePerc", last == null ? "?" : Integer.toString(last.gcCpuUsage)));
     }
 
     private void drawThreadsGraph(List<HistorySample> history) {
         final GraphStyle gs = new GraphStyle();
         gs.colors = new String[]{"#7e43b2", "#ff7f7f"};
-        gs.height = 100;
-        gs.width = 2;
+        gs.height = 120;
+        gs.width = 300;
         gs.border = "black";
         gs.yLegend = true;
         int maxThreads = 0;
@@ -120,12 +120,11 @@ public final class Graphs extends WebVMPage {
             }
         }
         maxThreads = maxThreads * 5 / 4;
-        final DivGraph dg = new DivGraph(maxThreads, gs);
+        final AbstractGraph dg = new BluffGraph(maxThreads, gs);
         for (final HistorySample hs : history) {
             dg.add(new int[]{hs.daemonThreadCount, hs.threadCount});
         }
         dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
-        // TODO draw the graph directly to a writer
         unescaped("threadsGraph", dg.draw());
         final ThreadMXBean bean = ManagementFactory.getThreadMXBean();
         border.add(new Label("liveThreads", Integer.toString(bean.getThreadCount())));
