@@ -82,6 +82,12 @@ public final class MgmtUtils {
         return new MemoryUsage(-1, heapUsed, heapSize, maxMem == Long.MAX_VALUE ? -1 : maxMem);
     }
 
+    /**
+     * Sums two memory usages together. Does not allow null values.
+     * @param u1 first usage, must not be null
+     * @param u2 second usage, must not be null
+     * @return a summed usage, never null
+     */
     public static MemoryUsage add(final MemoryUsage u1, final MemoryUsage u2) {
         return new MemoryUsage(u1.getInit() + u2.getInit(), u1.getUsed() + u2.getUsed(), u1.getCommitted() + u2.getCommitted(), u1.getMax() + u2.getMax());
     }
