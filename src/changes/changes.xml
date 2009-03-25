@@ -23,6 +23,50 @@
         <author email="vysny@baka.sk">Martin Vysny</author>
     </properties>
     <body>
+        <release version="0.3" date="1. April 2009">
+        		<action dev="vyzivus" type="update">
+        			Better ASCII graphic for thread state table
+        		</action>
+        		<action dev="vyzivus" type="update">
+					All graphs are now drawn using Bluff
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Fixed GC usage display in the Problems tab - only the problematic values average is shown instead of the 150sec average.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			A graphical bar showing pool usage is now displayed in the Memory view
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Revamped the graph page: added the thread count and class count graphs.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Non-Heap memory usage is now displayed as well
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			HomePage now shows a progress bar showing memory usage
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Implemented a simple thread dump.
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added threads analysis page.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Table cells are now aligned to the left for better readability; correct style set for table.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			The Free Disk Space problem analyzer now shows free disk space on all devices.
+        		</action>
+        		<action dev="vyzivus" type="fix">
+        			Fixed application link in RSS feed; server URL now auto-detected in RSS feed.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Shorter application description and time format displayed, to prevent menu disappearing on smaller resolutions.
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added project home link.
+        		</action>
+        </release>
         <release version="0.2" date="11. March 2009">
         		<action dev="vyzivus" type="update">
 					The "Perform GC" link moved to a sidebar.
