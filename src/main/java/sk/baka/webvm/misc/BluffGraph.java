@@ -75,7 +75,7 @@ public final class BluffGraph extends AbstractGraph {
         for (int i = 0; i < style.colors.length; i++) {
             sb.append("  g.data(\"\", [");
             boolean first = true;
-            // hack to suppress the "No Data" message
+            // hack to suppress the "No Data" message - displayed when a bunch of zeroes is fed to the graph
             boolean zeroesOnly = true;
             for (final int[] vals : this.values) {
                 if (first) {
@@ -85,7 +85,7 @@ public final class BluffGraph extends AbstractGraph {
                 }
                 int val = vals[i];
                 if (style.style == GraphStyle.GraphStyleEnum.StackedBar) {
-                    // elements are stacked on top of each other, not behind the first one. Recompute items to fix this.
+                    // elements are stacked on top of each other, not behind themselves. Recompute items values to fix this.
                     for (int j = 0; j < i; j++) {
                         val -= vals[j];
                     }
