@@ -45,8 +45,16 @@ public final class BluffGraph extends AbstractGraph {
             sb.append("; \"");
         }
         sb.append("></canvas><script type=\"text/javascript\">\n");
-        sb.append("window.onload = function() {\n");
-        sb.append("  var g = new Bluff.StackedBar('");
+        sb.append("  var g = new Bluff.");
+        switch (style.style) {
+            case StackedBar:
+                sb.append("StackedArea");
+                break;
+            case Line:
+                sb.append("Line");
+                break;
+        }
+        sb.append("('");
         sb.append(id);
         sb.append("', '");
         sb.append(style.width);
@@ -63,18 +71,12 @@ public final class BluffGraph extends AbstractGraph {
         if (!style.yLegend) {
             sb.append("  g.hide_line_numbers = true;");
         }
-        if (style.legend == null) {
-            sb.append("  g.hide_legend = true;");
-        }
+        sb.append("  g.hide_legend = true;");
         sb.append("  g.set_margins(0);\n");
-        sb.append("  g.sort = false;\n");
+        sb.append("  g.sort = true;\n");
         sb.append("  g.theme_37signals();\n");
         for (int i = 0; i < style.colors.length; i++) {
-            sb.append("  g.data(\"");
-            if ((style.legend != null) && (style.legend[i] != null)) {
-                sb.append(style.legend[i]);
-            }
-            sb.append("\", [");
+            sb.append("  g.data(\"\", [");
             boolean first = true;
             for (final int[] vals : this.values) {
                 if (first) {
@@ -82,7 +84,13 @@ public final class BluffGraph extends AbstractGraph {
                 } else {
                     sb.append(",");
                 }
-                sb.append(vals[i]);
+                int val = vals[i];
+                if (style.style == GraphStyle.GraphStyleEnum.StackedBar) {
+                    for (int j = 0; j < i; j++) {
+                        val -= vals[j];
+                    }
+                }
+                sb.append(val);
             }
             sb.append("], '");
             sb.append(style.colors[i]);
@@ -92,6 +100,6 @@ public final class BluffGraph extends AbstractGraph {
         sb.append(max);
         sb.append(";\n");
         sb.append("  g.draw();\n");
-        sb.append("  };</script>\n");
+        sb.append("</script>\n");
     }
 }
