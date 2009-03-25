@@ -26,6 +26,8 @@ import sk.baka.webvm.analyzer.HistorySample;
 import java.util.List;
 import org.apache.wicket.markup.html.basic.Label;
 import sk.baka.webvm.analyzer.HistorySampler;
+import sk.baka.webvm.misc.AbstractGraph;
+import sk.baka.webvm.misc.BluffGraph;
 import sk.baka.webvm.misc.DivGraph;
 import sk.baka.webvm.misc.GraphStyle;
 import sk.baka.webvm.misc.MgmtUtils;
@@ -90,19 +92,18 @@ public final class Graphs extends WebVMPage {
     private void drawGcCpuUsage(final List<HistorySample> history) {
         final GraphStyle gs = new GraphStyle();
         gs.colors = new String[]{"#7e43b2"};
-        gs.height = 100;
-        gs.width = 2;
+        gs.height = 150;
+        gs.width = 300;
         gs.border = "black";
         gs.yLegend = true;
-        final DivGraph dg = new DivGraph(100, gs);
+        final HistorySample last = history.isEmpty() ? null : history.get(history.size() - 1);
+        gs.legend = new String[]{"Current GC usage: " + (last == null ? "?" : Integer.toString(last.gcCpuUsage)) + "%"};
+        final AbstractGraph dg = new BluffGraph(100, gs);
         for (final HistorySample hs : history) {
             dg.add(new int[]{hs.gcCpuUsage});
         }
         dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
-        // TODO draw the graph directly to a writer
         unescaped("gcCPUUsageGraph", dg.draw());
-        final HistorySample last = history.isEmpty() ? null : history.get(history.size() - 1);
-        border.add(new Label("gcCPUUsagePerc", last == null ? "-" : Integer.toString(last.gcCpuUsage)));
     }
 
     private void drawThreadsGraph(List<HistorySample> history) {

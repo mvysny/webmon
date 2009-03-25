@@ -27,6 +27,11 @@ import java.io.Serializable;
 public final class GraphStyle implements Serializable {
 
     /**
+     * The caption of the graph.
+     */
+    public String caption;
+
+    /**
      * Creates new object instance.
      */
     public GraphStyle() {
@@ -81,6 +86,10 @@ public final class GraphStyle implements Serializable {
      * Draw percentage values to the graph.
      */
     public boolean showPercentage = false;
+    /**
+     * The graph legend.
+     */
+    public String[] legend = null;
 
     /**
      * Validates this value object.

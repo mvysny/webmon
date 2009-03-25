@@ -27,70 +27,21 @@ import java.util.List;
  * Draws a graph using div elements.
  * @author Martin Vysny
  */
-public final class DivGraph {
-
-    /**
-     * The maximum value.
-     */
-    private final int max;
-    /**
-     * The graph values.
-     */
-    private final List<int[]> values = new ArrayList<int[]>();
-    /**
-     * The graph style.
-     */
-    private final GraphStyle style;
-
+public final class DivGraph extends AbstractGraph {
     /**
      * Constructs a new graph instance.
      * @param max the maximum value.
      * @param style the graph style, must be valid.
      */
     public DivGraph(final int max, final GraphStyle style) {
-        style.validate();
-        this.max = max;
-        this.style = style;
-    }
-
-    /**
-     * Adds given value array to the graph.
-     * @param values the values to add. There must be exactly one value for each {@link GraphStyle#colors graph column}. The array is modified by sorting the array.
-     */
-    public void add(final int[] values) {
-        if (values.length != style.colors.length) {
-            throw new IllegalArgumentException("Expected " + style.colors.length + " columns but got " + values.length);
-        }
-        Arrays.sort(values);
-        this.values.add(values);
-    }
-
-    /**
-     * Append several zero values until a desired data length is reached.
-     * @param desiredLength desired length of X axis.
-     */
-    public void fillWithZero(final int desiredLength) {
-        int[] empty = new int[style.colors.length];
-        while (values.size() < desiredLength) {
-            values.add(empty);
-        }
-    }
-
-    /**
-     * Draws the graph and returns the html code.
-     * @return the html code of the graph.
-     * @deprecated use the more memory-friendly {@link #draw(java.lang.StringBuilder)}.
-     */
-    public String draw() {
-        final StringBuilder sb = new StringBuilder();
-        draw(sb);
-        return sb.toString();
+        super(max, style);
     }
 
     /**
      * Draws the graph and returns the html code.
      * @param sb draw the graph here
      */
+    @Override
     public void draw(final StringBuilder sb) {
         // draw border if necessary
         sb.append("<table");
