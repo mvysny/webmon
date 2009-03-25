@@ -21,59 +21,13 @@ package sk.baka.webvm.misc;
 import java.lang.management.MemoryUsage;
 
 /**
- * Draws a graph using div elements.
+ * Draws stacked bars.
  * @author Martin Vysny
  */
-public final class DivGraph extends AbstractGraph {
-    /**
-     * Constructs a new graph instance.
-     * @param max the maximum value.
-     * @param style the graph style, must be valid.
-     */
-    public DivGraph(final int max, final GraphStyle style) {
-        super(max, style);
-    }
+public final class DivGraph {
 
-    /**
-     * Draws the graph and returns the html code.
-     * @param sb draw the graph here
-     */
-    @Override
-    public void draw(final StringBuilder sb) {
-        // draw border if necessary
-        sb.append("<table");
-        if (style.border != null) {
-            sb.append(" style=\"border: 1px solid ");
-            sb.append(style.border);
-            sb.append("; \"");
-        }
-        sb.append("><tr>");
-        // draw legend if necessary
-        if (style.yLegend) {
-            final int quarterHeight = style.height / 2;
-            sb.append("<td style=\"text-align: right; ");
-            sb.append("\">");
-            sb.append("<div style=\"border-top: 1px solid black; vertical-align: top; height: ");
-            sb.append(quarterHeight);
-            sb.append("px; \">");
-            sb.append(max);
-            sb.append("</div>");
-            sb.append("<div style=\"border-top: 1px solid black; vertical-align: top; height: ");
-            sb.append(quarterHeight);
-            sb.append("px; \">");
-            sb.append(max / 2);
-            sb.append("</div>");
-            sb.append("</td>");
-        }
-        sb.append("<td>");
-        // draw the graph itself
-        final GraphStyle gs = new GraphStyle(style);
-        gs.vertical = !style.vertical;
-        gs.border = null;
-        for (int i = 0; i < values.size(); i++) {
-            drawStackedBar(gs, values.get(i), max, i < values.size() - 1, sb);
-        }
-        sb.append("</td></tr></table>");
+    private DivGraph() {
+        throw new AssertionError();
     }
 
     /**
