@@ -85,6 +85,7 @@ public final class BluffGraph extends AbstractGraph {
                 }
                 int val = vals[i];
                 if (style.style == GraphStyle.GraphStyleEnum.StackedBar) {
+                    // elements are stacked on top of each other, not behind the first one. Recompute items to fix this.
                     for (int j = 0; j < i; j++) {
                         val -= vals[j];
                     }
