@@ -65,12 +65,15 @@ public final class Memory extends WebVMPage {
                 item.add(new Label("poolName", bean.getName()));
                 item.add(new Label("poolType", "" + bean.getType()));
                 item.add(new Label("poolValid", bean.isValid() ? "Y" : "N"));
-                add(item, "poolCollects", bean.getCollectionUsage(), true);
-                item.add(new Label("poolCollectsPerc", MgmtUtils.getUsagePerc(bean.getCollectionUsage())));
-                add(item, "poolPeak", bean.getPeakUsage(), false);
-                item.add(new Label("poolPeakPerc", MgmtUtils.getUsagePerc(bean.getPeakUsage())));
-                add(item, "poolUsage", bean.getUsage(), false);
-                item.add(new Label("poolUsagePerc", MgmtUtils.getUsagePerc(bean.getUsage())));
+                MemoryUsage usage = MgmtUtils.getInMB(bean.getCollectionUsage());
+                add(item, "poolCollects", usage, true);
+                item.add(new Label("poolCollectsPerc", MgmtUtils.getUsagePerc(usage)));
+                usage = MgmtUtils.getInMB(bean.getPeakUsage());
+                add(item, "poolPeak", usage, false);
+                item.add(new Label("poolPeakPerc", MgmtUtils.getUsagePerc(usage)));
+                usage = MgmtUtils.getInMB(bean.getUsage());
+                add(item, "poolUsage", usage, false);
+                item.add(new Label("poolUsagePerc", MgmtUtils.getUsagePerc(usage)));
             }
 
             private void add(final ListItem<?> item, final String wid, MemoryUsage usage, final boolean gc) {
@@ -78,7 +81,6 @@ public final class Memory extends WebVMPage {
                     item.add(new Label(wid, "Not collectable"));
                     return;
                 }
-                usage = MgmtUtils.getInMB(usage);
                 final StringBuilder sb = new StringBuilder();
                 if (usage != null) {
                     sb.append(drawMemoryStatus(usage, 200));

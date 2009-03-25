@@ -89,9 +89,12 @@ public final class MgmtUtils {
     /**
      * Returns a new object with all values divided by 1024*1024 (converted from bytes to mebibytes).
      * @param mu the memory usage to convert
-     * @return new memory object with values in mebibytes
+     * @return new memory object with values in mebibytes. Returns null if null was supplied.
      */
     public static MemoryUsage getInMB(final MemoryUsage mu) {
+        if (mu == null) {
+            return null;
+        }
         return new MemoryUsage(mu.getInit() == -1 ? -1 : mu.getInit() / 1024 / 1024, mu.getUsed() / 1024 / 1024, mu.getCommitted() / 1024 / 1024, mu.getMax() == -1 ? -1 : mu.getMax() / 1024 / 1024);
     }
 
