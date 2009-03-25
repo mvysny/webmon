@@ -60,8 +60,8 @@ public final class MgmtUtils {
     }
 
     /**
-     * Checks if there is a non-heap pool.
-     * @return true if there is, false otherwise.
+     * Checks if there is a non-heap pool in the memory pool list.
+     * @return true if there is pool managing non-heap memory, false otherwise.
      */
     public static boolean isNonHeapPool() {
         return IS_NON_HEAP;
