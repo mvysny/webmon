@@ -51,25 +51,12 @@
                                 <td wicket:id="os"/>
                             </tr>
                             <tr>
+                                <td>Hardware:</td>
+                                <td wicket:id="hw"/>
+                            </tr>
+                            <tr>
                                 <td>Java:</td>
                                 <td wicket:id="java"/>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="post">
-                <h2 class="title">Runtime</h2>
-                <div class="entry">
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td>Threads:</td>
-                                <td>Current: <strong wicket:id="threads"/> [normal: <strong wicket:id="threadsNormal"/>, daemon: <strong wicket:id="threadsDaemon"/>]; started since the VM start: <strong wicket:id="threadsStarted"/></td>
-                            </tr>
-                            <tr>
-                                <td>Classes:</td>
-                                <td>Currently loaded: <strong wicket:id="classesLoaded"/>; loaded since the VM start: <strong wicket:id="classesLoadedTotal"/>; unloaded since the VM start: <strong wicket:id="classesUnloaded"/></td>
                             </tr>
                         </tbody>
                     </table>
