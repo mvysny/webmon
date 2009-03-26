@@ -127,5 +127,6 @@ public final class Graphs extends WebVMPage {
         final ThreadMXBean bean = ManagementFactory.getThreadMXBean();
         border.add(new Label("liveThreads", Integer.toString(bean.getThreadCount())));
         border.add(new Label("daemonThreads", Long.toString(bean.getDaemonThreadCount())));
+        border.add(new Label("threadsStartedTotal", Long.toString(bean.getTotalStartedThreadCount())));
     }
 }
