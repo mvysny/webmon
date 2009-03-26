@@ -46,6 +46,8 @@ public final class Memory extends WebVMPage {
      * @param params page parameters
      */
     public Memory(PageParameters params) {
+        drawMemoryStatus(MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime()), "heapStatusBar", 300);
+        border.add(new Label("heapStatusText", MgmtUtils.toString(MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime()), true)));
         // fill in the memory info
         displayMemInfo(border, ManagementFactory.getMemoryManagerMXBeans(), "memoryManagers", "memManName", "memManValid", "memManProperties");
         displayMemInfo(border, ManagementFactory.getGarbageCollectorMXBeans(), "gc", "gcName", "gcValid", "gcProperties");

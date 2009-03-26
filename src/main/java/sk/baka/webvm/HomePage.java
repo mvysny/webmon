@@ -18,14 +18,10 @@
  */
 package sk.baka.webvm;
 
-import java.lang.management.ClassLoadingMXBean;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryUsage;
-import java.lang.management.ThreadMXBean;
 import java.util.List;
 import org.apache.wicket.markup.html.basic.Label;
-import sk.baka.webvm.misc.MgmtUtils;
 
 /**
  * Homepage
@@ -39,15 +35,6 @@ public class HomePage extends WebVMPage {
      * Constructor that is invoked when page is invoked without a session.
      */
     public HomePage() {
-        // memory info
-        final MemoryUsage usage = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
-        final long memFree = usage.getMax() - usage.getUsed();
-        border.add(new Label("maxMem", Long.toString(usage.getMax())));
-        border.add(new Label("heapSize", Long.toString(usage.getCommitted())));
-        border.add(new Label("heapUsed", Long.toString(usage.getUsed())));
-        border.add(new Label("heapUsedPerc", MgmtUtils.getUsagePerc(usage)));
-        border.add(new Label("memFree", memFree < 0 ? "?" : Long.toString(memFree)));
-        border.add(new Label("memFreePerc", memFree < 0 ? "?" : MgmtUtils.getFreePerc(usage)));
         // garbage collections
         int collectors = 0;
         long collections = 0;
@@ -73,6 +60,5 @@ public class HomePage extends WebVMPage {
         border.add(new Label("os", System.getProperty("os.name") + " " + System.getProperty("os.version")));
         border.add(new Label("hw", System.getProperty("os.arch") + "; CPU#: " + Runtime.getRuntime().availableProcessors()));
         border.add(new Label("java", System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + " by " + System.getProperty("java.vm.vendor")));
-        drawMemoryStatus(MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime()), "memStat", 300);
     }
 }

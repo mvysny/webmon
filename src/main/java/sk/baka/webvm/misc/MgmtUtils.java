@@ -107,6 +107,7 @@ public final class MgmtUtils {
     /**
      * Formats a memory usage instance to a compact string. Uses the following format: [used (committed) / max].
      * @param mu the memory usage object.
+     * @param inMegs if true then given memory usage values are already megabytes. If false then the values are in bytes.
      * @return [used (committed) / max], or [unknown] if null was given
      */
     public static String toString(final MemoryUsage mu, final boolean inMegs) {
