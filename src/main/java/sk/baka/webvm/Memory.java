@@ -48,10 +48,37 @@ public final class Memory extends WebVMPage {
     public Memory(PageParameters params) {
         drawMemoryStatus(MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime()), "heapStatusBar", 300);
         border.add(new Label("heapStatusText", MgmtUtils.toString(MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime()), true)));
-        // fill in the memory info
         displayMemInfo(border, ManagementFactory.getMemoryManagerMXBeans(), "memoryManagers", "memManName", "memManValid", "memManProperties");
         displayMemInfo(border, ManagementFactory.getGarbageCollectorMXBeans(), "gc", "gcName", "gcValid", "gcProperties");
-        // fill the memory pool info
+        addMemoryPoolInfo();
+        addGCStats();
+    }
+
+    private void addGCStats() {
+        // garbage collections
+        int collectors = 0;
+        long collections = 0;
+        long collectTime = 0;
+        final List<GarbageCollectorMXBean> beans = ManagementFactory.getGarbageCollectorMXBeans();
+        if (beans != null) {
+            for (final GarbageCollectorMXBean bean : beans) {
+                if (bean.isValid()) {
+                    collectors++;
+                }
+                if (bean.getCollectionCount() > 0) {
+                    collections += bean.getCollectionCount();
+                }
+                if (bean.getCollectionTime() > 0) {
+                    collectTime += bean.getCollectionTime();
+                }
+            }
+        }
+        border.add(new Label("gcCount", Long.toString(collectors)));
+        border.add(new Label("gcAmount", Long.toString(collections)));
+        border.add(new Label("gcTime", Long.toString(collectTime)));
+    }
+
+    private void addMemoryPoolInfo() {
         final IModel<List<MemoryPoolMXBean>> model = new LoadableDetachableModel<List<MemoryPoolMXBean>>() {
 
             @Override

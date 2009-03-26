@@ -35,27 +35,6 @@ public class HomePage extends WebVMPage {
      * Constructor that is invoked when page is invoked without a session.
      */
     public HomePage() {
-        // garbage collections
-        int collectors = 0;
-        long collections = 0;
-        long collectTime = 0;
-        final List<GarbageCollectorMXBean> beans = ManagementFactory.getGarbageCollectorMXBeans();
-        if (beans != null) {
-            for (final GarbageCollectorMXBean bean : beans) {
-                if (bean.isValid()) {
-                    collectors++;
-                }
-                if (bean.getCollectionCount() > 0) {
-                    collections += bean.getCollectionCount();
-                }
-                if (bean.getCollectionTime() > 0) {
-                    collectTime += bean.getCollectionTime();
-                }
-            }
-        }
-        border.add(new Label("gcCount", Long.toString(collectors)));
-        border.add(new Label("gcAmount", Long.toString(collections)));
-        border.add(new Label("gcTime", Long.toString(collectTime)));
         // system info
         border.add(new Label("os", System.getProperty("os.name") + " " + System.getProperty("os.version")));
         border.add(new Label("hw", System.getProperty("os.arch") + "; CPU#: " + Runtime.getRuntime().availableProcessors()));
