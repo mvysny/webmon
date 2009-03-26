@@ -18,12 +18,40 @@
                                 <td wicket:id="os"/>
                             </tr>
                             <tr>
-                                <td>Hardware:</td>
+                                <td>HW:</td>
                                 <td wicket:id="hw"/>
                             </tr>
                             <tr>
                                 <td>Java:</td>
                                 <td wicket:id="java"/>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="post">
+                <h2 class="title">System properties</h2>
+                <div class="entry">
+                    <table id="table">
+                        <thead><tr><th>Property name</th><th>Property value</th></tr></thead>
+                        <tbody>
+                            <tr wicket:id="systemProperties">
+                                <td wicket:id="sysPropName"></td>
+                                <td wicket:id="sysPropValue"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="post">
+                <h2 class="title">Environment values</h2>
+                <div class="entry">
+                    <table id="table">
+                        <thead><tr><th>Property name</th><th>Property value</th></tr></thead>
+                        <tbody>
+                            <tr wicket:id="env">
+                                <td wicket:id="envName"></td>
+                                <td wicket:id="envValue"></td>
                             </tr>
                         </tbody>
                     </table>
