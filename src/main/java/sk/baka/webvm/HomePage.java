@@ -70,20 +70,9 @@ public class HomePage extends WebVMPage {
         border.add(new Label("gcAmount", Long.toString(collections)));
         border.add(new Label("gcTime", Long.toString(collectTime)));
         // system info
-        border.add(new Label("os", System.getProperty("os.name") + " " + System.getProperty("os.version") + "; " + System.getProperty("os.arch") + "; CPU#: " + Runtime.getRuntime().availableProcessors()));
+        border.add(new Label("os", System.getProperty("os.name") + " " + System.getProperty("os.version")));
+        border.add(new Label("hw", System.getProperty("os.arch") + "; CPU#: " + Runtime.getRuntime().availableProcessors()));
         border.add(new Label("java", System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + " by " + System.getProperty("java.vm.vendor")));
-        // runtime info
-        final ThreadMXBean tbean = ManagementFactory.getThreadMXBean();
-        final int threadCount = tbean.getThreadCount();
-        final int daemonThreads = tbean.getDaemonThreadCount();
-        border.add(new Label("threads", Integer.toString(threadCount)));
-        border.add(new Label("threadsNormal", Integer.toString(threadCount - daemonThreads)));
-        border.add(new Label("threadsDaemon", Integer.toString(daemonThreads)));
-        border.add(new Label("threadsStarted", Long.toString(tbean.getTotalStartedThreadCount())));
-        final ClassLoadingMXBean clbean = ManagementFactory.getClassLoadingMXBean();
-        border.add(new Label("classesLoaded", Integer.toString(clbean.getLoadedClassCount())));
-        border.add(new Label("classesLoadedTotal", Long.toString(clbean.getTotalLoadedClassCount())));
-        border.add(new Label("classesUnloaded", Long.toString(clbean.getUnloadedClassCount())));
         drawMemoryStatus(MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime()), "memStat", 300);
     }
 }
