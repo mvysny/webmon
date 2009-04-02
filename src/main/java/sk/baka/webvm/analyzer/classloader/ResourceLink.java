@@ -20,6 +20,7 @@ package sk.baka.webvm.analyzer.classloader;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -81,6 +82,14 @@ public abstract class ResourceLink implements Serializable {
         }
         throw new RuntimeException("No such link: " + name);
     }
+
+    /**
+     * Performs a search for given substring. The substring matching must be performed in the last resource path item only - i.e.
+     * the function will match the following for "a": /a, /a/a, /b/a, but not /a/b.
+     * @param substring a string to search, must not be null.
+     * @return non-null list of matched resources, may be empty.
+     */
+    public abstract List<ResourceLink> search(final String substring) throws IOException;
 
     /**
      * Returns length of underlying resource.
@@ -174,6 +183,18 @@ public abstract class ResourceLink implements Serializable {
     public String toString() {
         return getName();
     }
+
+    protected void assertPackage() {
+        if (!isPackage()) {
+            throw new IllegalArgumentException(this + " must be a package");
+        }
+    }
+
+    protected void assertNotPackage() {
+        if (isPackage()) {
+            throw new IllegalArgumentException(this + " must not be a package");
+        }
+    }
 }
 
 /**
@@ -192,6 +213,7 @@ final class DirResourceLink extends ResourceLink {
 
     @Override
     public List<ResourceLink> list() {
+        assertPackage();
         final File[] children = file.listFiles();
         final List<ResourceLink> result = new ArrayList<ResourceLink>(children.length);
         for (final File child : children) {
@@ -229,6 +251,28 @@ final class DirResourceLink extends ResourceLink {
     public File getContainer() {
         return isRoot ? file : null;
     }
+
+    @Override
+    public List<ResourceLink> search(String substring) {
+        assertPackage();
+        final List<ResourceLink> result = new ArrayList<ResourceLink>();
+        searchRecurse(result, substring.toLowerCase(), file);
+        return result;
+    }
+
+    private void searchRecurse(final List<ResourceLink> result, final String substring, final File file) {
+        for (final File f : file.listFiles(new FilenameFilter() {
+
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().contains(substring);
+            }
+        })) {
+            result.add(new DirResourceLink(f, false));
+            if (f.isDirectory()) {
+                searchRecurse(result, substring, f);
+            }
+        }
+    }
 }
 
 /**
@@ -249,9 +293,7 @@ final class JarResourceLink extends ResourceLink {
 
     @Override
     public List<ResourceLink> list() throws IOException {
-        if (!isPackage()) {
-            throw new IllegalStateException("not a package");
-        }
+        assertPackage();
         final List<ResourceLink> result = new ArrayList<ResourceLink>();
         final ZipFile zfile = new ZipFile(jarFile);
         try {
@@ -341,10 +383,42 @@ final class JarResourceLink extends ResourceLink {
         }
         return super.toString();
     }
+
+    @Override
+    public List<ResourceLink> search(String substring) throws IOException {
+        assertPackage();
+        final String substr = substring.toLowerCase();
+        final List<ResourceLink> result = new ArrayList<ResourceLink>();
+        final ZipFile zfile = new ZipFile(jarFile);
+        try {
+            for (final Enumeration<? extends ZipEntry> e = zfile.entries(); e.hasMoreElements();) {
+                final ZipEntry entry = e.nextElement();
+                final String name = entry.getName();
+                if (!name.startsWith(fullEntryName) || name.equals(fullEntryName)) {
+                    continue;
+                }
+                String lastPathItem = name;
+                if (lastPathItem.endsWith("/")) {
+                    lastPathItem = lastPathItem.substring(0, lastPathItem.length() - 1);
+                }
+                int slash = name.lastIndexOf('/');
+                if (slash >= 0) {
+                    lastPathItem = lastPathItem.substring(slash + 1, lastPathItem.length());
+                }
+                if (lastPathItem.toLowerCase().contains(substr)) {
+                    final ResourceLink link = new JarResourceLink(jarFile, name, false);
+                    result.add(link);
+                }
+            }
+            return result;
+        } finally {
+            closeQuietly(zfile);
+        }
+    }
 }
 
 /**
- * A delegate for a real resource link. Serves for multiple package grouping. Always a package.
+ * A delegate for a real resource link. Serves for grouping of multiple package names. Always a package.
  * @author Martin Vysny
  */
 final class ResourceLinkGroup extends ResourceLink {
@@ -391,5 +465,10 @@ final class ResourceLinkGroup extends ResourceLink {
     @Override
     public File getContainer() {
         return delegate.getContainer();
+    }
+
+    @Override
+    public List<ResourceLink> search(String substring) throws IOException {
+        return delegate.search(substring);
     }
 }

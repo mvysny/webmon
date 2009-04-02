@@ -31,34 +31,40 @@ import junit.framework.TestCase;
  * Tests the {@link ResourceLink} class.
  * @author Martin Vysny
  */
-public class ResourceLinkTest extends TestCase {
+public abstract class AbstractResourceLinkTest extends TestCase {
 
-    private File jarFile;
+    /**
+     * Returns the file to test on.
+     * @return the file.
+     */
+    protected abstract File getFile();
+
+    private File file = null;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        jarFile = new File("src/test/files/sunjce_provider.jar");
-        assertTrue(jarFile.exists());
+        file = new File("src/test/files/sunjce_provider.jar");
+        assertTrue(file.exists());
     }
 
-    public void testJarRoot() throws IOException, IOException {
-        final ResourceLink link = ResourceLink.newFor(jarFile);
+    public void testRoot() throws IOException, IOException {
+        final ResourceLink link = ResourceLink.newFor(file);
         assertTrue(link.isRoot());
         assertTrue(link.isPackage());
-        assertEquals(jarFile, link.getContainer());
+        assertEquals(file, link.getContainer());
         assertEquals(-1, link.getLength());
-        assertEquals(jarFile.getAbsolutePath(), link.getName());
+        assertEquals(file.getAbsolutePath(), link.getName());
     }
 
-    public void testJarRootContents() throws IOException {
-        final ResourceLink link = ResourceLink.newFor(jarFile);
+    public void testRootContents() throws IOException {
+        final ResourceLink link = ResourceLink.newFor(file);
         final List<ResourceLink> children = link.list();
         assertEquals(new String[]{"META-INF", "com"}, children);
     }
 
-    public void testJarContents() throws IOException {
-        final ResourceLink link = ResourceLink.newFor(jarFile);
+    public void testContents() throws IOException {
+        final ResourceLink link = ResourceLink.newFor(file);
         final ResourceLink comLink = ResourceLink.findFirstByName(link.list(), "com");
         assertFalse(comLink.isRoot());
         assertTrue(comLink.isPackage());
@@ -69,10 +75,30 @@ public class ResourceLinkTest extends TestCase {
         assertFalse(fileLink.isPackage());
     }
 
-    public void testJarRootContentsGrouping() throws IOException {
-        final ResourceLink link = ResourceLink.newFor(jarFile);
+    private ResourceLink getSun() throws IOException {
+        final ResourceLink link = ResourceLink.newFor(file);
+        final ResourceLink comLink = ResourceLink.findFirstByName(link.list(), "com");
+        final ResourceLink sunLink = ResourceLink.findFirstByName(comLink.list(), "sun");
+        return sunLink;
+    }
+
+    public void testRootContentsGrouping() throws IOException {
+        final ResourceLink link = ResourceLink.newFor(file);
         final List<ResourceLink> children = link.listAndGroup();
         assertEquals(new String[]{"META-INF", "com.sun.crypto.provider"}, children);
+    }
+
+    public void testSearch() throws IOException {
+        ResourceLink link = ResourceLink.newFor(file);
+        List<ResourceLink> result = link.search("com");
+        assertEquals(new String[]{"com"}, result);
+        result = link.search("META");
+        assertEquals(new String[]{"META-INF"}, result);
+        result = link.search("c");
+        assertEquals(new String[]{"com", "com/crypto", "com/sun/crypto/provider/AESCipher.class"}, result);
+        link = getSun();
+        result = link.search("c");
+        assertEquals(new String[]{"com/sun/crypto", "com/sun/crypto/provider/AESCipher.class"}, result);
     }
 
     private static void assertDistinctItems(final Collection<?> c) {
