@@ -19,6 +19,8 @@
 package sk.baka.webvm.analyzer.classloader;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Runs the tests on a jar file.
@@ -29,5 +31,22 @@ public class JarResourceLinkTest extends AbstractResourceLinkTest {
     @Override
     protected File getFile() {
         return new File("src/test/files/sunjce_provider.jar");
+    }
+
+    public void testSearch() throws IOException {
+        ResourceLink link = ResourceLink.newFor(file);
+        List<ResourceLink> result = link.search("com");
+        // note: JAR file itself is not a tree hierarchy - it is a list of names instead. Thus the only item should match: the com/sun/crypto/provider zip entry.
+        assertEquals(new String[]{"provider"}, result);
+        result = link.search("META");
+        assertEquals(new String[]{"META-INF"}, result);
+        result = link.search("c");
+        // note: this test does not match a single "com" folder as there is no such entry in JAR.
+        assertEquals(new String[]{"provider", "AESCipher.class"}, result);
+        link = getSun();
+        result = link.search("c");
+        assertEquals(new String[]{"provider", "AESCipher.class"}, result);
+        result = link.search("META");
+        assertEquals(new String[]{}, result);
     }
 }

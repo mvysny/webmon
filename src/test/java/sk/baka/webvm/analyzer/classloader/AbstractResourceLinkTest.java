@@ -39,7 +39,7 @@ public abstract class AbstractResourceLinkTest extends TestCase {
      */
     protected abstract File getFile();
 
-    private File file = null;
+    protected File file = null;
 
     @Override
     protected void setUp() throws Exception {
@@ -75,7 +75,7 @@ public abstract class AbstractResourceLinkTest extends TestCase {
         assertFalse(fileLink.isPackage());
     }
 
-    private ResourceLink getSun() throws IOException {
+    protected final ResourceLink getSun() throws IOException {
         final ResourceLink link = ResourceLink.newFor(file);
         final ResourceLink comLink = ResourceLink.findFirstByName(link.list(), "com");
         final ResourceLink sunLink = ResourceLink.findFirstByName(comLink.list(), "sun");
@@ -88,20 +88,7 @@ public abstract class AbstractResourceLinkTest extends TestCase {
         assertEquals(new String[]{"META-INF", "com.sun.crypto.provider"}, children);
     }
 
-    public void testSearch() throws IOException {
-        ResourceLink link = ResourceLink.newFor(file);
-        List<ResourceLink> result = link.search("com");
-        assertEquals(new String[]{"com"}, result);
-        result = link.search("META");
-        assertEquals(new String[]{"META-INF"}, result);
-        result = link.search("c");
-        assertEquals(new String[]{"com", "com/crypto", "com/sun/crypto/provider/AESCipher.class"}, result);
-        link = getSun();
-        result = link.search("c");
-        assertEquals(new String[]{"com/sun/crypto", "com/sun/crypto/provider/AESCipher.class"}, result);
-    }
-
-    private static void assertDistinctItems(final Collection<?> c) {
+    public static void assertDistinctItems(final Collection<?> c) {
         final Set<Object> set = new HashSet<Object>();
         for (Object o : c) {
             if (!set.add(o)) {
@@ -110,7 +97,7 @@ public abstract class AbstractResourceLinkTest extends TestCase {
         }
     }
 
-    private static void assertEquals(String[] expected, final List<ResourceLink> got) {
+    public static void assertEquals(String[] expected, final List<ResourceLink> got) {
         final Set<String> expectedSet = new HashSet<String>(Arrays.asList(expected));
         final List<String> gotList = ResourceLink.getNames(got);
         assertDistinctItems(gotList);
@@ -118,7 +105,7 @@ public abstract class AbstractResourceLinkTest extends TestCase {
         assertEqualsSet(expectedSet, gotSet);
     }
 
-    private static void assertEqualsSet(Collection<?> expectedSet, Collection<?> gotSet) {
+    public static void assertEqualsSet(Collection<?> expectedSet, Collection<?> gotSet) {
         final Set<Object> expected = new HashSet<Object>(expectedSet);
         final Set<Object> got = new HashSet<Object>(gotSet);
         if (!expected.equals(got)) {
