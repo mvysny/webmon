@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright 2009 Martin Vysny.
+ *
+ * This file is part of WebVM.
+ *
+ * WebVM is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * WebVM is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with WebVM.  If not, see <http://www.gnu.org/licenses />.
+-->
+<document>
+    <properties>
+        <title>WebVM changelog</title>
+        <author email="vysny@baka.sk">Martin Vysny</author>
+    </properties>
+    <body>
+        <release version="0.3" date="1. April 2009">
+        		<action dev="vyzivus" type="update">
+        			Better ASCII graphic for thread state table
+        		</action>
+        		<action dev="vyzivus" type="update">
+					All graphs are now drawn using Bluff
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Fixed GC usage display in the Problems tab - only the problematic values average is shown instead of the 150sec average.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			A graphical bar showing pool usage is now displayed in the Memory view
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Revamped the graph page: added the thread count and class count graphs.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Non-Heap memory usage is now displayed as well
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			HomePage now shows a progress bar showing memory usage
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Implemented a simple thread dump.
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added threads analysis page.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Table cells are now aligned to the left for better readability; correct style set for table.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			The Free Disk Space problem analyzer now shows free disk space on all devices.
+        		</action>
+        		<action dev="vyzivus" type="fix">
+        			Fixed application link in RSS feed; server URL now auto-detected in RSS feed.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Shorter application description and time format displayed, to prevent menu disappearing on smaller resolutions.
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added project home link.
+        		</action>
+        </release>
+        <release version="0.2" date="11. March 2009">
+        		<action dev="vyzivus" type="update">
+					The "Perform GC" link moved to a sidebar.
+        		</action>
+        		<action dev="vyzivus" type="add" issue="1">
+					Added the ClassLoader analysis page. Resources and jar files are downloadable.
+        		</action>
+        		<action dev="vyzivus" type="add">
+					Problem list: the description is now displayed above the diagnosis.
+        		</action>
+        		<action dev="vyzivus" type="add">
+					Added Jabber notification support
+        		</action>
+        		<action dev="vyzivus" type="update">
+					JNDI: Maximum depth of 5 is examined. This prevents VERY long JNDI examination on WebSphere.
+        		</action>
+        		<action dev="vyzivus" type="fix">
+					Fixed: Problem Analyzer could miss GC CPU usage samples
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added a web configuration page
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added a Mail notification support
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			All problems reports triggers are now configurable in WEB-INF/classes/config.properties
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added problem trigger descriptions
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added JNDI list
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added disk free space problem checks
+        		</action>
+        		<action dev="vyzivus" type="fix">
+        			Fixed Wicket page naming
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Graphs page is now reloaded automatically each 2 seconds.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Problems report is now sampled each 30 seconds and stored into its own history. This history is fed to RSS. RSS shouldn't receive duplicate events anymore.
+        		</action>
+            <action dev="vyzivus" type="update">
+                RSS problem report is now formatted in a HTML table
+            </action>
+            <action dev="vyzivus" type="fix">
+                Fixed the app name: from Sysinfo to WebVM
+            </action>
+        </release>
+        <release version="0.1" date="23. February 2009">
+            <action dev="vyzivus" type="add">
+                Initial release
+            </action>
+        </release>
+    </body>
+</document>

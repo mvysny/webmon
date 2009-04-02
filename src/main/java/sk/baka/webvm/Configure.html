@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>Configure</title>
+        <link rel="stylesheet" type="text/css" href="style.css" media="screen"/>
+    </head>
+    <body>
+        <div wicket:id="appBorder">
+            <div class="post">
+                <h2 class="title">Configuration</h2>
+                <div class="entry">
+                    <p>These settings are not persistent: they will be reset when WebVM is restarted. To make them permanent you
+                        need open the WebVM WAR file and edit the <code>WEB-INF/classes/config.properties</code> file instead.</p>
+                    <form wicket:id="configForm">
+                        <h2>Problems triggers</h2>
+						<table>
+							<tr>
+								<td>Minimum free disk space (Mb):<br/>triggers a problem when there is less free space on some drive</td>
+								<td><input type="text" size="10" maxlength="10" wicket:id="minFreeDiskSpaceMb"></input></td>
+							</tr>
+							<tr>
+								<td colspan="2">Trigger a problem when GC uses <input type="text" size="3" maxlength="3" wicket:id="gcCpuTreshold"></input>% or more of CPU power for <input type="text" size="2" maxlength="2" wicket:id="gcCpuTresholdSamples"></input> or more seconds</td>
+							</tr>
+							<tr>
+								<td>Maximum memory used after GC (%):<br/>If the memory usage after GC goes above this value a problem is triggered</td>
+								<td><input type="text" size="3" maxlength="3" wicket:id="memAfterGcUsageTreshold"></input></td>
+							</tr>
+							<tr>
+								<td>Maximum memory used by a pool (%):<br/>If the memory usage goes above this value the pool name is reported. This never triggers a problem.</td>
+								<td><input input="text" size="3" maxlength="3" wicket:id="memUsageTreshold"></input></td>
+							</tr>
+						</table>
+                        <h2>Mail settings</h2>
+						<table>
+							<tr>
+								<td>SMTP host</td>
+								<td><input type="text" wicket:id="mail.smtp.host"></input></td>
+							</tr>
+							<tr>
+								<td>SMTP server port, defaults to 25 (465 for SSL)</td>
+								<td><input type="text" size="5" maxlength="5" wicket:id="mail.smtp.port"></input></td>
+							</tr>
+							<tr>
+								<td>The "from" address</td>
+								<td><input type="text" wicket:id="mail.from"></input></td>
+							</tr>
+							<tr>
+								<td>Recipients, split by a comma</td>
+								<td><input type="text" wicket:id="mail.to"></input></td>
+							</tr>
+							<tr>
+								<td>SMTP encryption</td>
+                                <td><select wicket:id="mail.smtp.encryption"></select></td>
+							</tr>
+							<tr>
+								<td>Optional SMTP username:</td>
+								<td><input type="text" wicket:id="mail.smtp.username"></input></td>
+							</tr>
+							<tr>
+								<td>Optional SMTP password:</td>
+								<td><input type="password" wicket:id="mail.smtp.password"></input></td>
+							</tr>
+						</table>
+						<input type="submit" wicket:id="sendTestMail" value="Send test mail"/>
+                        <h2>Jabber settings</h2>
+                        Note that the Jabber client will use the most secure method when connecting to the server.
+                        <table>
+							<tr>
+								<td>Jabber server</td>
+								<td><input type="text" wicket:id="jabber.server"></input></td>
+							</tr>
+							<tr>
+								<td>Jabber user name</td>
+								<td><input type="text" wicket:id="jabber.username"></input></td>
+							</tr>
+							<tr>
+								<td>Jabber user password</td>
+								<td><input type="password" wicket:id="jabber.password"></input></td>
+							</tr>
+							<tr>
+								<td>Recipients, split by a comma</td>
+								<td><input type="text" wicket:id="jabber.recipients"></input></td>
+							</tr>
+                        </table>
+						<input type="submit" wicket:id="sendTestJabber" value="Send test jabber"/>
+                        <div wicket:id="feedback">[Feedback Panel]</div>
+						<input type="submit" wicket:id="submit" value="Save"/>
+					</form>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

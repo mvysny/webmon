@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>WebVM</title>
+        <link rel="stylesheet" type="text/css" href="style.css" media="screen"/>
+    </head>
+    <body>
+        <div wicket:id="appBorder">
+            <div class="post">
+                <h2 class="title">Memory information</h2>
+                <div class="entry">
+                    <table id="table">
+                        <tbody>
+                            <tr>
+                                <td>Maximum memory:</td>
+                                <td><strong wicket:id="maxMem"/> Mb</td>
+                            </tr>
+                            <tr>
+                                <td>Current heap size:</td>
+                                <td><strong wicket:id="heapSize"/> Mb</td>
+                            </tr>
+                            <tr>
+                                <td>Memory used:</td>
+                                <td><strong wicket:id="heapUsed"/> Mb (<strong wicket:id="heapUsedPerc"/>)</td>
+                            </tr>
+                            <tr>
+                                <td>Memory free:</td>
+                                <td><strong wicket:id="memFree"/> Mb (<strong wicket:id="memFreePerc"/>)</td>
+                            </tr>
+                            <tr>
+                                <td>Memory status:</td>
+                                <td wicket:id="memStat"/>
+                            </tr>
+                            <tr>
+                                <td>Garbage collections:</td>
+                                <td><strong wicket:id="gcCount"/> collectors, <strong wicket:id="gcAmount"/> collections, took <strong wicket:id="gcTime"/> ms</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="post">
+                <h2 class="title">System info</h2>
+                <div class="entry">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>OS:</td>
+                                <td wicket:id="os"/>
+                            </tr>
+                            <tr>
+                                <td>Java:</td>
+                                <td wicket:id="java"/>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="post">
+                <h2 class="title">Runtime</h2>
+                <div class="entry">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>Threads:</td>
+                                <td>Current: <strong wicket:id="threads"/> [normal: <strong wicket:id="threadsNormal"/>, daemon: <strong wicket:id="threadsDaemon"/>]; started since the VM start: <strong wicket:id="threadsStarted"/></td>
+                            </tr>
+                            <tr>
+                                <td>Classes:</td>
+                                <td>Currently loaded: <strong wicket:id="classesLoaded"/>; loaded since the VM start: <strong wicket:id="classesLoadedTotal"/>; unloaded since the VM start: <strong wicket:id="classesUnloaded"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+
