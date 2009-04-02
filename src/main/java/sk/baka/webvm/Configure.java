@@ -62,7 +62,7 @@ public final class Configure extends WebVMPage {
                 final FormComponent<?> f;
                 if (Enum.class.isAssignableFrom(field.getType())) {
                     final Set<Enum> allConstants = EnumSet.allOf(field.getType().asSubclass(Enum.class));
-                    f = new DropDownChoice<Enum>("mail.smtp.encryption", new PropertyModel(config, field.getName()), new ArrayList<Enum>(allConstants));
+                    f = new DropDownChoice<Enum>(annotation.key(), new PropertyModel(config, field.getName()), new ArrayList<Enum>(allConstants));
                 } else if (annotation.password()) {
                     f = new PasswordTextField(annotation.key(), new PropertyModel(config, field.getName()));
                 } else {
