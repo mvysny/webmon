@@ -26,7 +26,9 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.model.IModel;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.validation.validator.StringValidator;
 
 /**
  * Defines a border for the entire application.
@@ -52,23 +54,15 @@ public class AppBorder extends Border {
         });
         add(new Form("searchForm") {
 
-            private String searchQuery = "";
+            public String searchQuery = "";
+
 
             {
+                add(new FeedbackPanel("feedback"));
                 add(new Button("submit"));
-                add(new TextField("searchText", new IModel<String>() {
-
-                    public String getObject() {
-                        return searchQuery;
-                    }
-
-                    public void setObject(String object) {
-                        searchQuery = object;
-                    }
-
-                    public void detach() {
-                    }
-                }));
+                final TextField<String> field = new TextField<String>("searchText", new PropertyModel<String>(this, "searchQuery"));
+                field.add(new StringValidator.MinimumLengthValidator(3));
+                add(field);
             }
 
             @Override
