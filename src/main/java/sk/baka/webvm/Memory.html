@@ -3,6 +3,7 @@
 <html xmlns:wicket>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta http-equiv="refresh" content="2"/>
         <title>Detailed memory information</title>
         <link rel="stylesheet" type="text/css" href="style.css" media="screen"/>
     </head>
@@ -11,6 +12,7 @@
             <div class="post">
                 <h2 class="title">Memory managers</h2>
                 <div class="entry">
+                    Heap status: <span wicket:id="heapStatusBar"/><span wicket:id="heapStatusText"/><br/><br/>
                     <table id="table">
                         <thead>
                             <tr>
@@ -32,6 +34,7 @@
             <div class="post">
                 <h2 class="title">Garbage collectors</h2>
                 <div class="entry">
+                    Garbage collections: <strong wicket:id="gcCount"/> collectors, <strong wicket:id="gcAmount"/> collections, took <strong wicket:id="gcTime"/> ms<br/><br/>
                     <table id="table">
                         <thead>
                             <tr>
