@@ -168,6 +168,12 @@ public abstract class ResourceLink implements Serializable {
     public abstract String getName();
 
     /**
+     * Returns a full name, including parent packages and the root package.
+     * @return a full name.
+     */
+    public abstract String getFullName();
+
+    /**
      * Checks if this resource link denotes a root of a jar/directory.
      * @return true if this is a jar/directory root, false otherwise.
      */
@@ -274,6 +280,11 @@ final class DirResourceLink extends ResourceLink {
                 searchRecurse(result, substring, f);
             }
         }
+    }
+
+    @Override
+    public String getFullName() {
+        return file.getAbsolutePath();
     }
 }
 
@@ -428,6 +439,11 @@ final class JarResourceLink extends ResourceLink {
         }
         return true;
     }
+
+    @Override
+    public String getFullName() {
+        return jarFile.getAbsolutePath() + "!/" + fullEntryName;
+    }
 }
 
 /**
@@ -483,5 +499,10 @@ final class ResourceLinkGroup extends ResourceLink {
     @Override
     public List<ResourceLink> search(String substring) throws IOException {
         return delegate.search(substring);
+    }
+
+    @Override
+    public String getFullName() {
+        return delegate.getFullName();
     }
 }
