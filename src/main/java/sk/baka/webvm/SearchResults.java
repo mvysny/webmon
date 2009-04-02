@@ -19,14 +19,15 @@
 package sk.baka.webvm;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
+import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -52,10 +53,11 @@ public final class SearchResults extends WebVMPage {
                 final Serializable resLink = item.getModelObject();
                 item.add(new Link<Serializable>("classpathItem", item.getModel()) {
 
-                    {
+                    @Override
+                    protected void onComponentTagBody(final MarkupStream markupStream, final ComponentTag openTag) {
                         final Serializable model = getModelObject();
-                        final String caption = model instanceof ResourceLink ? ((ResourceLink) model).getFullName() : (String) model;
-                        add(new Label("linkLabel", caption));
+                        final String caption = SearchResults.toString(model);
+                        replaceComponentTagBody(markupStream, openTag, caption);
                     }
 
                     @Override
@@ -77,6 +79,10 @@ public final class SearchResults extends WebVMPage {
 
     public SearchResults() {
         this("");
+    }
+
+    private static String toString(final Serializable s) {
+        return s instanceof ResourceLink ? ((ResourceLink) s).getFullName() : (String) s;
     }
 
     /**
@@ -101,6 +107,15 @@ public final class SearchResults extends WebVMPage {
                 }
             }
         }
+        // sort the list
+        Collections.sort(result, new Comparator<Serializable>() {
+
+            public int compare(Serializable o1, Serializable o2) {
+                final String s1 = SearchResults.toString(o1);
+                final String s2 = SearchResults.toString(o2);
+                return s1.compareToIgnoreCase(s2);
+            }
+        });
         return result;
     }
 }
