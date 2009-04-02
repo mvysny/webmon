@@ -19,8 +19,8 @@
 package sk.baka.webvm.analyzer.classloader;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -239,7 +239,7 @@ final class DirResourceLink extends ResourceLink {
 
     @Override
     public long getLength() {
-        return file.length();
+        return isPackage() ? -1 : file.length();
     }
 
     @Override
@@ -261,13 +261,15 @@ final class DirResourceLink extends ResourceLink {
     }
 
     private void searchRecurse(final List<ResourceLink> result, final String substring, final File file) {
-        for (final File f : file.listFiles(new FilenameFilter() {
+        for (final File f : file.listFiles(new FileFilter() {
 
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().contains(substring);
+            public boolean accept(File pathname) {
+                return pathname.isDirectory() || pathname.getName().toLowerCase().contains(substring);
             }
         })) {
-            result.add(new DirResourceLink(f, false));
+            if (f.getName().toLowerCase().contains(substring)) {
+                result.add(new DirResourceLink(f, false));
+            }
             if (f.isDirectory()) {
                 searchRecurse(result, substring, f);
             }

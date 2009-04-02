@@ -44,7 +44,7 @@ public abstract class AbstractResourceLinkTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        file = new File("src/test/files/sunjce_provider.jar");
+        file = getFile();
         assertTrue(file.exists());
     }
 

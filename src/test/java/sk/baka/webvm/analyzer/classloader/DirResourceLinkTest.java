@@ -30,7 +30,9 @@ public class DirResourceLinkTest extends AbstractResourceLinkTest {
 
     @Override
     protected File getFile() {
-        return new File("src/test/files/sunjce_provider");
+        final File file = new File("src/test/files/sunjce_provider");
+        assertEquals(DirResourceLink.class, ResourceLink.newFor(file).getClass());
+        return file;
     }
 
     public void testSearch() throws IOException {
@@ -40,10 +42,9 @@ public class DirResourceLinkTest extends AbstractResourceLinkTest {
         result = link.search("META");
         assertEquals(new String[]{"META-INF"}, result);
         result = link.search("c");
-        assertEquals(new String[]{"com", "com/crypto", "com/sun/crypto/provider/AESCipher.class"}, result);
+        assertEquals(new String[]{"com", "crypto", "AESCipher.class"}, result);
         link = getSun();
         result = link.search("c");
-        assertEquals(new String[]{"com/sun/crypto", "com/sun/crypto/provider/AESCipher.class"}, result);
+        assertEquals(new String[]{"crypto", "AESCipher.class"}, result);
     }
-
 }
