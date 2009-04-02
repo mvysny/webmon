@@ -22,7 +22,11 @@ import java.text.DateFormat;
 import java.util.Date;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.border.Border;
+import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.model.IModel;
 
 /**
  * Defines a border for the entire application.
@@ -44,6 +48,32 @@ public class AppBorder extends Border {
             public void onClick() {
                 System.gc();
                 setResponsePage(getPage().getClass());
+            }
+        });
+        add(new Form("searchForm") {
+
+            private String searchQuery = "";
+
+            {
+                add(new Button("submit"));
+                add(new TextField("searchText", new IModel<String>() {
+
+                    public String getObject() {
+                        return searchQuery;
+                    }
+
+                    public void setObject(String object) {
+                        searchQuery = object;
+                    }
+
+                    public void detach() {
+                    }
+                }));
+            }
+
+            @Override
+            protected void onSubmit() {
+                setResponsePage(new SearchResults(searchQuery));
             }
         });
     }

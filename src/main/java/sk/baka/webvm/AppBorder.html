@@ -27,11 +27,11 @@
                 <div id="sidebar">
                     <ul>
                         <li id="search" style="background: none;">
-                            <form id="searchform" method="get" action="">
+                            <form id="searchform" wicket:id="searchForm">
                                 <div>
-                                    <input type="text" name="s" id="s" size="15" />
+                                    <input type="text" wicket:id="searchText" size="15" id="s"/>
                                     <br />
-                                    <input type="submit" value="Search" />
+                                    <input type="submit" wicket:id="submit" value="Search" />
                                 </div>
                             </form>
                         </li>
