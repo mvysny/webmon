@@ -389,31 +389,42 @@ final class JarResourceLink extends ResourceLink {
         assertPackage();
         final String substr = substring.toLowerCase();
         final List<ResourceLink> result = new ArrayList<ResourceLink>();
+        final Set<String> ignorePrefixes = new HashSet<String>();
         final ZipFile zfile = new ZipFile(jarFile);
         try {
             for (final Enumeration<? extends ZipEntry> e = zfile.entries(); e.hasMoreElements();) {
                 final ZipEntry entry = e.nextElement();
                 final String name = entry.getName();
-                if (!name.startsWith(fullEntryName) || name.equals(fullEntryName)) {
+                if (!isAccepted(name, ignorePrefixes, substr)) {
                     continue;
                 }
-                String lastPathItem = name;
-                if (lastPathItem.endsWith("/")) {
-                    lastPathItem = lastPathItem.substring(0, lastPathItem.length() - 1);
+                final String itemname = name.substring(fullEntryName.length());
+                if (!itemname.toLowerCase().contains(substr)) {
+                    continue;
                 }
-                int slash = name.lastIndexOf('/');
-                if (slash >= 0) {
-                    lastPathItem = lastPathItem.substring(slash + 1, lastPathItem.length());
-                }
-                if (lastPathItem.toLowerCase().contains(substr)) {
-                    final ResourceLink link = new JarResourceLink(jarFile, name, false);
-                    result.add(link);
-                }
+                ignorePrefixes.add(name);
+                final ResourceLink link = new JarResourceLink(jarFile, name, false);
+                result.add(link);
             }
             return result;
         } finally {
             closeQuietly(zfile);
         }
+    }
+
+    private boolean isAccepted(String name, Set<String> ignorePrefixes, String substring) {
+        if (!name.startsWith(fullEntryName) || name.equals(fullEntryName)) {
+            return false;
+        }
+        for (final String prefix : ignorePrefixes) {
+            if (name.startsWith(prefix)) {
+                // check if the rest of the string contains given substring
+                if (!name.substring(prefix.length()).contains(substring)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
 

@@ -19,6 +19,8 @@
 package sk.baka.webvm.analyzer.classloader;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 /**
  *
@@ -30,4 +32,18 @@ public class DirResourceLinkTest extends AbstractResourceLinkTest {
     protected File getFile() {
         return new File("src/test/files/sunjce_provider");
     }
+
+    public void testSearch() throws IOException {
+        ResourceLink link = ResourceLink.newFor(file);
+        List<ResourceLink> result = link.search("com");
+        assertEquals(new String[]{"com"}, result);
+        result = link.search("META");
+        assertEquals(new String[]{"META-INF"}, result);
+        result = link.search("c");
+        assertEquals(new String[]{"com", "com/crypto", "com/sun/crypto/provider/AESCipher.class"}, result);
+        link = getSun();
+        result = link.search("c");
+        assertEquals(new String[]{"com/sun/crypto", "com/sun/crypto/provider/AESCipher.class"}, result);
+    }
+
 }
