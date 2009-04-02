@@ -75,7 +75,8 @@ public final class BluffGraph extends AbstractGraph {
         for (int i = 0; i < style.colors.length; i++) {
             sb.append("  g.data(\"\", [");
             boolean first = true;
-            // hack to suppress the "No Data" message - displayed when a bunch of zeroes is fed to the graph
+            // hack to suppress the "No Data" message - displayed when a bunch of zeroes is fed to the graph.
+            // Just add a single "1" to the end of the graph :)
             boolean zeroesOnly = true;
             for (final int[] vals : this.values) {
                 if (first) {
