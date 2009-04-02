@@ -9,39 +9,6 @@
     <body>
         <div wicket:id="appBorder">
             <div class="post">
-                <h2 class="title">Memory information</h2>
-                <div class="entry">
-                    <table id="table">
-                        <tbody>
-                            <tr>
-                                <td>Maximum memory:</td>
-                                <td><strong wicket:id="maxMem"/> Mb</td>
-                            </tr>
-                            <tr>
-                                <td>Current heap size:</td>
-                                <td><strong wicket:id="heapSize"/> Mb</td>
-                            </tr>
-                            <tr>
-                                <td>Memory used:</td>
-                                <td><strong wicket:id="heapUsed"/> Mb (<strong wicket:id="heapUsedPerc"/>)</td>
-                            </tr>
-                            <tr>
-                                <td>Memory free:</td>
-                                <td><strong wicket:id="memFree"/> Mb (<strong wicket:id="memFreePerc"/>)</td>
-                            </tr>
-                            <tr>
-                                <td>Memory status:</td>
-                                <td wicket:id="memStat"/>
-                            </tr>
-                            <tr>
-                                <td>Garbage collections:</td>
-                                <td><strong wicket:id="gcCount"/> collectors, <strong wicket:id="gcAmount"/> collections, took <strong wicket:id="gcTime"/> ms</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="post">
                 <h2 class="title">System info</h2>
                 <div class="entry">
                     <table>
@@ -49,6 +16,10 @@
                             <tr>
                                 <td>OS:</td>
                                 <td wicket:id="os"/>
+                            </tr>
+                            <tr>
+                                <td>HW:</td>
+                                <td wicket:id="hw"/>
                             </tr>
                             <tr>
                                 <td>Java:</td>
@@ -59,17 +30,28 @@
                 </div>
             </div>
             <div class="post">
-                <h2 class="title">Runtime</h2>
+                <h2 class="title">System properties</h2>
                 <div class="entry">
-                    <table>
+                    <table id="table">
+                        <thead><tr><th>Property name</th><th>Property value</th></tr></thead>
                         <tbody>
-                            <tr>
-                                <td>Threads:</td>
-                                <td>Current: <strong wicket:id="threads"/> [normal: <strong wicket:id="threadsNormal"/>, daemon: <strong wicket:id="threadsDaemon"/>]; started since the VM start: <strong wicket:id="threadsStarted"/></td>
+                            <tr wicket:id="systemProperties">
+                                <td wicket:id="sysPropName"></td>
+                                <td wicket:id="sysPropValue"></td>
                             </tr>
-                            <tr>
-                                <td>Classes:</td>
-                                <td>Currently loaded: <strong wicket:id="classesLoaded"/>; loaded since the VM start: <strong wicket:id="classesLoadedTotal"/>; unloaded since the VM start: <strong wicket:id="classesUnloaded"/></td>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="post">
+                <h2 class="title">Environment values</h2>
+                <div class="entry">
+                    <table id="table">
+                        <thead><tr><th>Property name</th><th>Property value</th></tr></thead>
+                        <tbody>
+                            <tr wicket:id="env">
+                                <td wicket:id="envName"></td>
+                                <td wicket:id="envValue"></td>
                             </tr>
                         </tbody>
                     </table>

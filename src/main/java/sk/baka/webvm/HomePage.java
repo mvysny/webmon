@@ -18,14 +18,17 @@
  */
 package sk.baka.webvm;
 
-import java.lang.management.ClassLoadingMXBean;
-import java.lang.management.GarbageCollectorMXBean;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryUsage;
-import java.lang.management.ThreadMXBean;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import org.apache.wicket.markup.html.basic.Label;
-import sk.baka.webvm.misc.MgmtUtils;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
+import sk.baka.webvm.misc.Producer;
 
 /**
  * Homepage
@@ -39,51 +42,50 @@ public class HomePage extends WebVMPage {
      * Constructor that is invoked when page is invoked without a session.
      */
     public HomePage() {
-        // memory info
-        final MemoryUsage usage = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
-        final long memFree = usage.getMax() - usage.getUsed();
-        border.add(new Label("maxMem", Long.toString(usage.getMax())));
-        border.add(new Label("heapSize", Long.toString(usage.getCommitted())));
-        border.add(new Label("heapUsed", Long.toString(usage.getUsed())));
-        border.add(new Label("heapUsedPerc", MgmtUtils.getUsagePerc(usage)));
-        border.add(new Label("memFree", memFree < 0 ? "?" : Long.toString(memFree)));
-        border.add(new Label("memFreePerc", memFree < 0 ? "?" : MgmtUtils.getFreePerc(usage)));
-        // garbage collections
-        int collectors = 0;
-        long collections = 0;
-        long collectTime = 0;
-        final List<GarbageCollectorMXBean> beans = ManagementFactory.getGarbageCollectorMXBeans();
-        if (beans != null) {
-            for (final GarbageCollectorMXBean bean : beans) {
-                if (bean.isValid()) {
-                    collectors++;
-                }
-                if (bean.getCollectionCount() > 0) {
-                    collections += bean.getCollectionCount();
-                }
-                if (bean.getCollectionTime() > 0) {
-                    collectTime += bean.getCollectionTime();
-                }
-            }
-        }
-        border.add(new Label("gcCount", Long.toString(collectors)));
-        border.add(new Label("gcAmount", Long.toString(collections)));
-        border.add(new Label("gcTime", Long.toString(collectTime)));
         // system info
-        border.add(new Label("os", System.getProperty("os.name") + " " + System.getProperty("os.version") + "; " + System.getProperty("os.arch") + "; CPU#: " + Runtime.getRuntime().availableProcessors()));
+        border.add(new Label("os", System.getProperty("os.name") + " " + System.getProperty("os.version")));
+        border.add(new Label("hw", System.getProperty("os.arch") + "; CPU#: " + Runtime.getRuntime().availableProcessors()));
         border.add(new Label("java", System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + " by " + System.getProperty("java.vm.vendor")));
-        // runtime info
-        final ThreadMXBean tbean = ManagementFactory.getThreadMXBean();
-        final int threadCount = tbean.getThreadCount();
-        final int daemonThreads = tbean.getDaemonThreadCount();
-        border.add(new Label("threads", Integer.toString(threadCount)));
-        border.add(new Label("threadsNormal", Integer.toString(threadCount - daemonThreads)));
-        border.add(new Label("threadsDaemon", Integer.toString(daemonThreads)));
-        border.add(new Label("threadsStarted", Long.toString(tbean.getTotalStartedThreadCount())));
-        final ClassLoadingMXBean clbean = ManagementFactory.getClassLoadingMXBean();
-        border.add(new Label("classesLoaded", Integer.toString(clbean.getLoadedClassCount())));
-        border.add(new Label("classesLoadedTotal", Long.toString(clbean.getTotalLoadedClassCount())));
-        border.add(new Label("classesUnloaded", Long.toString(clbean.getUnloadedClassCount())));
-        drawMemoryStatus(MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime()), "memStat", 300);
+        // java properties
+        listMap(border, new Producer<Map<String, String>>() {
+
+            public Map<String, String> produce() {
+                return (Map<String, String>) (Map) System.getProperties();
+            }
+        }, "systemProperties", "sysPropName", "sysPropValue");
+        // environment properties
+        listMap(border, new Producer<Map<String, String>>() {
+
+            public Map<String, String> produce() {
+                return System.getenv();
+            }
+        }, "env", "envName", "envValue");
+    }
+
+    private void listMap(final AppBorder border, final Producer<Map<String, String>> producer, final String listId, final String keyId, final String valueId) {
+        final IModel<List<Map.Entry<String, String>>> model = new LoadableDetachableModel<List<Map.Entry<String, String>>>() {
+
+            @Override
+            protected List<Map.Entry<String, String>> load() {
+                final Map<String, String> map = producer.produce();
+                final List<Map.Entry<String, String>> result = new ArrayList<Map.Entry<String, String>>(map.entrySet());
+                Collections.sort(result, new Comparator<Map.Entry<String, String>>() {
+
+                    public int compare(Map.Entry<String, String> o1, Map.Entry<String, String> o2) {
+                        return o1.getKey().compareToIgnoreCase(o2.getKey());
+                    }
+                });
+                return result;
+            }
+        };
+        border.add(new ListView<Map.Entry<String, String>>(listId, model) {
+
+            @Override
+            protected void populateItem(ListItem<Map.Entry<String, String>> item) {
+                final Map.Entry<String, String> property = item.getModelObject();
+                item.add(new Label(keyId, property.getKey()));
+                item.add(new Label(valueId, property.getValue()));
+            }
+        });
     }
 }
