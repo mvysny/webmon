@@ -30,7 +30,9 @@ public class JarResourceLinkTest extends AbstractResourceLinkTest {
 
     @Override
     protected File getFile() {
-        return new File("src/test/files/sunjce_provider.jar");
+        final File file = new File("src/test/files/sunjce_provider.jar");
+        assertEquals(JarResourceLink.class, ResourceLink.newFor(file).getClass());
+        return file;
     }
 
     public void testSearch() throws IOException {
