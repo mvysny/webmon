@@ -144,13 +144,19 @@ public final class Classloaders extends WebVMPage {
         };
         result.getTreeState().addTreeStateListener(new Listener());
         result.setRootLess(true);
-        // resource download does not work with AJAX links - fix this
+        // resource download does not work with AJAX links
+        // @TODO fix this - provide regular links for downloads, ajax links for anything else
         result.setLinkType(LinkType.REGULAR);
         result.invalidateAll();
         return result;
     }
 
-    private IResourceStream toStream(final ResourceLink link) {
+    /**
+     * Converts a resource link to a resource stream.
+     * @param link the link to convert.
+     * @return converted resource stream.
+     */
+    public static IResourceStream toStream(final ResourceLink link) {
         return new IResourceStream() {
 
             public String getContentType() {
