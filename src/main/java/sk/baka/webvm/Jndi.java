@@ -44,6 +44,9 @@ import org.apache.wicket.model.LoadableDetachableModel;
  */
 public final class Jndi extends WebVMPage {
 
+    /**
+     * Constructor.
+     */
     public Jndi() {
         border.add(newJndiTree("jndiTree", null));
         border.add(newJndiTree("jndiJavaTree", "java:"));
@@ -78,9 +81,10 @@ public final class Jndi extends WebVMPage {
 
     /**
      * Lists the JNDI context and returns it as a tree.
-     * @return JNDI
+     * @param c the context to list
+     * @return JNDI pretty-printed JNDI tree
      */
-    public static TreeModel listJNDI(final Context c) throws NamingException {
+    public static TreeModel listJNDI(final Context c) {
         final MutableTreeNode root = new DefaultMutableTreeNode("root");
         list(c, root, 0);
         return new DefaultTreeModel(root);
@@ -94,32 +98,41 @@ public final class Jndi extends WebVMPage {
      * @param indent
      * @param buffer
      */
-    private static void list(final Context ctx, final MutableTreeNode parent, final int depth)
-            throws NamingException {
-        final NamingEnumeration<NameClassPair> ne = ctx.list("");
+    private static void list(final Context ctx, final MutableTreeNode parent, final int depth) {
         try {
-            // sort the JNDI listing first
-            final List<NameClassPair> children = Collections.list(ne);
-            Collections.sort(children, new Comparator<NameClassPair>() {
+            final NamingEnumeration<NameClassPair> ne = ctx.list("");
+            try {
+                // sort the JNDI listing first
+                final List<NameClassPair> children = Collections.list(ne);
+                Collections.sort(children, new Comparator<NameClassPair>() {
 
-                public int compare(NameClassPair o1, NameClassPair o2) {
-                    return o1.getName().compareToIgnoreCase(o2.getName());
+                    public int compare(NameClassPair o1, NameClassPair o2) {
+                        return o1.getName().compareToIgnoreCase(o2.getName());
+                    }
+                });
+                for (final NameClassPair pair : children) {
+                    try {
+                        listUnprotected(ctx, parent, pair, depth);
+                    } catch (final Exception e) {
+                        final StringBuilder sb = new StringBuilder();
+                        sb.append("Failed to examine ");
+                        sb.append(pair.getName());
+                        sb.append(": ");
+                        sb.append(e.toString());
+                        addWarningNode(parent, sb.toString());
+                    }
                 }
-            });
-            for (final NameClassPair pair : children) {
-                try {
-                    listUnprotected(ctx, parent, pair, depth);
-                } catch (final Exception e) {
-                    final StringBuilder sb = new StringBuilder();
-                    sb.append("Failed to examine ");
-                    sb.append(pair.getName());
-                    sb.append(": ");
-                    sb.append(e.toString());
-                    addWarningNode(parent, sb.toString());
-                }
+            } finally {
+                closeQuietly(ne);
             }
-        } finally {
-            closeQuietly(ne);
+        } catch (Exception ex) {
+            String name = "[unknown]";
+            try {
+                name = ctx.getNameInNamespace();
+            } catch (Exception e) {
+                // do nothing
+            }
+            addWarningNode(parent, "Failed to examine " + name + ": " + ex.toString());
         }
     }
     private static final int MAX_DEPTH = 5;
@@ -220,7 +233,7 @@ public final class Jndi extends WebVMPage {
             if (!pair.getClassName().startsWith("$Proxy")) {
                 throw e;
             }
-            // try some other methods of obtaining the class.
+        // try some other methods of obtaining the class.
         }
         // We have to get the class from the binding
         final Object p = ctx.lookup(pair.getName());

@@ -44,6 +44,9 @@ import sk.baka.webvm.config.Config;
  */
 public final class Configure extends WebVMPage {
 
+    /**
+     *
+     */
     public Configure() {
         // submitting forms in a page with multiple forms fails: http://issues.apache.org/jira/browse/WICKET-2134
         border.add(new ConfigForm("problemsForm", Config.GROUP_PROBLEMS));
@@ -120,10 +123,21 @@ public final class Configure extends WebVMPage {
         }
     }
 
+    /**
+     * A basic configuration form, handles retrieval of config object.
+     */
     protected class ConfigForm extends Form {
 
+        /**
+         * The configuration object.
+         */
         protected final Config config = new Config(WicketApplication.getConfig());
 
+        /**
+         * Creates new form.
+         * @param componentName wicket id
+         * @param group bind only this group to the form, -1 to all groups
+         */
         public ConfigForm(final String componentName, final int group) {
             super(componentName);
             add(new FeedbackPanel("feedback"));
