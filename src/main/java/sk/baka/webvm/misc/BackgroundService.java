@@ -29,9 +29,20 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Martin Vysny
  */
 public abstract class BackgroundService {
+    /**
+     * A short name of the service - used in thread names.
+     */
     protected final String name;
+    /**
+     * Maximum thread pool size.
+     */
     protected final int maxThreads;
 
+    /**
+     * Creates new service instance.
+     * @param name A short name of the service - used in thread names.
+     * @param maxThreads Maximum thread pool size.
+     */
     protected BackgroundService(final String name, final int maxThreads) {
         this.name = name;
         this.maxThreads = maxThreads;
@@ -81,6 +92,7 @@ public abstract class BackgroundService {
 
     /**
      * Creates a new factory which creates daemon threads using the {@link Executors#defaultThreadFactory()}.
+     * @param name create threads marked with this name.
      * @return a daemon thread factory.
      */
     public static ThreadFactory newDaemonFactory(final String name) {
