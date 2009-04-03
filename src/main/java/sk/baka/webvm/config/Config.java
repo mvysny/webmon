@@ -35,6 +35,7 @@ public final class Config implements Serializable {
 
     /**
      * Clones given config.
+     * @param other the config object to clone.
      */
     public Config(final Config other) {
         super();

@@ -88,12 +88,14 @@ public abstract class ResourceLink implements Serializable {
      * the function will match the following for "a": /a, /a/a, /b/a, but not /a/b.
      * @param substring a string to search, must not be null.
      * @return non-null list of matched resources, may be empty.
+     * @throws IOException on i/o error
      */
     public abstract List<ResourceLink> search(final String substring) throws IOException;
 
     /**
      * Returns length of underlying resource.
      * @return the length or -1 if not known or invoked on a package.
+     * @throws IOException on i/o error
      */
     public abstract long getLength() throws IOException;
 
@@ -101,8 +103,10 @@ public abstract class ResourceLink implements Serializable {
      * Lists all direct child packages and items of this package. It is invalid to call this method on a non-package resource. Groups single-package-child
      * names together.
      * @return list of all children.
+     * @throws IOException on i/o error
      */
     public final List<ResourceLink> listAndGroup() throws IOException {
+        assertPackage();
         final List<ResourceLink> result = list();
         for (int i = 0; i < result.size(); i++) {
             result.set(i, groupIfNecessary(result.get(i)));
@@ -146,18 +150,20 @@ public abstract class ResourceLink implements Serializable {
     /**
      * Lists all direct child packages and items of this package. It is invalid to call this method on a non-package resource.
      * @return list of all children.
+     * @throws IOException on i/o error
      */
     public abstract List<ResourceLink> list() throws IOException;
 
     /**
      * Checks if resource denoted by this object is actually a package, or just a resource file.
-     * @return
+     * @return true if this is a package, false otherwise
      */
     public abstract boolean isPackage();
 
     /**
      * Opens a stream to the file denoted by this link. It is invalid to call this method on a package resource.
      * @return the file contents.
+     * @throws IOException on i/o error
      */
     public abstract InputStream open() throws IOException;
 
@@ -190,12 +196,18 @@ public abstract class ResourceLink implements Serializable {
         return getName();
     }
 
+    /**
+     * Asserts that this is a package.
+     */
     protected void assertPackage() {
         if (!isPackage()) {
             throw new IllegalArgumentException(this + " must be a package");
         }
     }
 
+    /**
+     * Asserts that this is not a package.
+     */
     protected void assertNotPackage() {
         if (isPackage()) {
             throw new IllegalArgumentException(this + " must not be a package");
