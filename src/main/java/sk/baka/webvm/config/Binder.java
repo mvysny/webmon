@@ -38,9 +38,8 @@ public class Binder {
 	 *
 	 * @param bean
 	 *            the bean to copy from/to
-	 * @param parent
-	 *            the view to use for performing View lookup.
-	 * @param beanToView
+     * @param properties the properties to copy from/to
+	 * @param beanToMap
 	 *            if <code>true</code> then data from the bean are copied into
 	 *            the view. If <code>false</code> then view's data will be
 	 *            copied into the bean.

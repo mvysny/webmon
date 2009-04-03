@@ -35,6 +35,7 @@ public final class DivGraph {
      * @param style the graph style, must be valid.
      * @param values the values to draw. The array must be sorted from least to highest. Negative values are not permitted.
      * @param max the maximum value. A transparent div will be added at the end if necessary.
+     * @param floatLeft if true then a float:left style is added to ensure that next HTML content is positioned to the right of this bar.
      * @return a html source
      */
     public static String drawStackedBar(final GraphStyle style, final int[] values, final int max, final boolean floatLeft) {
@@ -48,7 +49,8 @@ public final class DivGraph {
      * @param style the graph style, must be valid.
      * @param values the values to draw. The array must be sorted from least to highest. Negative values are not permitted.
      * @param max the maximum value. A transparent div will be added at the end if necessary.
-     * @return a html source
+     * @param floatLeft if true then a float:left style is added to ensure that next HTML content is positioned to the right of this bar.
+     * @param sb puts the HTML code here.
      */
     public static void drawStackedBar(final GraphStyle style, final int[] values, final int max, final boolean floatLeft, final StringBuilder sb) {
         style.validate();

@@ -39,6 +39,7 @@ public final class GraphStyle implements Serializable {
 
     /**
      * Copy-constructor.
+     * @param other copy this instance, must not be null
      */
     public GraphStyle(final GraphStyle other) {
         vertical = other.vertical;
@@ -91,6 +92,9 @@ public final class GraphStyle implements Serializable {
      */
     public GraphStyleEnum style = GraphStyleEnum.StackedBar;
 
+    /**
+     * A type of graph to draw.
+     */
     public static enum GraphStyleEnum {
 
         /**
