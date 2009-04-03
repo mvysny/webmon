@@ -40,84 +40,98 @@ public final class Config implements Serializable {
         super();
         Binder.copy(other, this);
     }
+
+    /**
+     * The problems settings group.
+     */
+    public static final int GROUP_PROBLEMS = 1;
+    /**
+     * The mail settings group.
+     */
+    public static final int GROUP_MAIL = 2;
+    /**
+     * The jabber settings group.
+     */
+    public static final int GROUP_JABBER = 3;
+
     /**
      * Triggers a problem when there is less than minFreeDiskSpaceMb of free space on some drive
      */
-    @Bind(key = "minFreeDiskSpaceMb", min = 0)
+    @Bind(key = "minFreeDiskSpaceMb", min = 0, group = GROUP_PROBLEMS)
     public int minFreeDiskSpaceMb = 100;
     /**
      * Triggers a problem when GC uses over gcCpuTreshold% or more of CPU continuously for gcCpuTresholdSamples seconds.
      */
-    @Bind(key = "gcCpuTreshold", min = 0)
+    @Bind(key = "gcCpuTreshold", min = 0, group = GROUP_PROBLEMS)
     public int gcCpuTreshold = 50;
     /**
      * Triggers a problem when GC uses over gcCpuTreshold% or more of CPU continuously for gcCpuTresholdSamples seconds.
      */
-    @Bind(key = "gcCpuTresholdSamples", min = 1)
+    @Bind(key = "gcCpuTresholdSamples", min = 1, group = GROUP_PROBLEMS)
     public int gcCpuTresholdSamples = 3;
     /**
      * If the memory usage after GC goes above this value the {@link #CLASS_GC_MEMORY_CLEANUP} problem is reported.
      */
-    @Bind(key = "memAfterGcUsageTreshold", min = 0, max = 100)
+    @Bind(key = "memAfterGcUsageTreshold", min = 0, max = 100, group = GROUP_PROBLEMS)
     public int memAfterGcUsageTreshold = 85;
     /**
      * If the memory usage goes above this value the pool name is reported in the {@link #CLASS_MEMORY_STATUS} report. This never triggers a problem.
      */
-    @Bind(key = "memUsageTreshold", min = 0, max = 100)
+    @Bind(key = "memUsageTreshold", min = 0, max = 100, group = GROUP_PROBLEMS)
     public int memUsageTreshold = 90;
     /**
      * The SMTP server host/port. If this is commented then no mails are sent.
      */
-    @Bind(key = "mail.smtp.host", required = false)
+    @Bind(key = "mail.smtp.host", required = false, group = GROUP_MAIL)
     public String mailSmtpHost;
     /**
      * SMTP server port, defaults to 25 (465 for SSL)
      */
-    @Bind(key = "mail.smtp.port", min = -1, max = 65535)
+    @Bind(key = "mail.smtp.port", min = -1, max = 65535, group = GROUP_MAIL)
     public int mailSmtpPort = -1;
     /**
      * The "from" address
      */
-    @Bind(key = "mail.from", required = false)
+    @Bind(key = "mail.from", required = false, group = GROUP_MAIL)
     public String mailFrom;
     /**
      * Receivers, split by a comma
      */
-    @Bind(key = "mail.to", required = false)
+    @Bind(key = "mail.to", required = false, group = GROUP_MAIL)
     public String mailTo;
     /**
      * The connection encryption.
      */
-    @Bind(key = "mail.smtp.encryption", required = false)
+    @Bind(key = "mail.smtp.encryption", required = false, group = GROUP_MAIL)
     public EncryptionEnum mailSmtpEncryption = EncryptionEnum.NONE;
     /**
      * Optional SMTP authentication.
      */
-    @Bind(key = "mail.smtp.username", required = false)
+    @Bind(key = "mail.smtp.username", required = false, group = GROUP_MAIL)
     public String mailSmtpUsername;
     /**
      * Optional SMTP authentification.
      */
-    @Bind(key = "mail.smtp.password", password = true, required = false)
+    @Bind(key = "mail.smtp.password", password = true, required = false, group = GROUP_MAIL)
     public String mailSmtpPassword;
     /**
      * Jabber server.
      */
-    @Bind(key="jabber.server", required = false)
+    @Bind(key="jabber.server", required = false, group = GROUP_JABBER)
     public String jabberServer;
     /**
      * Jabber user name.
      */
-    @Bind(key="jabber.username", required = false)
+    @Bind(key="jabber.username", required = false, group = GROUP_JABBER)
     public String jabberUsername;
     /**
      * Jabber password.
      */
-    @Bind(key="jabber.password", required = false, password=true)
+    @Bind(key="jabber.password", required = false, password=true, group = GROUP_JABBER)
     public String jabberPassword;
     /**
      * Jabber recipients, split by a comma
      */
-    @Bind(key="jabber.recipients", required = false)
+    @Bind(key="jabber.recipients", required = false, group = GROUP_JABBER)
     public String jabberRecipients;
 }
