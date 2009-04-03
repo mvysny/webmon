@@ -35,6 +35,10 @@ public class DirResourceLinkTest extends AbstractResourceLinkTest {
         return file;
     }
 
+    /**
+     * Tests the search functionality.
+     * @throws IOException on i/o error.
+     */
     public void testSearch() throws IOException {
         ResourceLink link = ResourceLink.newFor(file);
         List<ResourceLink> result = link.search("com");
