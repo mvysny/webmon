@@ -95,8 +95,8 @@ public final class Jndi extends WebVMPage {
      *
      * @param ctx
      *            the context contents to print.
-     * @param indent
-     * @param buffer
+     * @param parent print children of this parent.
+     * @param depth current depth.
      */
     private static void list(final Context ctx, final MutableTreeNode parent, final int depth) {
         try {
