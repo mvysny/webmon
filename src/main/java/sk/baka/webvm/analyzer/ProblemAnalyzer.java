@@ -44,15 +44,22 @@ public final class ProblemAnalyzer {
 
     /**
      * Parses init values from given application.
-     * @param app the application to parse.
+     * @param config
      */
     public void configure(final Config config) {
         this.config = new Config(config);
     }
     private Config config;
 
-    public static int parse(final Properties app, final String argName, final int defaultValue) {
-        String arg = app.getProperty(argName);
+    /**
+     * Parses given property and returns it as an integer. Allows default value to be returned in case of null.
+     * @param props the properties
+     * @param propName the property name
+     * @param defaultValue returned when given property is not specified.
+     * @return parsed property value
+     */
+    public static int parse(final Properties props, final String propName, final int defaultValue) {
+        String arg = props.getProperty(propName);
         if (arg == null) {
             return defaultValue;
         }
@@ -60,7 +67,7 @@ public final class ProblemAnalyzer {
         try {
             return Integer.parseInt(arg);
         } catch (final Exception ex) {
-            log.log(Level.SEVERE, argName + ": failed to parse '" + arg + "'", ex);
+            log.log(Level.SEVERE, propName + ": failed to parse '" + arg + "'", ex);
         }
         return defaultValue;
     }

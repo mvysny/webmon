@@ -74,6 +74,10 @@ public final class WicketApplication extends WebApplication {
         return CONFIG;
     }
 
+    /**
+     * Sets the new configuration and restarts analyzer and sampler.
+     * @param config the new config, must not be null.
+     */
     public synchronized static void setConfig(final Config config) {
         SAMPLER.stop();
         CONFIG = new Config(config);

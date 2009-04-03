@@ -35,7 +35,6 @@ public final class Problems extends WebVMPage {
 
     /**
      * Creates new instance
-     * @param params page parameters
      */
     public Problems() {
         final IModel<List<ProblemReport>> model = new LoadableDetachableModel<List<ProblemReport>>() {

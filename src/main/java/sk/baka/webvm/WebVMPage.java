@@ -34,6 +34,9 @@ import sk.baka.webvm.misc.GraphStyle;
  */
 public class WebVMPage extends WebPage {
 
+    /**
+     * Each page is wrapped in this border.
+     */
     protected final AppBorder border;
 
     /**
@@ -109,6 +112,7 @@ public class WebVMPage extends WebPage {
      * Draws a memory usage status for given memory usage object
      * @param usage the memory usage object, must be in megabytes as int arithmetics is used.
      * @param width the width of the bar in pixels.
+     * @return the HTML bar code
      */
     public static String drawMemoryStatus(final MemoryUsage usage, final int width) {
         final GraphStyle gs = new GraphStyle();

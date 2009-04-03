@@ -64,7 +64,6 @@ public final class HistorySample {
     /**
      * Creates new history sample bean.
      * @param gcCpuUsage average CPU usage of GC for this time slice in percent.
-     * @param memUsage memory being used at the beginning of this time slice in MB.
      */
     public HistorySample(final int gcCpuUsage) {
         this.gcCpuUsage = gcCpuUsage;
