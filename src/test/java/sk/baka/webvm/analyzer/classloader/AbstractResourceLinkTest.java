@@ -140,8 +140,8 @@ public abstract class AbstractResourceLinkTest extends TestCase {
 
     /**
      * Checks that given resource list contains required elements.
-     * @param expected the expected resource names.
-     * @param got actual resource list
+     * @param expectedSet the expected resource names.
+     * @param gotSet actual resource list
      */
     public static void assertEqualsSet(Collection<?> expectedSet, Collection<?> gotSet) {
         final Set<Object> expected = new HashSet<Object>(expectedSet);

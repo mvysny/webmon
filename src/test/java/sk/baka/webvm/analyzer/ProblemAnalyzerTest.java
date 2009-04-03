@@ -10,7 +10,8 @@ public class ProblemAnalyzerTest extends TestCase {
 
 	/**
 	 * Test of getDeadlockReport method, of class ProblemAnalyzer.
-	 */
+     * @throws Exception
+     */
 	public void testGetDeadlockReport() throws Exception {
 		final Deadlock d = new Deadlock();
 		d.simulate();

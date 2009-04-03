@@ -31,7 +31,8 @@ public class HistorySamplerTest extends TestCase {
 
 	/**
 	 * Test of getProblemHistory method, of class HistorySampler.
-	 */
+     * @throws Exception 
+     */
 	public void testGetProblemHistory() throws Exception {
 		final ProblemAnalyzer a = new ProblemAnalyzer();
 		a.configure(new Config());
