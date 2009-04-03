@@ -47,6 +47,11 @@ public @interface Bind {
     int max() default Integer.MAX_VALUE;
 
     /**
+     * Makes the value a part of a group.
+     */
+    int group() default 0;
+
+    /**
      * true if this field denotes a password field.
      */
     boolean password() default false;

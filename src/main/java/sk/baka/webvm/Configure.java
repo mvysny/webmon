@@ -22,6 +22,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Set;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -47,6 +48,33 @@ public final class Configure extends WebVMPage {
         border.add(new ConfigForm("configForm"));
     }
 
+    private static void addComponents(final MarkupContainer c, final Object bean, final int group) {
+        for (final Field field : bean.getClass().getFields()) {
+            final Bind annotation = field.getAnnotation(Bind.class);
+            if (annotation == null) {
+                continue;
+            }
+            if (group >= 0 && annotation.group() != group) {
+                continue;
+            }
+            final FormComponent<?> f;
+            if (Enum.class.isAssignableFrom(field.getType())) {
+                final Set<Enum> allConstants = EnumSet.allOf(field.getType().asSubclass(Enum.class));
+                f = new DropDownChoice<Enum>(annotation.key(), new PropertyModel<Enum>(bean, field.getName()), new ArrayList<Enum>(allConstants));
+            } else if (annotation.password()) {
+                f = new PasswordTextField(annotation.key(), new PropertyModel<String>(bean, field.getName()));
+            } else {
+                f = new TextField<Object>(annotation.key(), new PropertyModel<Object>(bean, field.getName()));
+                if ((annotation.min() != Integer.MIN_VALUE) || (annotation.max() != Integer.MAX_VALUE)) {
+                    // we know there will be only ints annotated
+                    f.add((IValidator) new RangeValidator<Integer>(annotation.min(), annotation.max()));
+                }
+            }
+            f.setRequired(annotation.required());
+            c.add(f);
+        }
+    }
+
     private final class ConfigForm extends Form {
 
         private final Config config = new Config(WicketApplication.getConfig());
@@ -54,27 +82,7 @@ public final class Configure extends WebVMPage {
         public ConfigForm(final String componentName) {
             super(componentName);
             add(new FeedbackPanel("feedback"));
-            for (final Field field : Config.class.getFields()) {
-                final Bind annotation = field.getAnnotation(Bind.class);
-                if (annotation == null) {
-                    continue;
-                }
-                final FormComponent<?> f;
-                if (Enum.class.isAssignableFrom(field.getType())) {
-                    final Set<Enum> allConstants = EnumSet.allOf(field.getType().asSubclass(Enum.class));
-                    f = new DropDownChoice<Enum>(annotation.key(), new PropertyModel(config, field.getName()), new ArrayList<Enum>(allConstants));
-                } else if (annotation.password()) {
-                    f = new PasswordTextField(annotation.key(), new PropertyModel(config, field.getName()));
-                } else {
-                    f = new TextField<Object>(annotation.key(), new PropertyModel<Object>(config, field.getName()));
-                    if ((annotation.min() != Integer.MIN_VALUE) || (annotation.max() != Integer.MAX_VALUE)) {
-                        // we know there will be only ints annotated
-                        f.add((IValidator) new RangeValidator<Integer>(annotation.min(), annotation.max()));
-                    }
-                }
-                f.setRequired(annotation.required());
-                add(f);
-            }
+            addComponents(this, config, -1);
             add(new Button("submit"));
             add(new Button("sendTestMail") {
 
