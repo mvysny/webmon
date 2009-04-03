@@ -114,6 +114,13 @@ public final class NotificationDelivery extends BackgroundService {
         }
     }
 
+    /**
+     * Sends a Jabber message with the Problems analysis.
+     * @param config use this config.
+     * @param testing if true then a (testing) string is appended to the message
+     * @param reports use these reports
+     * @throws org.jivesoftware.smack.XMPPException when send fails
+     */
     public static void sendJabber(final Config config, final boolean testing, final List<ProblemReport> reports) throws XMPPException {
         XMPPConnection connection = new XMPPConnection(config.jabberServer);
         connection.connect();
@@ -139,8 +146,13 @@ public final class NotificationDelivery extends BackgroundService {
      * Delivers given report asynchronously.
      * @param reports the reports to deliver.
      */
-    public void deliverAsync(final List<ProblemReport> reports) throws InterruptedException {
-        asyncQueue.put(reports);
+    public void deliverAsync(final List<ProblemReport> reports) {
+        try {
+            asyncQueue.put(reports);
+        } catch (InterruptedException ex) {
+            // we do not have a space-bound queue
+            throw new Error("Shouldn't happen", ex);
+        }
     }
     private final BlockingQueue<List<ProblemReport>> asyncQueue = new LinkedBlockingQueue<List<ProblemReport>>();
 
