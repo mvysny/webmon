@@ -19,11 +19,9 @@
 package sk.baka.webvm;
 
 import java.io.File;
-import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.wicket.markup.ComponentTag;
@@ -42,34 +40,37 @@ import sk.baka.webvm.analyzer.classloader.ResourceLink;
  */
 public final class SearchResults extends WebVMPage {
 
+    /**
+     * Creates the search page and performs the search.
+     * @param searchQuery the query to use. Used as substring in classloader resources names search.
+     */
     public SearchResults(final String searchQuery) {
         super();
         border.add(new Label("searchQuery", searchQuery));
-        final List<Serializable> results = performSearch(searchQuery);
-        border.add(new ListView<Serializable>("classpathItems", results) {
+        final List<CLResult> results = performSearch(searchQuery);
+        border.add(new ListView<CLResult>("classpathItems", results) {
 
             @Override
-            protected void populateItem(ListItem<Serializable> item) {
-                final Serializable resLink = item.getModelObject();
-                item.add(new Link<Serializable>("classpathItem", item.getModel()) {
+            protected void populateItem(ListItem<CLResult> item) {
+                final CLResult resLink = item.getModelObject();
+                item.add(new Link<CLResult>("classpathItem", item.getModel()) {
 
                     @Override
                     protected void onComponentTagBody(final MarkupStream markupStream, final ComponentTag openTag) {
-                        final Serializable model = getModelObject();
-                        final String caption = SearchResults.toString(model);
+                        final CLResult model = getModelObject();
+                        final String caption = model.toString();
                         replaceComponentTagBody(markupStream, openTag, caption);
                     }
 
                     @Override
                     public void onClick() {
-                        if (!(resLink instanceof ResourceLink)) {
+                        if (resLink.res == null) {
                             return;
                         }
-                        final ResourceLink rl = (ResourceLink) resLink;
-                        if (rl.isPackage()) {
+                        if (resLink.res.isPackage()) {
                             return;
                         }
-                        getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(Classloaders.toStream(rl), rl.getName()));
+                        getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(Classloaders.toStream(resLink.res), resLink.res.getName()));
                         setRedirect(true);
                     }
                 });
@@ -77,22 +78,16 @@ public final class SearchResults extends WebVMPage {
         });
     }
 
-    public SearchResults() {
-        this("");
-    }
-
-    private static String toString(final Serializable s) {
-        return s instanceof ResourceLink ? ((ResourceLink) s).getFullName() : (String) s;
-    }
-
     /**
      * Performs a search in URLs of all known class loaders.
      * @param searchQuery a substring to search for, must not be null
      * @return a mixed list of {@link ResourceLink}s (if search went OKay) and {@link String} (if exception occured in the search process).
      */
-    private List<Serializable> performSearch(String searchQuery) {
-        final List<Serializable> result = new ArrayList<Serializable>();
+    private List<CLResult> performSearch(String searchQuery) {
+        final List<CLResult> result = new ArrayList<CLResult>();
+        int clIndex = 0;
         for (ClassLoader loader = Thread.currentThread().getContextClassLoader(); loader != null; loader = loader.getParent()) {
+            clIndex++;
             final URL[] urls = ClassLoaderUtils.getURLs(loader);
             for (final URL url : urls) {
                 final File file = FileUtils.toFile(url);
@@ -101,22 +96,83 @@ public final class SearchResults extends WebVMPage {
                 }
                 final ResourceLink root = ResourceLink.newFor(file);
                 try {
-                    result.addAll(root.search(searchQuery));
+                    final List<ResourceLink> search = root.search(searchQuery);
+                    result.addAll(CLResult.from(search, loader, clIndex));
                 } catch (Exception ex) {
-                    result.add("Failed to search in " + root + ": " + ex.toString());
+                    result.add(CLResult.from(ex, loader, clIndex));
                 }
             }
         }
         // sort the list
-        Collections.sort(result, new Comparator<Serializable>() {
-
-            public int compare(Serializable o1, Serializable o2) {
-                final String s1 = SearchResults.toString(o1);
-                final String s2 = SearchResults.toString(o2);
-                return s1.compareToIgnoreCase(s2);
-            }
-        });
+        Collections.sort(result);
         return result;
     }
-}
 
+    /**
+     * The classloader search result item, contains either a resource link or an error message.
+     */
+    private static class CLResult implements Comparable<CLResult> {
+
+        /**
+         * A link to the resource item.
+         */
+        public ResourceLink res;
+        /**
+         * If we were unable to obtain a resource link then this is the error message.
+         */
+        public String error;
+        /**
+         * Originating classloader.
+         */
+        public ClassLoader classloader;
+        /**
+         * Classloader number, 1 is the context classloader, 2 is its parent etc.
+         */
+        public int clIndex;
+
+        /**
+         * Converts a list of resource links.
+         * @param source the source list, must not be null
+         * @param cl originating class laoder.
+         * @param clIndex Classloader number, 1 is the context classloader, 2 is its parent etc.
+         * @return non-null converted list.
+         */
+        public static List<CLResult> from(final List<? extends ResourceLink> source, final ClassLoader cl, final int clIndex) {
+            final List<CLResult> result = new ArrayList<CLResult>(source.size());
+            for (final ResourceLink res : source) {
+                final CLResult cresult = new CLResult();
+                cresult.res = res;
+                cresult.classloader = cl;
+                cresult.clIndex = clIndex;
+                result.add(cresult);
+            }
+            return result;
+        }
+
+        /**
+         * Converts a throwable.
+         * @param t the throwable.
+         * @param cl originating class laoder.
+         * @param clIndex Classloader number, 1 is the context classloader, 2 is its parent etc.
+         * @return non-null result.
+         */
+        public static CLResult from(final Throwable t, final ClassLoader cl, final int clIndex) {
+            final CLResult result = new CLResult();
+            result.error = t.toString();
+            result.classloader = cl;
+            result.clIndex = clIndex;
+            return result;
+        }
+
+        public int compareTo(CLResult o) {
+            final String s1 = toString();
+            final String s2 = o.toString();
+            return s1.compareToIgnoreCase(s2);
+        }
+
+        @Override
+        public String toString() {
+            return res != null ? "[" + clIndex + "] " + res.getFullName() : error;
+        }
+    }
+}
