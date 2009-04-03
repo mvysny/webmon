@@ -34,6 +34,9 @@ import org.apache.wicket.model.LoadableDetachableModel;
  */
 public final class ThreadDump extends WebVMPage {
 
+    /**
+     * Constructor.
+     */
     public ThreadDump() {
         border.add(new ListView<ThreadInfo>("threadList", new LoadableDetachableModel<List<ThreadInfo>>() {
 

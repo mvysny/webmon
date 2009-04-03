@@ -51,7 +51,7 @@ public final class ProblemReport implements Serializable {
      * @param isProblem true if this might be a serious problem, false if everything is OK or this is only a minor issue.
      * @param diagnosis diagnosis of the problem, or something like OK if everything is okay. not null
      * @param pclass the problem class, not null
-     * @param description of the problem class, not null
+     * @param desc description of the problem class, not null
      */
     public ProblemReport(final boolean isProblem, final String pclass, final String diagnosis, final String desc) {
         this.isProblem = isProblem;

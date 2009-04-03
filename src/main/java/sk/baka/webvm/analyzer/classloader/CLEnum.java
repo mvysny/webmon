@@ -31,6 +31,9 @@ import org.apache.commons.io.IOUtils;
  */
 public enum CLEnum {
 
+    /**
+     * The WebVM WAR classloader.
+     */
     WAR {
 
         @Override
@@ -56,34 +59,59 @@ public enum CLEnum {
             }
             return false;
         }
-    }, EJBJAR {
+    },
+    /**
+     * A classloader which loads ejb.jar
+     */
+    EJBJAR {
 
         @Override
         protected boolean matches(final ClassLoader cl) {
             return cl.getResource("META-INF/ejb-jar.xml") != null;
         }
-    }, EAR {
+    },
+    /**
+     * Classloader for the EAR application.
+     */
+    EAR {
 
         protected boolean matches(final ClassLoader cl) {
             return cl.getResource("META-INF/application.xml") != null;
         }
-    }, SYSTEM {
+    },
+    /**
+     * A {@link ClassLoader#getSystemClassLoader() system classloader}.
+     */
+    SYSTEM {
 
         protected boolean matches(final ClassLoader cl) {
             return cl == ClassLoader.getSystemClassLoader();
         }
-    }, ROOT {
+    },
+    /**
+     * Root classloader (its parent is null).
+     */
+    ROOT {
 
         protected boolean matches(final ClassLoader cl) {
             return cl.getParent() == null;
         }
-    }, SERVER {
+    },
+    /**
+     * An unknown classloader type.
+     */
+    SERVER {
 
         protected boolean matches(final ClassLoader cl) {
             return false;
         }
     };
 
+    /**
+     * Checks if this enum constant matches given classloader.
+     * @param cl the classloader to match, not null
+     * @return true if given classloader is of this type.
+     */
     protected abstract boolean matches(final ClassLoader cl);
 
     /**

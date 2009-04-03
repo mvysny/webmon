@@ -175,7 +175,11 @@ public final class HistorySampler extends BackgroundService {
 		}
 	}
 
-	public List<List<ProblemReport>> getProblemHistory() {
+    /**
+     * Returns a snapshot view over the problem history.
+     * @return the history.
+     */
+    public List<List<ProblemReport>> getProblemHistory() {
 		return problemHistory.toList();
 	}
 }

@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -38,7 +37,10 @@ import sk.baka.webvm.analyzer.HistorySample;
  */
 public final class Threads extends WebVMPage {
 
-    public Threads(PageParameters params) {
+    /**
+     * Constructor.
+     */
+    public Threads() {
         final SortedMap<Long, List<ThreadInfo>> threadAnalysis = analyzeThreads();
         drawThreads(threadAnalysis);
     }
