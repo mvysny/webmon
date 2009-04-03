@@ -22,6 +22,7 @@ import java.io.Serializable;
 
 /**
  * Produces objects of required type.
+ * @param <T> the type of objects to be produced.
  * @author Martin Vysny
  */
 public interface Producer<T> extends Serializable {
