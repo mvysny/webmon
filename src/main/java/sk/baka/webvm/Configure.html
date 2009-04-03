@@ -13,7 +13,7 @@
                 <div class="entry">
                     <p>These settings are not persistent: they will be reset when WebVM is restarted. To make them permanent you
                         need open the WebVM WAR file and edit the <code>WEB-INF/classes/config.properties</code> file instead.</p>
-                    <form wicket:id="configForm">
+                    <form wicket:id="problemsForm">
                         <h2>Problems triggers</h2>
 						<table>
 							<tr>
@@ -32,6 +32,10 @@
 								<td><input input="text" size="3" maxlength="3" wicket:id="memUsageTreshold"></input></td>
 							</tr>
 						</table>
+                        <div wicket:id="feedback">[Feedback Panel]</div>
+						<input type="submit" wicket:id="submit1" value="Save"/>
+                    </form>
+                    <form wicket:id="mailForm">
                         <h2>Mail settings</h2>
 						<table>
 							<tr>
@@ -64,6 +68,10 @@
 							</tr>
 						</table>
 						<input type="submit" wicket:id="sendTestMail" value="Send test mail"/>
+                        <div wicket:id="feedback">[Feedback Panel]</div>
+						<input type="submit" wicket:id="submit2" value="Save"/>
+                    </form>
+                    <form wicket:id="jabberForm">
                         <h2>Jabber settings</h2>
                         Note that the Jabber client will use the most secure method when connecting to the server.
                         <table>
@@ -86,7 +94,7 @@
                         </table>
 						<input type="submit" wicket:id="sendTestJabber" value="Send test jabber"/>
                         <div wicket:id="feedback">[Feedback Panel]</div>
-						<input type="submit" wicket:id="submit" value="Save"/>
+						<input type="submit" wicket:id="submit3" value="Save"/>
 					</form>
                 </div>
             </div>
