@@ -128,7 +128,7 @@ public final class Configure extends WebVMPage {
             super(componentName);
             add(new FeedbackPanel("feedback"));
             bind(this, config, group);
-            add(new Button("submit" + group));
+            add(new Button("submit"));
         }
 
         @Override
