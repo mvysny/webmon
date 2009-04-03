@@ -68,6 +68,9 @@ import sk.baka.webvm.analyzer.classloader.ResourceLink;
  */
 public final class Classloaders extends WebVMPage {
 
+    /**
+     * Constructor.
+     */
     public Classloaders() {
         tree = newClassloaderHierarchy();
         analyzeClashes(border);
