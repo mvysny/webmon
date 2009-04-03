@@ -21,7 +21,6 @@ package sk.baka.webvm;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.Set;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -107,7 +106,8 @@ public final class Configure extends WebVMPage {
             }
             final FormComponent<?> f;
             if (Enum.class.isAssignableFrom(field.getType())) {
-                final Set<Enum> allConstants = EnumSet.allOf(field.getType().asSubclass(Enum.class));
+                final Class<? extends Enum> clazz = field.getType().asSubclass(Enum.class);
+                final EnumSet<? extends Enum> allConstants = EnumSet.allOf(clazz);
                 f = new DropDownChoice<Enum>(annotation.key(), new PropertyModel<Enum>(bean, field.getName()), new ArrayList<Enum>(allConstants));
             } else if (annotation.password()) {
                 f = new PasswordTextField(annotation.key(), new PropertyModel<String>(bean, field.getName()));

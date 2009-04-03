@@ -49,6 +49,7 @@ public class HomePage extends WebVMPage {
         // java properties
         listMap(border, new Producer<Map<String, String>>() {
 
+            @SuppressWarnings("unchecked")
             public Map<String, String> produce() {
                 return (Map<String, String>) (Map) System.getProperties();
             }
