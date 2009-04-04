@@ -93,6 +93,10 @@ public final class SearchResults extends WebVMPage {
                 final ResourceLink root = ResourceLink.newFor(file);
                 try {
                     final List<ResourceLink> search = root.search(searchQuery);
+                    // if the root file name itself matches the search query, add it to the result list
+                    if (root.getContainer().getName().toLowerCase().contains(searchQuery.toLowerCase())) {
+                        search.add(0, root);
+                    }
                     result.addAll(CLResult.from(search, loader, clIndex));
                 } catch (Exception ex) {
                     result.add(CLResult.from(ex, loader, clIndex));
