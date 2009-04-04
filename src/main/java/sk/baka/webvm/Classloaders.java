@@ -19,20 +19,16 @@
 package sk.baka.webvm;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,7 +37,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeModel;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -51,14 +46,10 @@ import org.apache.wicket.markup.html.tree.BaseTree.LinkType;
 import org.apache.wicket.markup.html.tree.ITreeStateListener;
 import org.apache.wicket.markup.html.tree.LabelTree;
 import org.apache.wicket.markup.html.tree.LinkTree;
-import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
-import org.apache.wicket.util.resource.FileResourceStream;
-import org.apache.wicket.util.resource.IResourceStream;
-import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
-import org.apache.wicket.util.time.Time;
 import sk.baka.webvm.analyzer.classloader.CLEnum;
 import sk.baka.webvm.analyzer.classloader.ClassLoaderUtils;
 import sk.baka.webvm.analyzer.classloader.ResourceLink;
+import sk.baka.webvm.wicket.WicketUtils;
 
 /**
  * Performs the class loader analysis.
@@ -125,22 +116,15 @@ public final class Classloaders extends WebVMPage {
                     return;
                 }
                 final ResourceLink parent = (ResourceLink) n.getUserObject();
-                if (parent.isRoot()) {
-                    final File container = parent.getContainer();
-                    if (container != null && container.isFile()) {
-                        getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(new FileResourceStream(container), container.getName()));
-                        setRedirect(true);
-                        return;
-                    }
+                final boolean redirected = WicketUtils.redirectTo(parent);
+                if (redirected) {
+                    return;
                 }
                 if (parent.isPackage()) {
                     expandNode(node);
                     tree.getTreeState().expandNode(node);
                     return;
                 }
-                // download the resource
-                getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(toStream(parent), parent.getName()));
-                setRedirect(true);
             }
         };
         result.getTreeState().addTreeStateListener(new Listener());
@@ -150,61 +134,6 @@ public final class Classloaders extends WebVMPage {
         result.setLinkType(LinkType.REGULAR);
         result.invalidateAll();
         return result;
-    }
-
-    /**
-     * Converts a resource link to a resource stream.
-     * @param link the link to convert.
-     * @return converted resource stream.
-     */
-    public static IResourceStream toStream(final ResourceLink link) {
-        return new IResourceStream() {
-
-            public String getContentType() {
-                return URLConnection.getFileNameMap().getContentTypeFor(link.getName());
-            }
-
-            public long length() {
-                try {
-                    return link.getLength();
-                } catch (IOException ex) {
-                    Logger.getLogger(Classloaders.class.getName()).log(Level.WARNING, null, ex);
-                    return -1;
-                }
-            }
-
-            public InputStream getInputStream() throws ResourceStreamNotFoundException {
-                final InputStream result;
-                try {
-                    result = link.open();
-                } catch (IOException ex) {
-                    throw new ResourceStreamNotFoundException(ex);
-                }
-                streams.add(result);
-                return result;
-            }
-            private final List<InputStream> streams = new ArrayList<InputStream>();
-
-            public void close() throws IOException {
-                for (final InputStream is : streams) {
-                    IOUtils.closeQuietly(is);
-                }
-                streams.clear();
-            }
-
-            public Locale getLocale() {
-                return locale;
-            }
-            private Locale locale;
-
-            public void setLocale(Locale locale) {
-                this.locale = locale;
-            }
-
-            public Time lastModifiedTime() {
-                return Time.milliseconds(1);
-            }
-        };
     }
 
     private void expandNode(final Object node) {
