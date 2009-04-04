@@ -51,4 +51,22 @@ public class DirResourceLinkTest extends AbstractResourceLinkTest {
         result = link.search("c");
         assertEquals(new String[]{"crypto", "AESCipher.class"}, result);
     }
+
+    /**
+     * Check that search does not return the root container even if it matches
+     * @throws IOException on i/o error.
+     */
+    public void testSearchDoesNotReturnRoot() throws IOException {
+        ResourceLink link = ResourceLink.newFor(file);
+        List<ResourceLink> result = link.search("provider");
+        assertEquals(new String[]{"provider"}, result);
+    }
+
+    /**
+     * @throws java.io.IOException if i/o error occurs.
+     */
+    public void testFullName() throws IOException, IOException {
+        ResourceLink link = getSun();
+        assertEquals(file.getAbsolutePath() + File.separator + "com" + File.separator + "sun", link.getFullName());
+    }
 }

@@ -38,7 +38,6 @@ public abstract class AbstractResourceLinkTest extends TestCase {
      * @return the file.
      */
     protected abstract File getFile();
-
     /**
      * The jar file or directory to test on.
      */
@@ -52,16 +51,33 @@ public abstract class AbstractResourceLinkTest extends TestCase {
     }
 
     /**
-     *
      * @throws java.io.IOException if i/o error occurs.
      */
-    public void testRoot() throws IOException, IOException {
+    public void testRoot() throws IOException {
         final ResourceLink link = ResourceLink.newFor(file);
         assertTrue(link.isRoot());
         assertTrue(link.isPackage());
         assertEquals(file, link.getContainer());
         assertEquals(-1, link.getLength());
+    }
+
+    /**
+     * Tests the {@link ResourceLink#getName()} method.
+     * @throws java.io.IOException
+     */
+    public void testName() throws IOException {
+        ResourceLink link = ResourceLink.newFor(file);
         assertEquals(file.getAbsolutePath(), link.getName());
+        link = getSun();
+        assertEquals("sun", link.getName());
+    }
+
+    /**
+     * @throws java.io.IOException if i/o error occurs.
+     */
+    public void testRootFullName() throws IOException {
+        ResourceLink link = ResourceLink.newFor(file);
+        assertEquals(file.getAbsolutePath(), link.getFullName());
     }
 
     /**
