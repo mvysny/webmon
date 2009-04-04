@@ -59,10 +59,13 @@ public final class WicketUtils {
 
     /**
      * Converts a resource link to a resource stream.
-     * @param link the link to convert.
+     * @param link the link to convert. Must not be a package nor a root link.
      * @return converted resource stream.
      */
     public static IResourceStream toStream(final ResourceLink link) {
+        if (link.isPackage()) {
+            throw new IllegalArgumentException(link.getFullName() + " is a package");
+        }
         return new IResourceStream() {
 
             public String getContentType() {
