@@ -174,7 +174,7 @@ public abstract class ResourceLink implements Serializable {
     public abstract String getName();
 
     /**
-     * Returns a full name, including parent packages and the root package.
+     * Returns a full name, including parent packages and full path to the root. Must not end with a slash.
      * @return a full name.
      */
     public abstract String getFullName();
@@ -454,7 +454,14 @@ final class JarResourceLink extends ResourceLink {
 
     @Override
     public String getFullName() {
-        return jarFile.getAbsolutePath() + "!/" + fullEntryName;
+        if (isRoot()) {
+            return jarFile.getAbsolutePath();
+        }
+        String fullName = fullEntryName;
+        if (fullEntryName.endsWith("/")) {
+            fullName = fullName.substring(0, fullEntryName.length() - 1);
+        }
+        return jarFile.getAbsolutePath() + "!/" + fullName;
     }
 }
 
