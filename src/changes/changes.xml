@@ -25,6 +25,17 @@
     <body>
         <release version="0.3" date="1. April 2009">
         		<action dev="vyzivus" type="update">
+        			Configuration split to separate groups.
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Implemented a classloader resources search
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Revamped the main page: memory overview moved to the Memory page;
+        			class and thread overview moved to the Graph page;
+        			Java and environment properties moved to the main page
+        		</action>
+        		<action dev="vyzivus" type="update">
         			Better ASCII graphic for thread state table
         		</action>
         		<action dev="vyzivus" type="update">
