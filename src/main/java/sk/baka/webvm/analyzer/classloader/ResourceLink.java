@@ -156,7 +156,7 @@ public abstract class ResourceLink implements Serializable {
 
     /**
      * Checks if resource denoted by this object is actually a package, or just a resource file.
-     * @return true if this is a package, false otherwise
+     * @return true if this is a package, false otherwise. {@link #root() Root link} is always a package.
      */
     public abstract boolean isPackage();
 
