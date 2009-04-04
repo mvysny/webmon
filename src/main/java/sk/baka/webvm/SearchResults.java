@@ -30,9 +30,9 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
 import sk.baka.webvm.analyzer.classloader.ClassLoaderUtils;
 import sk.baka.webvm.analyzer.classloader.ResourceLink;
+import sk.baka.webvm.wicket.WicketUtils;
 
 /**
  * Performs a search and posts search results.
@@ -67,11 +67,7 @@ public final class SearchResults extends WebVMPage {
                         if (resLink.res == null) {
                             return;
                         }
-                        if (resLink.res.isPackage()) {
-                            return;
-                        }
-                        getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(Classloaders.toStream(resLink.res), resLink.res.getName()));
-                        setRedirect(true);
+                        WicketUtils.redirectTo(resLink.res);
                     }
                 });
             }
