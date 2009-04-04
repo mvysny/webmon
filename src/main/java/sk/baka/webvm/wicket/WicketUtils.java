@@ -20,7 +20,6 @@ import org.apache.wicket.util.resource.FileResourceStream;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.apache.wicket.util.time.Time;
-import sk.baka.webvm.Classloaders;
 import sk.baka.webvm.analyzer.classloader.ResourceLink;
 
 /**
@@ -57,6 +56,8 @@ public final class WicketUtils {
         throw new AssertionError();
     }
 
+    private final static Logger log = Logger.getLogger(WicketUtils.class.getName());
+
     /**
      * Converts a resource link to a resource stream.
      * @param link the link to convert. Must not be a package nor a root link.
@@ -76,7 +77,7 @@ public final class WicketUtils {
                 try {
                     return link.getLength();
                 } catch (IOException ex) {
-                    Logger.getLogger(Classloaders.class.getName()).log(Level.WARNING, null, ex);
+                    log.log(Level.WARNING, null, ex);
                     return -1;
                 }
             }
