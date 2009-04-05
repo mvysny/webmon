@@ -82,7 +82,6 @@ public class WebVMPage extends WebPage {
             dg.add(new int[]{(int) usage.getUsed(), (int) usage.getCommitted()});
         }
         dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
-        // TODO draw the graph directly to a writer
         unescaped(wid, dg.draw());
     }
 
