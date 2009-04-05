@@ -33,6 +33,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import sk.baka.webvm.analyzer.HostOS;
 import sk.baka.webvm.misc.MgmtUtils;
 
 /**
@@ -46,8 +47,15 @@ public final class Memory extends WebVMPage {
      * @param params page parameters
      */
     public Memory(PageParameters params) {
-        drawMemoryStatus(MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime()), "heapStatusBar", 300);
-        border.add(new Label("heapStatusText", MgmtUtils.toString(MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime()), true)));
+        MemoryUsage usage = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
+        drawMemoryStatus(usage, "heapStatusBar", 300);
+        border.add(new Label("heapStatusText", MgmtUtils.toString(usage, true)));
+        usage = MgmtUtils.getInMB(HostOS.getPhysicalMemory());
+        drawMemoryStatus(usage, "physicalMemoryStatusBar", 300);
+        border.add(new Label("physicalMemoryStatusText", MgmtUtils.toString(usage, true)));
+        usage = MgmtUtils.getInMB(HostOS.getSwap());
+        drawMemoryStatus(usage, "swapStatusBar", 300);
+        border.add(new Label("swapStatusText", MgmtUtils.toString(usage, true)));
         displayMemInfo(border, ManagementFactory.getMemoryManagerMXBeans(), "memoryManagers", "memManName", "memManValid", "memManProperties");
         displayMemInfo(border, ManagementFactory.getGarbageCollectorMXBeans(), "gc", "gcName", "gcValid", "gcProperties");
         addMemoryPoolInfo();

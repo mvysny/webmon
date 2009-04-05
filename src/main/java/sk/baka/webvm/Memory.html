@@ -12,7 +12,27 @@
             <div class="post">
                 <h2 class="title">Memory managers</h2>
                 <div class="entry">
-                    Heap status: <span wicket:id="heapStatusBar"/><span wicket:id="heapStatusText"/><br/><br/>
+                    <table id="table">
+                        <tbody>
+                            <tr>
+                                <td>Java Heap status:</td>
+                                <td><span wicket:id="heapStatusBar"/><span wicket:id="heapStatusText"/></td>
+                            </tr>
+                            <tr>
+                                <td>Host OS memory:</td>
+                                <td><span wicket:id="physicalMemoryStatusBar"/><span wicket:id="physicalMemoryStatusText"/></td>
+                            </tr>
+                            <tr>
+                                <td>Host OS swap:</td>
+                                <td><span wicket:id="swapStatusBar"/><span wicket:id="swapStatusText"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="post">
+                <h2 class="title">Memory managers</h2>
+                <div class="entry">
                     <table id="table">
                         <thead>
                             <tr>
