@@ -44,7 +44,7 @@ public final class HistorySample {
      */
     public final MemoryUsage[] memPoolUsage = new MemoryUsage[2];
     /**
-     * A thread dump. Does not contain any stacktraces.
+     * A thread dump. Does not contain any stacktraces. Never null.
      */
     public final ThreadInfo[] threads;
     /**
@@ -60,6 +60,14 @@ public final class HistorySample {
      * @return current count of all threads.
      */
     public final int threadCount;
+    /**
+     * Host OS physical memory, may be null.
+     */
+    public final MemoryUsage hostOSPhysical;
+    /**
+     * Host OS swap memory, may be null.
+     */
+    public final MemoryUsage hostOSSwap;
 
     /**
      * Creates new history sample bean.
@@ -75,5 +83,7 @@ public final class HistorySample {
         threadCount = tbean.getThreadCount();
         daemonThreadCount = tbean.getDaemonThreadCount();
         classesLoaded = ManagementFactory.getClassLoadingMXBean().getLoadedClassCount();
+        hostOSPhysical = HostOS.getPhysicalMemory();
+        hostOSSwap = HostOS.getSwap();
     }
 }
