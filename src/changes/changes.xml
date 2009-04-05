@@ -24,6 +24,12 @@
     </properties>
     <body>
         <release version="0.3" date="1. April 2009">
+        		<action dev="vyzivus" type="add">
+        			Added Host OS memory graphs and problem analyzer.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Graphs are now linked to appropriate pages.
+        		</action>
         		<action dev="vyzivus" type="update">
         			Configuration split to separate groups.
         		</action>
