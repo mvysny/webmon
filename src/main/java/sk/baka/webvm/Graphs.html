@@ -13,6 +13,31 @@
             <div class="post">
                 <table>
                     <tr style="vertical-align: top;">
+<!--                        <td>
+                            <h2 class="title">Host OS CPU Usage (%)</h2>
+                            <div class="entry">
+                                <div wicket:id="gcCPUUsageGraph"></div>
+                                <table><tr><td><div class="legendBlue"/></td><td>Current CPU usage: <strong wicket:id="gcCPUUsagePerc"/>%</td></tr></table>
+                            </div>
+                        </td> -->
+                        <td>
+                            <h2 class="title">Host OS Phys. Memory</h2>
+                            <div class="entry">
+                                <div wicket:id="physUsageGraph"></div>
+                                <table><tr><td><div class="legendBrown"/></td><td>Used: <strong wicket:id="physCommitted"/>M</td><td><div class="legendBlue"/></td><td>minus buffers/cache: <strong wicket:id="physUsed"/>M</td></tr></table>
+                            </div>
+                        </td>
+                        <td>
+                            <h2 class="title">Host OS Swap</h2>
+                            <div class="entry">
+                                <div wicket:id="swapUsageGraph"></div>
+                                <table><tr><td><div class="legendBlue"/></td><td>Used: <strong wicket:id="swapUsed"/>M</td></tr></table>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <table>
+                    <tr style="vertical-align: top;">
                         <td>
                             <h2 class="title">GC CPU Usage (%)</h2>
                             <div class="entry">
@@ -24,20 +49,18 @@
                             <h2 class="title">Heap Usage (MB)</h2>
                             <div class="entry">
                                 <a href="Memory" wicket:id="heapUsageGraph"></a>
-                                <table><tr><td><div class="legendBrown"/></td><td>Heap size - <strong wicket:id="heapSize"/></td><td><div class="legendBlue"/></td><td>Heap usage - <strong wicket:id="heapUsage"/></td></tr></table>
+                                <table><tr><td><div class="legendBrown"/></td><td>Heap size: <strong wicket:id="heapSize"/>M</td><td><div class="legendBlue"/></td><td>Heap usage: <strong wicket:id="heapUsage"/>M</td></tr></table>
                             </div>
                         </td>
                         <td>
                             <h2 class="title">Non-heap Usage (MB)</h2>
                             <div class="entry">
                                 <a href="Memory" wicket:id="nonHeapUsageGraph"></a>
-                                <table><tr><td><div class="legendBrown"/></td><td>non-heap size - <strong wicket:id="nonHeapSize"/></td><td><div class="legendBlue"/></td><td>Non-heap usage - <strong wicket:id="nonHeapUsage"/></td></tr></table>
+                                <table><tr><td><div class="legendBrown"/></td><td>non-heap size: <strong wicket:id="nonHeapSize"/>M</td><td><div class="legendBlue"/></td><td>Non-heap usage: <strong wicket:id="nonHeapUsage"/>M</td></tr></table>
                             </div>
                         </td>
                     </tr>
                 </table>
-            </div>
-            <div class="post">
                 <table>
                     <tr style="vertical-align: top;">
                         <td>

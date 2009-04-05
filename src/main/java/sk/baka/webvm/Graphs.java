@@ -26,6 +26,7 @@ import sk.baka.webvm.analyzer.HistorySample;
 import java.util.List;
 import org.apache.wicket.markup.html.basic.Label;
 import sk.baka.webvm.analyzer.HistorySampler;
+import sk.baka.webvm.analyzer.HostOS;
 import sk.baka.webvm.misc.AbstractGraph;
 import sk.baka.webvm.misc.BluffGraph;
 import sk.baka.webvm.misc.GraphStyle;
@@ -43,22 +44,12 @@ public final class Graphs extends WebVMPage {
     public Graphs() {
         final List<HistorySample> history = WicketApplication.getHistory().getVmstatHistory();
         drawGcCpuUsage(history);
-        drawMemoryUsageGraph(history, "heapUsageGraph", 0);
-        final MemoryUsage heap = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
-        border.add(new Label("heapUsage", Long.toString(heap.getUsed()) + "M"));
-        border.add(new Label("heapSize", Long.toString(heap.getCommitted()) + "M"));
-        if (MgmtUtils.isNonHeapPool()) {
-            drawMemoryUsageGraph(history, "nonHeapUsageGraph", 1);
-            final MemoryUsage nonHeap = MgmtUtils.getInMB(MgmtUtils.getNonHeapSummary());
-            border.add(new Label("nonHeapUsage", Long.toString(nonHeap.getUsed()) + "M"));
-            border.add(new Label("nonHeapSize", Long.toString(nonHeap.getCommitted()) + "M"));
-        } else {
-            border.add(new Label("nonHeapUsageGraph", "No information available"));
-            border.add(new Label("nonHeapUsage", "-"));
-            border.add(new Label("nonHeapSize", "-"));
-        }
+        drawHeap(history);
+        drawNonHeap(history);
         drawClassesGraph(history);
         drawThreadsGraph(history);
+        drawPhysMem(history);
+        drawSwap(history);
     }
 
     private void drawClassesGraph(List<HistorySample> history) {
@@ -102,6 +93,50 @@ public final class Graphs extends WebVMPage {
         unescaped("gcCPUUsageGraph", dg.draw());
         final HistorySample last = history.isEmpty() ? null : history.get(history.size() - 1);
         border.add(new Label("gcCPUUsagePerc", last == null ? "?" : Integer.toString(last.gcCpuUsage)));
+    }
+
+    private void drawHeap(final List<HistorySample> history) {
+        drawMemoryUsageGraph(history, "heapUsageGraph", HistorySample.POOL_HEAP);
+        final MemoryUsage heap = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
+        border.add(new Label("heapUsage", Long.toString(heap.getUsed())));
+        border.add(new Label("heapSize", Long.toString(heap.getCommitted())));
+    }
+
+    private void drawNonHeap(final List<HistorySample> history) {
+        if (MgmtUtils.isNonHeapPool()) {
+            drawMemoryUsageGraph(history, "nonHeapUsageGraph", HistorySample.POOL_NON_HEAP);
+            final MemoryUsage nonHeap = MgmtUtils.getInMB(MgmtUtils.getNonHeapSummary());
+            border.add(new Label("nonHeapUsage", Long.toString(nonHeap.getUsed())));
+            border.add(new Label("nonHeapSize", Long.toString(nonHeap.getCommitted())));
+        } else {
+            border.add(new Label("nonHeapUsageGraph", "No information available"));
+            border.add(new Label("nonHeapUsage", "-"));
+            border.add(new Label("nonHeapSize", "-"));
+        }
+    }
+
+    private void drawPhysMem(final List<HistorySample> history) {
+        final MemoryUsage physMem = MgmtUtils.getInMB(HostOS.getPhysicalMemory());
+        if (physMem != null) {
+            drawMemoryUsageGraph(history, "physUsageGraph", HistorySample.POOL_PHYS_MEM);
+            border.add(new Label("physCommitted", Long.toString(physMem.getCommitted())));
+            border.add(new Label("physUsed", Long.toString(physMem.getUsed())));
+        } else {
+            border.add(new Label("physUsageGraph", "No information available"));
+            border.add(new Label("physCommitted", "-"));
+            border.add(new Label("physUsed", "-"));
+        }
+    }
+
+    private void drawSwap(final List<HistorySample> history) {
+        final MemoryUsage swap = MgmtUtils.getInMB(HostOS.getSwap());
+        if (swap != null) {
+            drawMemoryUsageGraph(history, "swapUsageGraph", HistorySample.POOL_SWAP);
+            border.add(new Label("swapUsed", Long.toString(swap.getUsed())));
+        } else {
+            border.add(new Label("swapUsageGraph", "No information available"));
+            border.add(new Label("swapUsed", "-"));
+        }
     }
 
     private void drawThreadsGraph(List<HistorySample> history) {

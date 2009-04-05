@@ -40,9 +40,25 @@ public final class HistorySample {
      */
     public final long sampleTime;
     /**
-     * First is the heap usage, second is the non-heap usage. Second item may be null.
+     * The {@link MgmtUtils#getHeapFromRuntime() heap usage}.
      */
-    public final MemoryUsage[] memPoolUsage = new MemoryUsage[2];
+    public static final int POOL_HEAP = 0;
+    /**
+     * The {@link MgmtUtils#getNonHeapSummary() non-heap usage}, may be null.
+     */
+    public static final int POOL_NON_HEAP = 1;
+    /**
+     * The {@link HostOS.getPhysicalMemory() host OS physical memory}, may be null.
+     */
+    public static final int POOL_PHYS_MEM = 2;
+    /**
+     * The {@link HostOS.getSwap() swap}, may be null.
+     */
+    public static final int POOL_SWAP = 3;
+    /**
+     * The memory usage list, indexed according to the value of the <code>POOL_*</code> constants.
+     */
+    public final MemoryUsage[] memPoolUsage = new MemoryUsage[4];
     /**
      * A thread dump. Does not contain any stacktraces. Never null.
      */
@@ -60,14 +76,6 @@ public final class HistorySample {
      * @return current count of all threads.
      */
     public final int threadCount;
-    /**
-     * Host OS physical memory, may be null.
-     */
-    public final MemoryUsage hostOSPhysical;
-    /**
-     * Host OS swap memory, may be null.
-     */
-    public final MemoryUsage hostOSSwap;
 
     /**
      * Creates new history sample bean.
@@ -75,15 +83,15 @@ public final class HistorySample {
      */
     public HistorySample(final int gcCpuUsage) {
         this.gcCpuUsage = gcCpuUsage;
-        memPoolUsage[0] = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
-        memPoolUsage[1] = MgmtUtils.getInMB(MgmtUtils.getNonHeapSummary());
+        memPoolUsage[POOL_HEAP] = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
+        memPoolUsage[POOL_NON_HEAP] = MgmtUtils.getInMB(MgmtUtils.getNonHeapSummary());
         this.sampleTime = System.currentTimeMillis();
         final ThreadMXBean tbean = ManagementFactory.getThreadMXBean();
         threads = tbean.getThreadInfo(tbean.getAllThreadIds());
         threadCount = tbean.getThreadCount();
         daemonThreadCount = tbean.getDaemonThreadCount();
         classesLoaded = ManagementFactory.getClassLoadingMXBean().getLoadedClassCount();
-        hostOSPhysical = HostOS.getPhysicalMemory();
-        hostOSSwap = HostOS.getSwap();
+        memPoolUsage[POOL_PHYS_MEM] = MgmtUtils.getInMB(HostOS.getPhysicalMemory());
+        memPoolUsage[POOL_SWAP] = MgmtUtils.getInMB(HostOS.getSwap());
     }
 }
