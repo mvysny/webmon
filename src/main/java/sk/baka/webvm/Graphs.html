@@ -23,14 +23,14 @@
                         <td>
                             <h2 class="title">Heap Usage (MB)</h2>
                             <div class="entry">
-                                <div wicket:id="heapUsageGraph"></div>
+                                <a href="Memory" wicket:id="heapUsageGraph"></a>
                                 <table><tr><td><div class="legendBrown"/></td><td>Heap size - <strong wicket:id="heapSize"/></td><td><div class="legendBlue"/></td><td>Heap usage - <strong wicket:id="heapUsage"/></td></tr></table>
                             </div>
                         </td>
                         <td>
                             <h2 class="title">Non-heap Usage (MB)</h2>
                             <div class="entry">
-                                <div wicket:id="nonHeapUsageGraph"></div>
+                                <a href="Memory" wicket:id="nonHeapUsageGraph"></a>
                                 <table><tr><td><div class="legendBrown"/></td><td>non-heap size - <strong wicket:id="nonHeapSize"/></td><td><div class="legendBlue"/></td><td>Non-heap usage - <strong wicket:id="nonHeapUsage"/></td></tr></table>
                             </div>
                         </td>
@@ -51,7 +51,7 @@
                         <td>
                             <h2 class="title">Threads</h2>
                             <div class="entry">
-                                <div wicket:id="threadsGraph"></div>
+                                <a href="Threads" wicket:id="threadsGraph"></a>
                                 <table><tr><td><div class="legendBrown"/></td><td>Live threads - <strong wicket:id="liveThreads"/></td><td><div class="legendBlue"/></td><td>daemon threads - <strong wicket:id="daemonThreads"/></td></tr></table>
                                 Started since the VM start: <strong wicket:id="threadsStartedTotal"/>
                             </div>
