@@ -31,6 +31,10 @@
 								<td>Maximum memory used by a pool (%):<br/>If the memory usage goes above this value the pool name is reported. This never triggers a problem.</td>
 								<td><input input="text" size="3" maxlength="3" wicket:id="memUsageTreshold"></input></td>
 							</tr>
+							<tr>
+								<td>Maximum virtual memory used by the host OS (%):<br/>If the memory usage goes above this value a problem is triggered.</td>
+								<td><input input="text" size="3" maxlength="3" wicket:id="hostMemUsageTreshold"></input></td>
+							</tr>
 						</table>
                         <div wicket:id="feedback">[Feedback Panel]</div>
 						<input type="submit" wicket:id="submit" value="Save"/>
