@@ -25,7 +25,6 @@ import java.io.Serializable;
  * @author Martin Vysny
  */
 public final class Config implements Serializable {
-
     /**
      * Creates new config file with default settings.
      */
@@ -80,6 +79,11 @@ public final class Config implements Serializable {
      */
     @Bind(key = "memUsageTreshold", min = 0, max = 100, group = GROUP_PROBLEMS)
     public int memUsageTreshold = 90;
+    /**
+     * Triggered when the host virtual memory usage goes above this value.
+     */
+    @Bind(key = "hostMemUsageTreshold", min = 0, max = 100, group = GROUP_PROBLEMS)
+    public int hostVirtMem = 90;
     /**
      * The SMTP server host/port. If this is commented then no mails are sent.
      */

@@ -113,6 +113,14 @@ public final class ProblemAnalyzer {
     private String getMemUsageDesc() {
         return "Triggered: never. Reports memory pools which are at least " + config.memUsageTreshold + "% full";
     }
+    /**
+     * The "Host Memory" problem class.
+     */
+    public static final String CLASS_HOST_MEMORY_USAGE = "Host Virtual Mem";
+
+    private String getHostMemoryUsageDesc() {
+        return "Triggered when host uses " + config.hostVirtMem + "% or more virtual memory";
+    }
 
     /**
      * Diagnose the VM and returns a list of problem reports.
@@ -126,7 +134,44 @@ public final class ProblemAnalyzer {
         result.add(getMemStatReport());
         result.add(getGCMemUsageReport());
         result.add(getFreeDiskspaceReport());
+        result.add(getHostVirtMemReport());
         return result;
+    }
+
+    /**
+     * Prepares the {@link #CLASS_HOST_MEMORY_USAGE} report.
+     * @return report
+     */
+    public ProblemReport getHostVirtMemReport() {
+        final MemoryUsage phys = HostOS.getPhysicalMemory();
+        if (phys == null) {
+            return new ProblemReport(false, CLASS_HOST_MEMORY_USAGE, "Host memory reporting unsupported on this platform", getHostMemoryUsageDesc());
+        }
+        final boolean cbUnsupported = (phys.getCommitted() == phys.getUsed());
+        final StringBuilder sb = new StringBuilder();
+        if (cbUnsupported) {
+            sb.append("buffers/cache detection not supported, disabled\n");
+        }
+        final MemoryUsage swap = HostOS.getSwap();
+        sb.append("Physical memory used: ");
+        sb.append(phys.getCommitted() * 100 / phys.getMax());
+        sb.append("%, minus buffers/cache: ");
+        sb.append(phys.getUsed() * 100 / phys.getMax());
+        sb.append("%\nSwap used: ");
+        if (swap == null) {
+            sb.append("-");
+        } else {
+            sb.append(swap.getUsed() * 100 / swap.getMax());
+        }
+        sb.append("%\n");
+        final long total = phys.getMax() + (swap == null ? 0 : swap.getMax());
+        final long used = phys.getUsed() + (swap == null ? 0 : swap.getUsed());
+        final long usedPerc = used * 100 / total;
+        sb.append("Total virtual memory usage: ");
+        sb.append(usedPerc);
+        sb.append('%');
+        final boolean isProblem = !cbUnsupported && (usedPerc >= config.hostVirtMem);
+        return new ProblemReport(isProblem, CLASS_HOST_MEMORY_USAGE, sb.toString(), getHostMemoryUsageDesc());
     }
 
     /**
