@@ -165,6 +165,10 @@ public final class HostOS {
             final long used = total - free;
             return new MemoryUsage(-1, used * 1024, used * 1024, total * 1024);
         }
+
+        private MemoryLinuxStrategy() {
+            throw new AssertionError();
+        }
     }
 
     /**
