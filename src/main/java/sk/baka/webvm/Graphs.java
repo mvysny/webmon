@@ -50,6 +50,7 @@ public final class Graphs extends WebVMPage {
         drawThreadsGraph(history);
         drawPhysMem(history);
         drawSwap(history);
+        drawCpuUsage(history);
     }
 
     private void drawClassesGraph(List<HistorySample> history) {
@@ -76,6 +77,28 @@ public final class Graphs extends WebVMPage {
         border.add(new Label("classesCurrentlyLoaded", Integer.toString(bean.getLoadedClassCount())));
         border.add(new Label("classesLoadedTotal", Long.toString(bean.getTotalLoadedClassCount())));
         border.add(new Label("classesUnloadedTotal", Long.toString(bean.getUnloadedClassCount())));
+    }
+
+    private void drawCpuUsage(List<HistorySample> history) {
+        if (HostOS.isCpuUsageSupported()) {
+            final GraphStyle gs = new GraphStyle();
+            gs.colors = new String[]{"#7e43b2"};
+            gs.height = 120;
+            gs.width = 300;
+            gs.border = "black";
+            gs.yLegend = true;
+            final AbstractGraph dg = new BluffGraph(100, gs);
+            for (final HistorySample hs : history) {
+                dg.add(new int[]{hs.cpuUsage});
+            }
+            dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
+            unescaped("cpuUsageGraph", dg.draw());
+            final HistorySample last = history.isEmpty() ? null : history.get(history.size() - 1);
+            border.add(new Label("cpuUsagePerc", last == null ? "?" : Integer.toString(last.cpuUsage)));
+        } else {
+            add(new Label("cpuUsageGraph", "CPU measurement unsupported on this OS"));
+            add(new Label("cpuUsagePerc", "-"));
+        }
     }
 
     private void drawGcCpuUsage(final List<HistorySample> history) {
