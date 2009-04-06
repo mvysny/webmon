@@ -76,6 +76,14 @@ public final class HistorySample {
      * @return current count of all threads.
      */
     public final int threadCount;
+    /**
+     * Shows the CPU usage.
+     */
+    public final int cpuUsage;
+    /**
+     * Serves for CPU usage measurement.
+     */
+    private static final HostOS hostOS = new HostOS();
 
     /**
      * Creates new history sample bean.
@@ -93,5 +101,7 @@ public final class HistorySample {
         classesLoaded = ManagementFactory.getClassLoadingMXBean().getLoadedClassCount();
         memPoolUsage[POOL_PHYS_MEM] = MgmtUtils.getInMB(HostOS.getPhysicalMemory());
         memPoolUsage[POOL_SWAP] = MgmtUtils.getInMB(HostOS.getSwap());
+        final int usage = hostOS.getCpuUsage();
+        cpuUsage = usage < 0 ? 0 : usage;
     }
 }
