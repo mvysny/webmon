@@ -26,7 +26,7 @@ import sk.baka.webvm.analyzer.HistorySample;
 import java.util.List;
 import org.apache.wicket.markup.html.basic.Label;
 import sk.baka.webvm.analyzer.HistorySampler;
-import sk.baka.webvm.analyzer.HostOS;
+import sk.baka.webvm.analyzer.hostos.HostOS;
 import sk.baka.webvm.misc.AbstractGraph;
 import sk.baka.webvm.misc.BluffGraph;
 import sk.baka.webvm.misc.GraphStyle;

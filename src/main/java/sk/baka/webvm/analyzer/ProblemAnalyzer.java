@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm.analyzer;
 
+import sk.baka.webvm.analyzer.hostos.HostOS;
 import java.io.File;
 import sk.baka.webvm.misc.*;
 import java.lang.management.ManagementFactory;
