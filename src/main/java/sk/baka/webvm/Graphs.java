@@ -38,6 +38,9 @@ import sk.baka.webvm.misc.MgmtUtils;
  */
 public final class Graphs extends WebVMPage {
 
+    public static final String COLOR_BLUE = "#7e43b2";
+    public static final String COLOR_BROWN = "#ff7f7f";
+
     /**
      * Creates the page instance.
      */
@@ -55,7 +58,7 @@ public final class Graphs extends WebVMPage {
 
     private void drawClassesGraph(List<HistorySample> history) {
         final GraphStyle gs = new GraphStyle();
-        gs.colors = new String[]{"#ff7f7f"};
+        gs.colors = new String[]{COLOR_BROWN};
         gs.height = 120;
         gs.width = 300;
         gs.border = "black";
@@ -80,30 +83,34 @@ public final class Graphs extends WebVMPage {
     }
 
     private void drawCpuUsage(List<HistorySample> history) {
-        if (HistorySample.cpuOS.supported()) {
+        final boolean hostCpu = HistorySample.cpuOS.supported();
+        final boolean javaCpu = HistorySample.cpuJava.supported();
+        if (hostCpu || javaCpu) {
             final GraphStyle gs = new GraphStyle();
-            gs.colors = new String[]{"#7e43b2"};
+            gs.colors = new String[]{COLOR_BLUE, COLOR_BROWN};
             gs.height = 120;
             gs.width = 300;
             gs.border = "black";
             gs.yLegend = true;
             final AbstractGraph dg = new BluffGraph(100, gs);
             for (final HistorySample hs : history) {
-                dg.add(new int[]{hs.cpuUsage});
+                dg.add(new int[]{hs.cpuJavaUsage, hs.cpuUsage});
             }
             dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
             unescaped("cpuUsageGraph", dg.draw());
             final HistorySample last = history.isEmpty() ? null : history.get(history.size() - 1);
-            border.add(new Label("cpuUsagePerc", last == null ? "?" : Integer.toString(last.cpuUsage)));
+            border.add(new Label("cpuUsagePerc", last == null || !hostCpu ? "?" : Integer.toString(last.cpuUsage)));
+            border.add(new Label("javaCpuUsagePerc", last == null || !javaCpu ? "?" : Integer.toString(last.cpuJavaUsage)));
         } else {
-            add(new Label("cpuUsageGraph", "CPU measurement unsupported on this OS"));
+            add(new Label("cpuUsageGraph", "Both HostOS CPU measurement and Java CPU usage measurement are unsupported on this OS/JavaVM"));
             add(new Label("cpuUsagePerc", "-"));
+            add(new Label("javaCpuUsagePerc", "-"));
         }
     }
 
     private void drawGcCpuUsage(final List<HistorySample> history) {
         final GraphStyle gs = new GraphStyle();
-        gs.colors = new String[]{"#7e43b2"};
+        gs.colors = new String[]{COLOR_BLUE};
         gs.height = 120;
         gs.width = 300;
         gs.border = "black";
@@ -164,7 +171,7 @@ public final class Graphs extends WebVMPage {
 
     private void drawThreadsGraph(List<HistorySample> history) {
         final GraphStyle gs = new GraphStyle();
-        gs.colors = new String[]{"#7e43b2", "#ff7f7f"};
+        gs.colors = new String[]{COLOR_BLUE, COLOR_BROWN};
         gs.height = 120;
         gs.width = 300;
         gs.border = "black";
