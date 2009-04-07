@@ -18,9 +18,11 @@
  */
 package sk.baka.webvm.analyzer.hostos;
 
+import java.lang.management.OperatingSystemMXBean;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.lang.management.ManagementFactory;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -82,7 +84,7 @@ public final class Cpu {
             try {
                 cpuMeasurement = cpuUsage.measure();
             } catch (Exception ex) {
-                log.log(Level.SEVERE, null, ex);
+                log.log(Level.SEVERE, "Failed to measure a CPU usage", ex);
                 return -1;
             }
             return 0;
@@ -91,7 +93,7 @@ public final class Cpu {
         try {
             newMeasurement = cpuUsage.measure();
         } catch (Exception ex) {
-            log.log(Level.SEVERE, null, ex);
+            log.log(Level.SEVERE, "Failed to measure a CPU usage", ex);
             return -1;
         }
         final int result = cpuUsage.getAvgCpuUsage(cpuMeasurement, newMeasurement);
@@ -175,21 +177,31 @@ public final class Cpu {
     private static class JavaCpuUsageStrategy implements ICpuUsage {
 
         private final static int numberOfProcessors = Runtime.getRuntime().availableProcessors();
+        private static final OperatingSystemMXBean BEAN;
+        private static final Class<?> BEAN_CLASS;
+
+
+        static {
+            OperatingSystemMXBean b = null;
+            Class<?> clazz = null;
+            try {
+                clazz = Class.forName("com.sun.management.OperatingSystemMXBean");
+                b = OperatingSystemMXBean.class.cast(clazz.cast(ManagementFactory.getOperatingSystemMXBean()));
+            } catch (Throwable ex) {
+                log.log(Level.INFO, "MemoryJMXStrategy disabled: com.sun.management.OperatingSystemMXBean unavailable", ex);
+            }
+            BEAN = b;
+            BEAN_CLASS = clazz;
+        }
 
         public boolean supported() {
-            try {
-                Class.forName("com.sun.management.OperatingSystemMXBean");
-                return true;
-            } catch (ClassNotFoundException ex) {
-                return false;
-            }
+            return BEAN != null;
         }
 
         public Object measure() throws Exception {
-            final Class<?> bean = Class.forName("com.sun.management.OperatingSystemMXBean");
-            long processCpuTime = (Long) bean.getMethod("getProcessCpuTime").invoke(bean);
+            long processCpuTime = (Long) BEAN_CLASS.getMethod("getProcessCpuTime").invoke(BEAN);
             processCpuTime = processCpuTime / numberOfProcessors;
-            long totalCpuTime = System.currentTimeMillis();
+            long totalCpuTime = System.nanoTime();
             return new long[]{processCpuTime, totalCpuTime};
         }
 

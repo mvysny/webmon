@@ -177,17 +177,19 @@ public final class Memory {
     private static class MemoryJMXStrategy {
 
         private static final OperatingSystemMXBean BEAN;
-
+        private static final Class<?> BEAN_CLASS;
 
         static {
             OperatingSystemMXBean b = null;
+            Class<?> clazz = null;
             try {
-                final Class<?> comSunBean = Class.forName("com.sun.management.OperatingSystemMXBean");
-                b = OperatingSystemMXBean.class.cast(comSunBean.cast(ManagementFactory.getOperatingSystemMXBean()));
+                clazz = Class.forName("com.sun.management.OperatingSystemMXBean");
+                b = OperatingSystemMXBean.class.cast(clazz.cast(ManagementFactory.getOperatingSystemMXBean()));
             } catch (Throwable ex) {
                 log.log(Level.INFO, "MemoryJMXStrategy disabled: com.sun.management.OperatingSystemMXBean unavailable", ex);
             }
             BEAN = b;
+            BEAN_CLASS = clazz;
         }
 
         /**
@@ -207,9 +209,8 @@ public final class Memory {
                 return null;
             }
             try {
-                final Class<?> comSunBean = Class.forName("com.sun.management.OperatingSystemMXBean");
-                final long total = (Long) comSunBean.getMethod("getTotalPhysicalMemorySize").invoke(BEAN);
-                final long free = (Long) comSunBean.getMethod("getFreePhysicalMemorySize").invoke(BEAN);
+                final long total = (Long) BEAN_CLASS.getMethod("getTotalPhysicalMemorySize").invoke(BEAN);
+                final long free = (Long) BEAN_CLASS.getMethod("getFreePhysicalMemorySize").invoke(BEAN);
                 final long used = total - free;
                 return new MemoryUsage(-1, used, used, total);
             } catch (Throwable t) {
@@ -226,9 +227,8 @@ public final class Memory {
                 return null;
             }
             try {
-                final Class<?> comSunBean = Class.forName("com.sun.management.OperatingSystemMXBean");
-                final long total = (Long) comSunBean.getMethod("getTotalSwapSpaceSize").invoke(BEAN);
-                final long free = (Long) comSunBean.getMethod("getFreeSwapSpaceSize").invoke(BEAN);
+                final long total = (Long) BEAN_CLASS.getMethod("getTotalSwapSpaceSize").invoke(BEAN);
+                final long free = (Long) BEAN_CLASS.getMethod("getFreeSwapSpaceSize").invoke(BEAN);
                 final long used = total - free;
                 return new MemoryUsage(-1, used, used, total);
             } catch (Throwable t) {
