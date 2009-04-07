@@ -95,6 +95,7 @@ public final class Configure extends WebVMPage {
         });
     }
 
+    @SuppressWarnings("unchecked")
     private static void bind(final MarkupContainer c, final Object bean, final int group) {
         for (final Field field : bean.getClass().getFields()) {
             final Bind annotation = field.getAnnotation(Bind.class);
@@ -112,11 +113,12 @@ public final class Configure extends WebVMPage {
             } else if (annotation.password()) {
                 f = new PasswordTextField(annotation.key(), new PropertyModel<String>(bean, field.getName()));
             } else {
-                f = new TextField<Object>(annotation.key(), new PropertyModel<Object>(bean, field.getName()));
+                final TextField<Object> tf = new TextField<Object>(annotation.key(), new PropertyModel<Object>(bean, field.getName()));
                 if ((annotation.min() != Integer.MIN_VALUE) || (annotation.max() != Integer.MAX_VALUE)) {
                     // we know there will be only ints annotated
-                    f.add((IValidator) new RangeValidator<Integer>(annotation.min(), annotation.max()));
+                    tf.add((IValidator) new RangeValidator<Integer>(annotation.min(), annotation.max()));
                 }
+                f = tf;
             }
             f.setRequired(annotation.required());
             c.add(f);
