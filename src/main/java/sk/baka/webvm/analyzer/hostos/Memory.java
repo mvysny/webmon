@@ -34,9 +34,9 @@ import org.apache.commons.io.IOUtils;
  * Delivers information from a host operating system.
  * @author Martin Vysny
  */
-public final class HostOS {
+public final class Memory {
 
-    private final static Logger log = Logger.getLogger(HostOS.class.getName());
+    private final static Logger log = Logger.getLogger(Memory.class.getName());
 
     /**
      * Returns physical memory information for host OS.
@@ -241,7 +241,7 @@ public final class HostOS {
         }
     }
 
-    private HostOS() {
+    private Memory() {
         throw new AssertionError();
     }
 }

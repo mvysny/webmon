@@ -26,7 +26,7 @@ import sk.baka.webvm.analyzer.HistorySample;
 import java.util.List;
 import org.apache.wicket.markup.html.basic.Label;
 import sk.baka.webvm.analyzer.HistorySampler;
-import sk.baka.webvm.analyzer.hostos.HostOS;
+import sk.baka.webvm.analyzer.hostos.Memory;
 import sk.baka.webvm.misc.AbstractGraph;
 import sk.baka.webvm.misc.BluffGraph;
 import sk.baka.webvm.misc.GraphStyle;
@@ -139,7 +139,7 @@ public final class Graphs extends WebVMPage {
     }
 
     private void drawPhysMem(final List<HistorySample> history) {
-        final MemoryUsage physMem = MgmtUtils.getInMB(HostOS.getPhysicalMemory());
+        final MemoryUsage physMem = MgmtUtils.getInMB(Memory.getPhysicalMemory());
         if (physMem != null) {
             drawMemoryUsageGraph(history, "physUsageGraph", HistorySample.POOL_PHYS_MEM);
             border.add(new Label("physCommitted", Long.toString(physMem.getCommitted())));
@@ -152,7 +152,7 @@ public final class Graphs extends WebVMPage {
     }
 
     private void drawSwap(final List<HistorySample> history) {
-        final MemoryUsage swap = MgmtUtils.getInMB(HostOS.getSwap());
+        final MemoryUsage swap = MgmtUtils.getInMB(Memory.getSwap());
         if (swap != null) {
             drawMemoryUsageGraph(history, "swapUsageGraph", HistorySample.POOL_SWAP);
             border.add(new Label("swapUsed", Long.toString(swap.getUsed())));

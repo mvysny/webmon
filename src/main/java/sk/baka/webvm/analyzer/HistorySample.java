@@ -18,7 +18,7 @@
  */
 package sk.baka.webvm.analyzer;
 
-import sk.baka.webvm.analyzer.hostos.HostOS;
+import sk.baka.webvm.analyzer.hostos.Memory;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadInfo;
@@ -109,8 +109,8 @@ public final class HistorySample {
         threadCount = tbean.getThreadCount();
         daemonThreadCount = tbean.getDaemonThreadCount();
         classesLoaded = ManagementFactory.getClassLoadingMXBean().getLoadedClassCount();
-        memPoolUsage[POOL_PHYS_MEM] = MgmtUtils.getInMB(HostOS.getPhysicalMemory());
-        memPoolUsage[POOL_SWAP] = MgmtUtils.getInMB(HostOS.getSwap());
+        memPoolUsage[POOL_PHYS_MEM] = MgmtUtils.getInMB(Memory.getPhysicalMemory());
+        memPoolUsage[POOL_SWAP] = MgmtUtils.getInMB(Memory.getSwap());
         final int usage = cpuOS.getCpuUsage();
         cpuUsage = usage < 0 ? 0 : usage;
         final int javaUsage = cpuJava.getCpuUsage();

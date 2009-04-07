@@ -18,7 +18,7 @@
  */
 package sk.baka.webvm.analyzer;
 
-import sk.baka.webvm.analyzer.hostos.HostOS;
+import sk.baka.webvm.analyzer.hostos.Memory;
 import java.io.File;
 import sk.baka.webvm.misc.*;
 import java.lang.management.ManagementFactory;
@@ -144,7 +144,7 @@ public final class ProblemAnalyzer {
      * @return report
      */
     public ProblemReport getHostVirtMemReport() {
-        final MemoryUsage phys = HostOS.getPhysicalMemory();
+        final MemoryUsage phys = Memory.getPhysicalMemory();
         if (phys == null) {
             return new ProblemReport(false, CLASS_HOST_MEMORY_USAGE, "Host memory reporting unsupported on this platform", getHostMemoryUsageDesc());
         }
@@ -153,7 +153,7 @@ public final class ProblemAnalyzer {
         if (cbUnsupported) {
             sb.append("buffers/cache detection not supported, disabled\n");
         }
-        final MemoryUsage swap = HostOS.getSwap();
+        final MemoryUsage swap = Memory.getSwap();
         sb.append("Physical memory used: ");
         sb.append(phys.getCommitted() * 100 / phys.getMax());
         sb.append("%, minus buffers/cache: ");
