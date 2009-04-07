@@ -23,6 +23,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+import sk.baka.webvm.analyzer.hostos.Cpu;
 import sk.baka.webvm.misc.MgmtUtils;
 
 /**
@@ -78,13 +79,21 @@ public final class HistorySample {
      */
     public final int threadCount;
     /**
-     * Shows the CPU usage.
+     * Shows the host OS CPU usage.
      */
     public final int cpuUsage;
     /**
-     * Serves for CPU usage measurement.
+     * Shows the owner java process CPU usage.
      */
-    private static final HostOS hostOS = new HostOS();
+    public final int cpuJavaUsage;
+    /**
+     * Serves for Host OS CPU usage measurement.
+     */
+    public static final Cpu cpuOS = Cpu.newHostCpu();
+    /**
+     * Serves for Java CPU usage measurement.
+     */
+    public static final Cpu cpuJava = Cpu.newJavaCpu();
 
     /**
      * Creates new history sample bean.
@@ -102,7 +111,9 @@ public final class HistorySample {
         classesLoaded = ManagementFactory.getClassLoadingMXBean().getLoadedClassCount();
         memPoolUsage[POOL_PHYS_MEM] = MgmtUtils.getInMB(HostOS.getPhysicalMemory());
         memPoolUsage[POOL_SWAP] = MgmtUtils.getInMB(HostOS.getSwap());
-        final int usage = hostOS.getCpuUsage();
+        final int usage = cpuOS.getCpuUsage();
         cpuUsage = usage < 0 ? 0 : usage;
+        final int javaUsage = cpuJava.getCpuUsage();
+        cpuJavaUsage = javaUsage < 0 ? 0 : javaUsage;
     }
 }

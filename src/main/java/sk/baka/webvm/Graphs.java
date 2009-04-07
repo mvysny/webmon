@@ -80,7 +80,7 @@ public final class Graphs extends WebVMPage {
     }
 
     private void drawCpuUsage(List<HistorySample> history) {
-        if (HostOS.isCpuUsageSupported()) {
+        if (HistorySample.cpuOS.supported()) {
             final GraphStyle gs = new GraphStyle();
             gs.colors = new String[]{"#7e43b2"};
             gs.height = 120;
