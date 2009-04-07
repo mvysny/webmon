@@ -247,7 +247,7 @@ public final class HostOS {
 
 
     {
-        ICpuUsage imp1 = new CpuUsageLinux();
+        ICpuUsage imp1 = new CpuUsageLinuxStrategy();
         if (imp1.supported()) {
             cpuUsage = imp1;
         } else {
@@ -260,7 +260,7 @@ public final class HostOS {
      * @return true if supported, false otherwise.
      */
     public static boolean isCpuUsageSupported() {
-        return new CpuUsageLinux().supported();
+        return new CpuUsageLinuxStrategy().supported();
     }
 
     /**
@@ -320,7 +320,10 @@ public final class HostOS {
         int getAvgCpuUsage(final Object m1, final Object m2);
     }
 
-    private static class CpuUsageLinux implements ICpuUsage {
+    /**
+     * Returns a Host OS CPU usage information.
+     */
+    private static class CpuUsageLinuxStrategy implements ICpuUsage {
 
         private final File procStat = new File("/proc/stat");
 
@@ -354,8 +357,40 @@ public final class HostOS {
         public int getAvgCpuUsage(Object m1, Object m2) {
             final long[] me1 = (long[]) m1;
             final long[] me2 = (long[]) m2;
-            final long cpuUsage = (me2[3] - me1[3]) * 100 / (me2[0] + me2[1] + me2[2] + me2[3] - me1[0] - me1[1] - me1[2] - me1[3]);
-            return 100 - ((int) cpuUsage);
+            final long cpuIdle = (me2[3] - me1[3]) * 100 / (me2[0] + me2[1] + me2[2] + me2[3] - me1[0] - me1[1] - me1[2] - me1[3]);
+            return 100 - ((int) cpuIdle);
+        }
+    }
+
+    /**
+     * Returns the Java process CPU usage information.
+     */
+    private static class JavaCpuUsageStrategy implements ICpuUsage {
+
+        private final static int numberOfProcessors = Runtime.getRuntime().availableProcessors();
+
+        public boolean supported() {
+            try {
+                Class.forName("com.sun.management.OperatingSystemMXBean");
+                return true;
+            } catch (ClassNotFoundException ex) {
+                return false;
+            }
+        }
+
+        public Object measure() throws Exception {
+            final Class<?> bean = Class.forName("com.sun.management.OperatingSystemMXBean");
+            long processCpuTime = (Long) bean.getMethod("getProcessCpuTime").invoke(bean);
+            processCpuTime = processCpuTime / numberOfProcessors;
+            long totalCpuTime = System.currentTimeMillis();
+            return new long[]{processCpuTime, totalCpuTime};
+        }
+
+        public int getAvgCpuUsage(Object m1, Object m2) {
+            final long[] me1 = (long[]) m1;
+            final long[] me2 = (long[]) m2;
+            final long cpuUsage = (me2[0] - me1[0]) * 100 / (me2[1] - me1[1]);
+            return (int) cpuUsage;
         }
     }
 }
