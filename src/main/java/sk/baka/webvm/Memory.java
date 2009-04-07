@@ -33,7 +33,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import sk.baka.webvm.analyzer.HostOS;
+import sk.baka.webvm.analyzer.hostos.HostOS;
 import sk.baka.webvm.misc.MgmtUtils;
 
 /**

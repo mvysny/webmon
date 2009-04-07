@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm.analyzer;
 
+import sk.baka.webvm.analyzer.hostos.HostOS;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadInfo;
