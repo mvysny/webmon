@@ -172,7 +172,6 @@ public final class MgmtUtils {
         final SortedMap<String, MemoryPoolMXBean> pools = new TreeMap<String, MemoryPoolMXBean>();
         final List<MemoryPoolMXBean> beans = ManagementFactory.getMemoryPoolMXBeans();
         if (beans != null && !beans.isEmpty()) {
-            final StringBuilder sb = new StringBuilder();
             for (final MemoryPoolMXBean bean : beans) {
                 final MemoryUsage usage = bean.getUsage();
                 if (usage == null || !bean.isUsageThresholdSupported()) {
