@@ -114,10 +114,10 @@ public final class Jndi extends WebVMPage {
                     try {
                         listUnprotected(ctx, parent, pair, depth);
                     } catch (final Exception e) {
+                        log.log(Level.SEVERE, "JNDI examination error", e);
                         final StringBuilder sb = new StringBuilder();
-                        sb.append("Failed to examine ");
                         sb.append(pair.getName());
-                        sb.append(": ");
+                        sb.append(": Failed to examine: ");
                         sb.append(e.toString());
                         addWarningNode(parent, sb.toString());
                     }
@@ -126,79 +126,25 @@ public final class Jndi extends WebVMPage {
                 closeQuietly(ne);
             }
         } catch (Exception ex) {
+            log.log(Level.SEVERE, "JNDI examination error", ex);
             String name = "[unknown]";
             try {
                 name = ctx.getNameInNamespace();
             } catch (Exception e) {
                 // do nothing
             }
-            addWarningNode(parent, "Failed to examine " + name + ": " + ex.toString());
+            addWarningNode(parent, name + ": Failed to examine: " + ex.toString());
         }
     }
     private static final int MAX_DEPTH = 5;
 
     private static void listUnprotected(final Context ctx, final MutableTreeNode parent, final NameClassPair pair, final int depth)
             throws NamingException, ClassNotFoundException {
-        final StringBuilder sb = new StringBuilder();
-        final String name = pair.getName();
-        sb.append(name);
-        boolean recursive = false;
-        boolean isLinkRef = false;
-        boolean isProxy = false;
-        boolean classLoadFailure = false;
-        Class<?> clazz = null;
-        try {
-            clazz = loadClass(pair, ctx);
-            recursive = Context.class.isAssignableFrom(clazz);
-            isLinkRef = LinkRef.class.isAssignableFrom(clazz);
-            isProxy = Proxy.isProxyClass(clazz) || pair.getClassName().startsWith("$Proxy");
-        } catch (ClassNotFoundException ex) {
-            classLoadFailure = true;
-        }
-        // Display reference targets
-        if (isLinkRef) {
-            final Object obj = ctx.lookupLink(name);
-            final LinkRef link = (LinkRef) obj;
-            sb.append("[link -> ");
-            sb.append(link.getLinkName());
-            sb.append(']');
-        }
-        // Display proxy interfaces
-        if (isProxy) {
-            sb.append(" (proxy: " + pair.getClassName());
-            final Class<?>[] ifaces = clazz.getInterfaces();
-            sb.append(" implements ");
-            for (int i = 0; i < ifaces.length; i++) {
-                sb.append(ifaces[i]);
-                sb.append(',');
-            }
-            sb.setCharAt(sb.length() - 1, ')');
-        } else if (recursive) {
-            sb.append(" (Context)");
-        } else {
-            sb.append(" (class: ");
-            sb.append(pair.getClassName());
-            sb.append(")");
-        }
-        if (classLoadFailure) {
-            sb.append(" - failed to load class");
-        }
-        if (String.class.isAssignableFrom(clazz)) {
-            sb.append(": ");
-            final String str = (String) ctx.lookup(name);
-            if (str == null) {
-                sb.append("null");
-            } else {
-                sb.append("\"");
-                sb.append(str);
-                sb.append("\"");
-            }
-        }
-        final MutableTreeNode node = new DefaultMutableTreeNode(sb.toString());
-        if (recursive) {
+        final JndiTreeNode node = new JndiTreeNode(ctx, pair);
+        if (node.isContext) {
             //sometimes there is an StackOverflow exception, we rather check it with primitive condition
             if (depth < MAX_DEPTH) {
-                final Object value = ctx.lookup(name);
+                final Object value = ctx.lookup(pair.getName());
                 final Context subctx = (Context) value;
                 list(subctx, node, depth + 1);
             } else {
@@ -211,33 +157,6 @@ public final class Jndi extends WebVMPage {
     private static void addWarningNode(final MutableTreeNode node,
             final String text) {
         node.insert(new DefaultMutableTreeNode(text), node.getChildCount());
-    }
-
-    /**
-     * Try to get the class from given JNDI pair.
-     *
-     * @param pair
-     *            the pair
-     * @param ctx
-     *            the context
-     * @return non-<code>null</code> class instance.
-     * @throws ClassNotFoundException
-     * @throws NamingException
-     */
-    private static Class<?> loadClass(final NameClassPair pair,
-            final Context ctx) throws ClassNotFoundException, NamingException {
-        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        try {
-            return loader.loadClass(pair.getClassName());
-        } catch (ClassNotFoundException e) {
-            if (!pair.getClassName().startsWith("$Proxy")) {
-                throw e;
-            }
-        // try some other methods of obtaining the class.
-        }
-        // We have to get the class from the binding
-        final Object p = ctx.lookup(pair.getName());
-        return p.getClass();
     }
 
     /**
@@ -254,4 +173,123 @@ public final class Jndi extends WebVMPage {
         }
     }
     private final static Logger log = Logger.getLogger(Jndi.class.getName());
+
+    /**
+     * A model object which constructs itself from given JNDI information.
+     */
+    private static class JndiTreeNode extends DefaultMutableTreeNode {
+
+        /**
+         * true if given nameclass pair is a context which may contain other pairs.
+         */
+        private boolean isContext = false;
+        /**
+         * true if given nameclass pair is a reference object.
+         */
+        private boolean isLinkRef = false;
+        /**
+         * true if given nameclass pair is a proxy object.
+         */
+        private boolean isProxy = false;
+        /**
+         * true if given nameclass pair class was not found.
+         */
+        private Throwable classLoadFailure = null;
+
+        /**
+         * Creates new node model object from given JNDI pair.
+         * @param ctx the context instance
+         * @param pair the name class pair
+         * @throws javax.naming.NamingException
+         */
+        public JndiTreeNode(final Context ctx, final NameClassPair pair) throws NamingException {
+            super();
+            final StringBuilder sb = new StringBuilder();
+            final String name = pair.getName();
+            sb.append(name);
+            Class<?> clazz = null;
+            try {
+                clazz = loadClass(pair, ctx);
+                isContext = Context.class.isAssignableFrom(clazz);
+                isLinkRef = LinkRef.class.isAssignableFrom(clazz);
+                isProxy = Proxy.isProxyClass(clazz) || pair.getClassName().startsWith("$Proxy");
+            } catch (ClassNotFoundException ex) {
+                classLoadFailure = ex;
+            }
+            // Display reference targets
+            if (isLinkRef) {
+                final Object obj = ctx.lookupLink(name);
+                final LinkRef link = (LinkRef) obj;
+                sb.append("[link -> ");
+                sb.append(link.getLinkName());
+                sb.append(']');
+            }
+            // Display proxy interfaces
+            if (isProxy) {
+                sb.append(" (proxy: " + pair.getClassName());
+                final Class<?>[] ifaces = clazz.getInterfaces();
+                sb.append(" implements ");
+                for (int i = 0; i < ifaces.length; i++) {
+                    sb.append(ifaces[i]);
+                    sb.append(',');
+                }
+                sb.setCharAt(sb.length() - 1, ')');
+            } else if (isContext) {
+                sb.append(" (Context)");
+            } else {
+                sb.append(" (class: ");
+                sb.append(pair.getClassName());
+                sb.append(")");
+            }
+            if (classLoadFailure != null) {
+                sb.append(" - failed to load class: ");
+                sb.append(classLoadFailure.toString());
+            } else {
+                if (String.class.isAssignableFrom(clazz)) {
+                    sb.append(": ");
+                    final String str = (String) ctx.lookup(name);
+                    if (str == null) {
+                        sb.append("null");
+                    } else {
+                        sb.append("\"");
+                        sb.append(str);
+                        sb.append("\"");
+                    }
+                }
+            }
+            setUserObject(sb.toString());
+        }
+
+        /**
+         * Try to get the class from given JNDI pair.
+         *
+         * @param pair
+         *            the pair
+         * @param ctx
+         *            the context
+         * @return non-<code>null</code> class instance.
+         * @throws ClassNotFoundException
+         * @throws NamingException
+         */
+        private static Class<?> loadClass(final NameClassPair pair,
+                final Context ctx) throws ClassNotFoundException, NamingException {
+            final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            try {
+                return loader.loadClass(pair.getClassName());
+            } catch (ClassNotFoundException e) {
+                if (!pair.getClassName().startsWith("$Proxy")) {
+                    throw e;
+                }
+            // try some other methods of obtaining the class.
+            }
+            // We have to get the class from the binding
+            final Object p = ctx.lookup(pair.getName());
+            return p.getClass();
+        }
+
+        @Override
+        public boolean isLeaf() {
+            return !isContext;
+        }
+    }
 }
