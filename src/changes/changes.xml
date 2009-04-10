@@ -23,24 +23,38 @@
         <author email="vysny@baka.sk">Martin Vysny</author>
     </properties>
     <body>
-        <release version="0.3" date="1. April 2009">
+        <release version="0.4" date="?">
+        		<action dev="vyzivus" type="add">
+        			Simple profiler.
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			JMX browser.
+        		</action>
+        		<action dev="vyzivus" type="fix">
+        			Fixed: saving the configuration fails
+        		</action>
+        </release>
+        <release version="0.3" date="10. April 2009">
+        		<action dev="vyzivus" type="update">
+        			Known bug: saving the configuration fails. A bug in Wicket: http://issues.apache.org/jira/browse/WICKET-2134
+        		</action>
         		<action dev="vyzivus" type="add">
         			Added support for Java process CPU usage measurement. Enabled only when
         			JavaVM provides the com.sun.management.OperatingSystemMXBean class.
         		</action>
         		<action dev="vyzivus" type="add">
-        			Added support for Host CPU usage measurement on Linux;
+        			Added support for Host CPU usage measurement (currently Linux only)
         		</action>
         		<action dev="vyzivus" type="add">
         			Added Host OS memory graphs and problem analyzer. Full memory stats only
-        			on Linux; partial memory status only when JavaVM provides the
+        			on Linux; partial memory status only available when JavaVM provides the
         			com.sun.management.OperatingSystemMXBean class.
         		</action>
         		<action dev="vyzivus" type="update">
         			Graphs are now linked to appropriate pages.
         		</action>
         		<action dev="vyzivus" type="update">
-        			Configuration split to separate groups.
+        			Configuration split to separate groups for easier editing.
         		</action>
         		<action dev="vyzivus" type="add">
         			Implemented a classloader resources search
@@ -69,7 +83,7 @@
         			Non-Heap memory usage is now displayed as well
         		</action>
         		<action dev="vyzivus" type="update">
-        			HomePage now shows a progress bar showing memory usage
+        			The Memory page now shows a progress bar showing memory usage
         		</action>
         		<action dev="vyzivus" type="add">
         			Implemented a simple thread dump.
