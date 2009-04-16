@@ -40,6 +40,7 @@ public final class Graphs extends WebVMPage {
 
     public static final String COLOR_BLUE = "#7e43b2";
     public static final String COLOR_BROWN = "#ff7f7f";
+    public static final String COLOR_DARKGREY = "#888888";
 
     /**
      * Creates the page instance.
@@ -53,7 +54,7 @@ public final class Graphs extends WebVMPage {
         drawThreadsGraph(history);
         drawPhysMem(history);
         drawSwap(history);
-        drawCpuUsage(history);
+        drawHostCpuUsage(history);
     }
 
     private void drawClassesGraph(List<HistorySample> history) {
@@ -82,29 +83,33 @@ public final class Graphs extends WebVMPage {
         border.add(new Label("classesUnloadedTotal", Long.toString(bean.getUnloadedClassCount())));
     }
 
-    private void drawCpuUsage(List<HistorySample> history) {
+    private void drawHostCpuUsage(List<HistorySample> history) {
         final boolean hostCpu = HistorySample.cpuOS.supported();
         final boolean javaCpu = HistorySample.cpuJava.supported();
-        if (hostCpu || javaCpu) {
+        final boolean hostIOCpu = HistorySample.cpuOSIO.supported();
+        if (hostCpu || javaCpu || hostIOCpu) {
             final GraphStyle gs = new GraphStyle();
-            gs.colors = new String[]{COLOR_BLUE, COLOR_BROWN};
+            gs.colors = new String[]{COLOR_BLUE, COLOR_BROWN, COLOR_DARKGREY};
             gs.height = 120;
             gs.width = 300;
             gs.border = "black";
             gs.yLegend = true;
             final AbstractGraph dg = new BluffGraph(100, gs);
+            dg.makeAscending = true;
             for (final HistorySample hs : history) {
-                dg.add(new int[]{hs.cpuJavaUsage, hs.cpuUsage});
+                dg.add(new int[]{hs.cpuJavaUsage, hs.cpuUsage, hs.cpuIOUsage + hs.cpuUsage});
             }
             dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
             unescaped("cpuUsageGraph", dg.draw());
             final HistorySample last = history.isEmpty() ? null : history.get(history.size() - 1);
             border.add(new Label("cpuUsagePerc", last == null || !hostCpu ? "?" : Integer.toString(last.cpuUsage)));
             border.add(new Label("javaCpuUsagePerc", last == null || !javaCpu ? "?" : Integer.toString(last.cpuJavaUsage)));
+            border.add(new Label("iowait", last == null || !hostIOCpu ? "?" : Integer.toString(last.cpuIOUsage)));
         } else {
             add(new Label("cpuUsageGraph", "Both HostOS CPU measurement and Java CPU usage measurement are unsupported on this OS/JavaVM"));
             add(new Label("cpuUsagePerc", "-"));
             add(new Label("javaCpuUsagePerc", "-"));
+            add(new Label("iowait", "-"));
         }
     }
 

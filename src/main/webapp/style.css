@@ -397,3 +397,10 @@ div.legendBlue {
     height: 8px;
     background-color: #7e43b2;
 }
+
+div.legendGrey {
+    border: 1px solid #000000;
+    width: 15px;
+    height: 8px;
+    background-color: #888888;
+}
