@@ -51,16 +51,28 @@ public abstract class AbstractGraph {
         this.max = max;
         this.style = style;
     }
+    /**
+     * Automatically make incoming values ascending.
+     */
+    public boolean makeAscending = false;
 
     /**
-     * Adds given value array to the graph.
-     * @param values the values to add. There must be exactly one value for each {@link GraphStyle#colors graph column}. The array is modified by sorting the array.
+     * Adds given value array to the graph. The array must be ascending.
+     * @param values the values to add. There must be exactly one value for each {@link GraphStyle#colors graph column}.
      */
     public void add(final int[] values) {
         if (values.length != style.colors.length) {
             throw new IllegalArgumentException("Expected " + style.colors.length + " columns but got " + values.length);
         }
-        Arrays.sort(values);
+        for (int i = 0; i < values.length - 1; i++) {
+            if (values[i] > values[i + 1]) {
+                if (!makeAscending) {
+                    throw new IllegalArgumentException("Array " + Arrays.toString(values) + " is not ascending");
+                } else {
+                    values[i + 1] = values[i];
+                }
+            }
+        }
         this.values.add(values);
     }
 

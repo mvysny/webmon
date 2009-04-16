@@ -87,6 +87,10 @@ public final class HistorySample {
      */
     public final int cpuJavaUsage;
     /**
+     * Shows the host OS CPU IO usage.
+     */
+    public final int cpuIOUsage;
+    /**
      * Serves for Host OS CPU usage measurement.
      */
     public static final Cpu cpuOS = Cpu.newHostCpu();
@@ -94,6 +98,10 @@ public final class HistorySample {
      * Serves for Java CPU usage measurement.
      */
     public static final Cpu cpuJava = Cpu.newJavaCpu();
+    /**
+     * Serves for Host OS CPU IO usage measurement.
+     */
+    public static final Cpu cpuOSIO = Cpu.newHostIOCpu();
 
     /**
      * Creates new history sample bean.
@@ -115,5 +123,7 @@ public final class HistorySample {
         cpuUsage = usage < 0 ? 0 : usage;
         final int javaUsage = cpuJava.getCpuUsage();
         cpuJavaUsage = javaUsage < 0 ? 0 : javaUsage;
+        final int ioUsage = cpuOSIO.getCpuUsage();
+        cpuIOUsage = ioUsage < 0 ? 0 : ioUsage;
     }
 }

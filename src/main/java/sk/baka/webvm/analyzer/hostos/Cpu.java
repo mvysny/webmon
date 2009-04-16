@@ -23,6 +23,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.lang.management.ManagementFactory;
+import java.util.Collections;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,6 +56,14 @@ public final class Cpu {
      */
     public static Cpu newHostCpu() {
         return new Cpu(new CpuUsageLinuxStrategy());
+    }
+
+    /**
+     * Creates a new measurer for Host OS CPU IO usage (% of time spent waiting for IO).
+     * @return the CPU measurer, never null.
+     */
+    public static Cpu newHostIOCpu() {
+        return new Cpu(new IOCpuUsageLinuxStrategy());
     }
 
     /**
@@ -172,11 +182,55 @@ public final class Cpu {
     }
 
     /**
+     * Returns a Host OS CPU time waiting for IO.
+     */
+    private static class IOCpuUsageLinuxStrategy implements ICpuUsage {
+
+        private final File procDisk = new File("/proc/diskstats");
+
+        public boolean supported() {
+            return procDisk.exists();
+        }
+
+        public Object measure() throws Exception {
+            // the object is really an array of longs: [weightedMillisSpentIO, currentTimeMillis].
+            // To compute the CPU usage, we have to perform:
+            // (weightedMillisSpentIO2-weightedMillisSpentIO1)*100/(currentTimeMillis2-currentTimeMillis1)
+            long weightedMillisSpentIOTotal = 0;
+            final BufferedReader in = new BufferedReader(new FileReader(procDisk));
+            final long currentTimeMillis = System.currentTimeMillis();
+            try {
+                for (String line = in.readLine(); line != null; line = in.readLine()) {
+                    final StringTokenizer t = new StringTokenizer(line);
+                    final List<Object> tokens = Collections.list(t);
+                    final String devname = (String) tokens.get(2);
+                    if (Character.isDigit(devname.charAt(devname.length() - 1))) {
+                        // ignore sda2 etc - we are interested in sda only
+                        continue;
+                    }
+                    final long weightedMillisSpentIO = Long.parseLong((String) tokens.get(12));
+                    weightedMillisSpentIOTotal += weightedMillisSpentIO;
+                }
+            } finally {
+                IOUtils.closeQuietly(in);
+            }
+            return new long[]{weightedMillisSpentIOTotal, currentTimeMillis};
+        }
+
+        public int getAvgCpuUsage(Object m1, Object m2) {
+            final long[] me1 = (long[]) m1;
+            final long[] me2 = (long[]) m2;
+            long cpuSpentIO = (me2[0] - me1[0]) * 100 / (me2[1] - me1[1]) / NUMBER_OF_PROCESSORS;
+            return (int) cpuSpentIO;
+        }
+    }
+    private final static int NUMBER_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
+
+    /**
      * Returns the Java process CPU usage information.
      */
     private static class JavaCpuUsageStrategy implements ICpuUsage {
 
-        private final static int numberOfProcessors = Runtime.getRuntime().availableProcessors();
         private static final OperatingSystemMXBean BEAN;
         private static final Class<?> BEAN_CLASS;
 
@@ -200,7 +254,7 @@ public final class Cpu {
 
         public Object measure() throws Exception {
             long processCpuTime = (Long) BEAN_CLASS.getMethod("getProcessCpuTime").invoke(BEAN);
-            processCpuTime = processCpuTime / numberOfProcessors;
+            processCpuTime = processCpuTime / NUMBER_OF_PROCESSORS;
             long totalCpuTime = System.nanoTime();
             return new long[]{processCpuTime, totalCpuTime};
         }
