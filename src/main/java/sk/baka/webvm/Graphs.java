@@ -97,7 +97,7 @@ public final class Graphs extends WebVMPage {
             final AbstractGraph dg = new BluffGraph(100, gs);
             dg.makeAscending = true;
             for (final HistorySample hs : history) {
-                dg.add(new int[]{hs.cpuJavaUsage, hs.cpuUsage, hs.cpuIOUsage + hs.cpuUsage});
+                dg.add(new int[]{hs.cpuJavaUsage, hs.cpuUsage, hs.cpuIOUsage});
             }
             dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
             unescaped("cpuUsageGraph", dg.draw());
