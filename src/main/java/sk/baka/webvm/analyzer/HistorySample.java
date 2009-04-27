@@ -79,35 +79,26 @@ public final class HistorySample {
      */
     public final int threadCount;
     /**
-     * Shows the host OS CPU usage.
+     * Shows the host OS CPU usage. A value of 0..100, 0 when not supported.
      */
     public final int cpuUsage;
     /**
-     * Shows the owner java process CPU usage.
+     * Shows the owner java process CPU usage. A value of 0..100, 0 when not supported.
      */
     public final int cpuJavaUsage;
     /**
-     * Shows the host OS CPU IO usage.
+     * Shows the host OS CPU IO usage. A value of 0..100, 0 when not supported.
      */
     public final int cpuIOUsage;
-    /**
-     * Serves for Host OS CPU usage measurement.
-     */
-    public static final CpuUsage cpuOS = Cpu.newHostCpu();
-    /**
-     * Serves for Java CPU usage measurement.
-     */
-    public static final CpuUsage cpuJava = Cpu.newJavaCpu();
-    /**
-     * Serves for Host OS CPU IO usage measurement.
-     */
-    public static final CpuUsage cpuOSIO = Cpu.newHostIOCpu();
 
     /**
      * Creates new history sample bean.
      * @param gcCpuUsage average CPU usage of GC for this time slice in percent.
+     * @param cpuOSUsage Shows the host OS CPU usage. A value of 0..100, 0 when not supported.
+     * @param cpuJavaUsage Shows the owner java process CPU usage. A value of 0..100, 0 when not supported.
+     * @param cpuIOUsage Shows the host OS CPU IO usage. A value of 0..100, 0 when not supported.
      */
-    public HistorySample(final int gcCpuUsage) {
+    public HistorySample(final int gcCpuUsage, final int cpuOSUsage, final int cpuJavaUsage, final int cpuIOUsage) {
         this.gcCpuUsage = gcCpuUsage;
         memPoolUsage[POOL_HEAP] = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
         memPoolUsage[POOL_NON_HEAP] = MgmtUtils.getInMB(MgmtUtils.getNonHeapSummary());
@@ -119,11 +110,8 @@ public final class HistorySample {
         classesLoaded = ManagementFactory.getClassLoadingMXBean().getLoadedClassCount();
         memPoolUsage[POOL_PHYS_MEM] = MgmtUtils.getInMB(Memory.getPhysicalMemory());
         memPoolUsage[POOL_SWAP] = MgmtUtils.getInMB(Memory.getSwap());
-        final int usage = cpuOS.getCpuUsage();
-        cpuUsage = usage < 0 ? 0 : usage;
-        final int javaUsage = cpuJava.getCpuUsage();
-        cpuJavaUsage = javaUsage < 0 ? 0 : javaUsage;
-        final int ioUsage = cpuOSIO.getCpuUsage();
-        cpuIOUsage = ioUsage < 0 ? 0 : ioUsage;
+        cpuUsage = cpuOSUsage;
+        this.cpuJavaUsage = cpuJavaUsage;
+        this.cpuIOUsage = cpuIOUsage;
     }
 }

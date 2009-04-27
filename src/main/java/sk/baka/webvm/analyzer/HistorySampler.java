@@ -25,6 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import sk.baka.webvm.analyzer.hostos.Cpu;
 import sk.baka.webvm.config.Config;
 import sk.baka.webvm.misc.BackgroundService;
 import sk.baka.webvm.misc.NotificationDelivery;
@@ -102,13 +103,31 @@ public final class HistorySampler extends BackgroundService {
     public List<HistorySample> getVmstatHistory() {
         return vmstatHistory.toList();
     }
+    /**
+     * Serves for Host OS CPU usage measurement.
+     */
+    private final CpuUsage cpuOS = Cpu.newHostCpu();
+    /**
+     * Serves for Java CPU usage measurement.
+     */
+    private final CpuUsage cpuJava = Cpu.newJavaCpu();
+    /**
+     * Serves for Host OS CPU IO usage measurement.
+     */
+    private final CpuUsage cpuOSIO = Cpu.newHostIOCpu();
 
     private final class Sampler implements Runnable {
 
         public void run() {
             try {
                 final int cpuUsageByGC = gcCpuUsage.getCpuUsage();
-                vmstatHistory.add(new HistorySample(cpuUsageByGC));
+                int usage = cpuOS.getCpuUsage();
+                usage = usage < 0 ? 0 : usage;
+                int javaUsage = cpuJava.getCpuUsage();
+                javaUsage = javaUsage < 0 ? 0 : javaUsage;
+                int ioUsage = cpuOSIO.getCpuUsage();
+                ioUsage = ioUsage < 0 ? 0 : ioUsage;
+                vmstatHistory.add(new HistorySample(cpuUsageByGC, usage, javaUsage, ioUsage));
             } catch (Throwable e) {
                 log.log(Level.SEVERE, "The Sampler thread failed", e);
             }

@@ -26,6 +26,7 @@ import sk.baka.webvm.analyzer.HistorySample;
 import java.util.List;
 import org.apache.wicket.markup.html.basic.Label;
 import sk.baka.webvm.analyzer.HistorySampler;
+import sk.baka.webvm.analyzer.hostos.Cpu;
 import sk.baka.webvm.analyzer.hostos.Memory;
 import sk.baka.webvm.misc.AbstractGraph;
 import sk.baka.webvm.misc.BluffGraph;
@@ -84,9 +85,9 @@ public final class Graphs extends WebVMPage {
     }
 
     private void drawHostCpuUsage(List<HistorySample> history) {
-        final boolean hostCpu = HistorySample.cpuOS.supported();
-        final boolean javaCpu = HistorySample.cpuJava.supported();
-        final boolean hostIOCpu = HistorySample.cpuOSIO.supported();
+        final boolean hostCpu = Cpu.isHostCpuSupported();
+        final boolean javaCpu = Cpu.isJavaCpuSupported();
+        final boolean hostIOCpu = Cpu.isHostIOCpuSupported();
         if (hostCpu || javaCpu || hostIOCpu) {
             final GraphStyle gs = new GraphStyle();
             gs.colors = new String[]{COLOR_BLUE, COLOR_BROWN, COLOR_DARKGREY};
