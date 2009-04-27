@@ -38,7 +38,8 @@ public interface ICpuUsageMeasure {
     Object measure() throws Exception;
 
     /**
-     * Computes an average CPU usage between two measurements. The first measurement was taken before the second one was taken.
+     * Computes an average CPU usage between two measurements. The first measurement was taken before the second one was taken.<p/>
+     * The method must not fail if m1 is same as m2 - in such case return 0.
      * @param m1 first measurement.
      * @param m2 second measurement
      * @return CPU usage in percent, must be a value between 0 and 100.
