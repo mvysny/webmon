@@ -93,15 +93,15 @@ public final class HistorySample {
     /**
      * Serves for Host OS CPU usage measurement.
      */
-    public static final Cpu cpuOS = Cpu.newHostCpu();
+    public static final CpuUsage cpuOS = Cpu.newHostCpu();
     /**
      * Serves for Java CPU usage measurement.
      */
-    public static final Cpu cpuJava = Cpu.newJavaCpu();
+    public static final CpuUsage cpuJava = Cpu.newJavaCpu();
     /**
      * Serves for Host OS CPU IO usage measurement.
      */
-    public static final Cpu cpuOSIO = Cpu.newHostIOCpu();
+    public static final CpuUsage cpuOSIO = Cpu.newHostIOCpu();
 
     /**
      * Creates new history sample bean.
