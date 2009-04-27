@@ -45,6 +45,15 @@ public final class Cpu {
     public static CpuUsage newHostCpu() {
         return new CpuUsage(new CpuUsageLinuxStrategy());
     }
+    private static final CpuUsage HOST_CPU = newHostCpu();
+
+    /**
+     * Checks if Host OS CPU usage measurement is supported.
+     * @return true if supported.
+     */
+    public static boolean isHostCpuSupported() {
+        return HOST_CPU.supported();
+    }
 
     /**
      * Creates a new measurer for Host OS CPU IO usage (% of time spent waiting for IO).
@@ -53,6 +62,15 @@ public final class Cpu {
     public static CpuUsage newHostIOCpu() {
         return new CpuUsage(new IOCpuUsageLinuxStrategy());
     }
+    private static final CpuUsage HOST_IO_CPU = newHostIOCpu();
+
+    /**
+     * Checks if measurer for Host OS CPU IO usage (% of time spent waiting for IO) is supported.
+     * @return true if supported.
+     */
+    public static boolean isHostIOCpuSupported() {
+        return HOST_IO_CPU.supported();
+    }
 
     /**
      * Creates a new measurer for CPU used by the owner java process.
@@ -60,6 +78,15 @@ public final class Cpu {
      */
     public static CpuUsage newJavaCpu() {
         return new CpuUsage(new JavaCpuUsageStrategy());
+    }
+    private static final CpuUsage JAVA_CPU = newJavaCpu();
+
+    /**
+     * Checks if measurer for CPU used by the owner java process is supported.
+     * @return true if supported.
+     */
+    public static boolean isJavaCpuSupported() {
+        return JAVA_CPU.supported();
     }
 
     /**
