@@ -99,7 +99,11 @@ public final class Cpu {
         public int getAvgCpuUsage(Object m1, Object m2) {
             final long[] me1 = (long[]) m1;
             final long[] me2 = (long[]) m2;
-            final long cpuIdle = (me2[3] - me1[3]) * 100 / (me2[0] + me2[1] + me2[2] + me2[3] - me1[0] - me1[1] - me1[2] - me1[3]);
+            final long sampleTimeDelta = me2[0] + me2[1] + me2[2] + me2[3] - me1[0] - me1[1] - me1[2] - me1[3];
+            if (sampleTimeDelta <= 0) {
+                return 0;
+            }
+            final long cpuIdle = (me2[3] - me1[3]) * 100 / sampleTimeDelta;
             return 100 - ((int) cpuIdle);
         }
     }
@@ -143,7 +147,11 @@ public final class Cpu {
         public int getAvgCpuUsage(Object m1, Object m2) {
             final long[] me1 = (long[]) m1;
             final long[] me2 = (long[]) m2;
-            long cpuSpentIO = (me2[0] - me1[0]) * 100 / (me2[1] - me1[1]) / NUMBER_OF_PROCESSORS;
+            final long sampleTimeDelta = me2[1] - me1[1];
+            if (sampleTimeDelta <= 0) {
+                return 0;
+            }
+            long cpuSpentIO = (me2[0] - me1[0]) * 100 / sampleTimeDelta / NUMBER_OF_PROCESSORS;
             return (int) cpuSpentIO;
         }
     }
@@ -186,7 +194,11 @@ public final class Cpu {
         public int getAvgCpuUsage(Object m1, Object m2) {
             final long[] me1 = (long[]) m1;
             final long[] me2 = (long[]) m2;
-            final long cpuUsage = (me2[0] - me1[0]) * 100 / (me2[1] - me1[1]);
+            final long sampleTimeDelta = me2[1] - me1[1];
+            if (sampleTimeDelta <= 0) {
+                return 0;
+            }
+            final long cpuUsage = (me2[0] - me1[0]) * 100 / sampleTimeDelta;
             return (int) cpuUsage;
         }
     }
