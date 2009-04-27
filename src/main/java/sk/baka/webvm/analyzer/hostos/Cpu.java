@@ -29,6 +29,8 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
+import sk.baka.webvm.analyzer.CpuUsage;
+import sk.baka.webvm.analyzer.ICpuUsageMeasure;
 
 /**
  * Provides a CPU measurement support.
@@ -36,113 +38,34 @@ import org.apache.commons.io.IOUtils;
  */
 public final class Cpu {
 
-    private final static Logger log = Logger.getLogger(Cpu.class.getName());
-    /**
-     * The CPU usage measurer.
-     */
-    private final ICpuUsage cpuUsage;
-
-    private Cpu(final ICpuUsage usage) {
-        if (usage.supported()) {
-            cpuUsage = usage;
-        } else {
-            cpuUsage = null;
-        }
-    }
-
     /**
      * Creates a new measurer for Host OS CPU usage.
      * @return the CPU measurer, never null.
      */
-    public static Cpu newHostCpu() {
-        return new Cpu(new CpuUsageLinuxStrategy());
+    public static CpuUsage newHostCpu() {
+        return new CpuUsage(new CpuUsageLinuxStrategy());
     }
 
     /**
      * Creates a new measurer for Host OS CPU IO usage (% of time spent waiting for IO).
      * @return the CPU measurer, never null.
      */
-    public static Cpu newHostIOCpu() {
-        return new Cpu(new IOCpuUsageLinuxStrategy());
+    public static CpuUsage newHostIOCpu() {
+        return new CpuUsage(new IOCpuUsageLinuxStrategy());
     }
 
     /**
      * Creates a new measurer for CPU used by the owner java process.
      * @return the CPU measurer, never null.
      */
-    public static Cpu newJavaCpu() {
-        return new Cpu(new JavaCpuUsageStrategy());
-    }
-
-    /**
-     * Checks if this measurement is supported.
-     * @return true if supported, false if {@link #getCpuUsage()} will always return -1.
-     */
-    public boolean supported() {
-        return cpuUsage != null;
-    }
-
-    /**
-     * Returns an average CPU usage in a time slice starting at the previous call of this method.
-     * @return average overall CPU usage or -1 if CPU sampling is unsupported or error occurred.
-     */
-    public int getCpuUsage() {
-        if (cpuUsage == null) {
-            return -1;
-        }
-        if (cpuMeasurement == null) {
-            try {
-                cpuMeasurement = cpuUsage.measure();
-            } catch (Exception ex) {
-                log.log(Level.SEVERE, "Failed to measure a CPU usage", ex);
-                return -1;
-            }
-            return 0;
-        }
-        final Object newMeasurement;
-        try {
-            newMeasurement = cpuUsage.measure();
-        } catch (Exception ex) {
-            log.log(Level.SEVERE, "Failed to measure a CPU usage", ex);
-            return -1;
-        }
-        final int result = cpuUsage.getAvgCpuUsage(cpuMeasurement, newMeasurement);
-        cpuMeasurement = newMeasurement;
-        return result;
-    }
-    private Object cpuMeasurement = null;
-
-    /**
-     * Interface for measuring CPU usage.
-     */
-    private static interface ICpuUsage {
-
-        /**
-         * Checks if this particular implementation is supported on given host OS.
-         * @return true if it is supported, false otherwise.
-         */
-        boolean supported();
-
-        /**
-         * Measures an implementation-dependent CPU usage statistics. Used in {@link #getAvgCpuUsage(java.lang.Object, java.lang.Object)} to compute the real CPU usage.
-         * @return the measurement object
-         * @throws Exception if something happens.
-         */
-        Object measure() throws Exception;
-
-        /**
-         * Computes an average CPU usage between two measurements. The first measurement was taken before the second one was taken.
-         * @param m1 first measurement.
-         * @param m2 second measurement
-         * @return CPU usage in percent, must be a value between 0 and 100.
-         */
-        int getAvgCpuUsage(final Object m1, final Object m2);
+    public static CpuUsage newJavaCpu() {
+        return new CpuUsage(new JavaCpuUsageStrategy());
     }
 
     /**
      * Returns a Host OS CPU usage information.
      */
-    private static class CpuUsageLinuxStrategy implements ICpuUsage {
+    private static class CpuUsageLinuxStrategy implements ICpuUsageMeasure {
 
         private final File procStat = new File("/proc/stat");
 
@@ -184,7 +107,7 @@ public final class Cpu {
     /**
      * Returns a Host OS CPU time waiting for IO.
      */
-    private static class IOCpuUsageLinuxStrategy implements ICpuUsage {
+    private static class IOCpuUsageLinuxStrategy implements ICpuUsageMeasure {
 
         private final File procDisk = new File("/proc/diskstats");
 
@@ -229,10 +152,11 @@ public final class Cpu {
     /**
      * Returns the Java process CPU usage information.
      */
-    private static class JavaCpuUsageStrategy implements ICpuUsage {
+    private static class JavaCpuUsageStrategy implements ICpuUsageMeasure {
 
         private static final OperatingSystemMXBean BEAN;
         private static final Class<?> BEAN_CLASS;
+        private static final Logger log = Logger.getLogger(JavaCpuUsageStrategy.class.getName());
 
 
         static {
@@ -265,5 +189,9 @@ public final class Cpu {
             final long cpuUsage = (me2[0] - me1[0]) * 100 / (me2[1] - me1[1]);
             return (int) cpuUsage;
         }
+    }
+
+    private Cpu() {
+        throw new AssertionError();
     }
 }
