@@ -47,27 +47,20 @@ public class HomePage extends WebVMPage {
         border.add(new Label("hw", System.getProperty("os.arch") + "; CPU#: " + Runtime.getRuntime().availableProcessors()));
         border.add(new Label("java", System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + " by " + System.getProperty("java.vm.vendor")));
         // java properties
-        listMap(border, new Producer<Map<String, String>>() {
-
-            private static final long serialVersionUID = 1L;
-
-            @SuppressWarnings("unchecked")
-            public Map<String, String> produce() {
-                return (Map<String, String>) (Map) System.getProperties();
-            }
-        }, "systemProperties", "sysPropName", "sysPropValue");
+        listMap(border, new SystemPropertiesProducer(), "systemProperties", "sysPropName", "sysPropValue");
         // environment properties
-        listMap(border, new Producer<Map<String, String>>() {
-
-            private static final long serialVersionUID = 1L;
-
-            public Map<String, String> produce() {
-                return System.getenv();
-            }
-        }, "env", "envName", "envValue");
+        listMap(border, new EnvPropertiesProducer(), "env", "envName", "envValue");
     }
 
-    private void listMap(final AppBorder border, final Producer<Map<String, String>> producer, final String listId, final String keyId, final String valueId) {
+    /**
+     * Uses {@link ListView} to list contents of given map.
+     * @param border the application border instance.
+     * @param producer produces the map
+     * @param listId connect the ListView to this wicket ID
+     * @param keyId this wicket ID will display the map key
+     * @param valueId this wicket ID will display the map value
+     */
+    private static void listMap(final AppBorder border, final Producer<Map<String, String>> producer, final String listId, final String keyId, final String valueId) {
         final IModel<List<Map.Entry<String, String>>> model = new LoadableDetachableModel<List<Map.Entry<String, String>>>() {
 
             private static final long serialVersionUID = 1L;
@@ -90,11 +83,30 @@ public class HomePage extends WebVMPage {
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected void populateItem(ListItem<Map.Entry<String, String>> item) {
+            protected void populateItem(final ListItem<Map.Entry<String, String>> item) {
                 final Map.Entry<String, String> property = item.getModelObject();
                 item.add(new Label(keyId, property.getKey()));
                 item.add(new Label(valueId, property.getValue()));
             }
         });
+    }
+
+    private static class SystemPropertiesProducer implements Producer<Map<String, String>> {
+
+        private static final long serialVersionUID = 1L;
+
+        @SuppressWarnings(value = "unchecked")
+        public Map<String, String> produce() {
+            return (Map<String, String>) (Map) System.getProperties();
+        }
+    }
+
+    private static class EnvPropertiesProducer implements Producer<Map<String, String>> {
+
+        private static final long serialVersionUID = 1L;
+
+        public Map<String, String> produce() {
+            return System.getenv();
+        }
     }
 }

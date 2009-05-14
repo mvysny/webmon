@@ -59,7 +59,7 @@ public final class Memory extends WebVMPage {
         border.add(new Label("swapStatusText", MgmtUtils.toString(usage, true)));
         displayMemInfo(border, ManagementFactory.getMemoryManagerMXBeans(), "memoryManagers", "memManName", "memManValid", "memManProperties");
         displayMemInfo(border, ManagementFactory.getGarbageCollectorMXBeans(), "gc", "gcName", "gcValid", "gcProperties");
-        addMemoryPoolInfo();
+        addMemoryPoolInfo(border);
         addGCStats();
     }
 
@@ -87,7 +87,7 @@ public final class Memory extends WebVMPage {
         border.add(new Label("gcTime", Long.toString(collectTime)));
     }
 
-    private void addMemoryPoolInfo() {
+    private static void addMemoryPoolInfo(final AppBorder border) {
         final IModel<List<MemoryPoolMXBean>> model = new LoadableDetachableModel<List<MemoryPoolMXBean>>() {
 
             private static final long serialVersionUID = 1L;
@@ -135,9 +135,11 @@ public final class Memory extends WebVMPage {
         });
     }
 
-    private void displayMemInfo(final AppBorder border, final List<? extends MemoryManagerMXBean> b, final String listId, final String nameId, final String validId, final String propsId) {
+    private static void displayMemInfo(final AppBorder border, final List<? extends MemoryManagerMXBean> b, final String listId, final String nameId, final String validId, final String propsId) {
         final List<? extends MemoryManagerMXBean> beans = b != null ? b : Collections.<MemoryManagerMXBean>emptyList();
         final IModel<List<MemoryManagerMXBean>> model = new LoadableDetachableModel<List<MemoryManagerMXBean>>(new ArrayList<MemoryManagerMXBean>(beans)) {
+
+            private static final long serialVersionUID = 1L;
 
             @Override
             protected List<MemoryManagerMXBean> load() {

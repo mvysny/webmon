@@ -39,7 +39,7 @@ import org.apache.wicket.markup.html.tree.LabelTree;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 /**
- * Prints the JNDI tree
+ * Shows the JNDI tree.
  * @author Martin Vysny
  */
 public final class Jndi extends WebVMPage {
@@ -140,6 +140,9 @@ public final class Jndi extends WebVMPage {
             addWarningNode(parent, name + ": Failed to examine: " + ex.toString());
         }
     }
+    /**
+     * Enumerates the JNDI tree up to this depth.
+     */
     private static final int MAX_DEPTH = 5;
 
     private static void listUnprotected(final Context ctx, final MutableTreeNode parent, final NameClassPair pair, final int depth)
