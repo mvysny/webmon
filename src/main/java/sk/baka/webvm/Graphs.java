@@ -39,8 +39,10 @@ import sk.baka.webvm.misc.MgmtUtils;
  */
 public final class Graphs extends WebVMPage {
 
+    public static final String GRAPH_BORDER = "black";
+    public static final int GRAPH_HEIGHT_PX = 120;
+    public static final int GRAPH_WIDTH_PX = 300;
     private static final long serialVersionUID = 1L;
-
     /**
      * The blue color used in graphs.
      */
@@ -69,13 +71,22 @@ public final class Graphs extends WebVMPage {
         drawHostCpuUsage(history);
     }
 
-    private void drawClassesGraph(List<HistorySample> history) {
+    /**
+     * Creates the default telemetry graph style.
+     * @return the graph style.
+     */
+    private static GraphStyle newDefaultStyle() {
         final GraphStyle gs = new GraphStyle();
-        gs.colors = new String[]{COLOR_BROWN};
-        gs.height = 120;
-        gs.width = 300;
-        gs.border = "black";
+        gs.height = GRAPH_HEIGHT_PX;
+        gs.width = GRAPH_WIDTH_PX;
+        gs.border = GRAPH_BORDER;
         gs.yLegend = true;
+        return gs;
+    }
+
+    private void drawClassesGraph(List<HistorySample> history) {
+        final GraphStyle gs = newDefaultStyle();
+        gs.colors = new String[]{COLOR_BROWN};
         int maxClasses = 0;
         for (final HistorySample hs : history) {
             if (maxClasses < hs.classesLoaded) {
@@ -100,12 +111,8 @@ public final class Graphs extends WebVMPage {
         final boolean javaCpu = Cpu.isJavaCpuSupported();
         final boolean hostIOCpu = Cpu.isHostIOCpuSupported();
         if (hostCpu || javaCpu || hostIOCpu) {
-            final GraphStyle gs = new GraphStyle();
+            final GraphStyle gs = newDefaultStyle();
             gs.colors = new String[]{COLOR_BLUE, COLOR_BROWN, COLOR_DARKGREY};
-            gs.height = 120;
-            gs.width = 300;
-            gs.border = "black";
-            gs.yLegend = true;
             final AbstractGraph dg = new BluffGraph(100, gs);
             dg.makeAscending = true;
             for (final HistorySample hs : history) {
@@ -126,12 +133,8 @@ public final class Graphs extends WebVMPage {
     }
 
     private void drawGcCpuUsage(final List<HistorySample> history) {
-        final GraphStyle gs = new GraphStyle();
+        final GraphStyle gs = newDefaultStyle();
         gs.colors = new String[]{COLOR_BLUE};
-        gs.height = 120;
-        gs.width = 300;
-        gs.border = "black";
-        gs.yLegend = true;
         final AbstractGraph dg = new BluffGraph(100, gs);
         for (final HistorySample hs : history) {
             dg.add(new int[]{hs.gcCpuUsage});
@@ -187,12 +190,8 @@ public final class Graphs extends WebVMPage {
     }
 
     private void drawThreadsGraph(List<HistorySample> history) {
-        final GraphStyle gs = new GraphStyle();
+        final GraphStyle gs = newDefaultStyle();
         gs.colors = new String[]{COLOR_BLUE, COLOR_BROWN};
-        gs.height = 120;
-        gs.width = 300;
-        gs.border = "black";
-        gs.yLegend = true;
         int maxThreads = 0;
         for (final HistorySample hs : history) {
             if (maxThreads < hs.threadCount) {
