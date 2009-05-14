@@ -39,8 +39,19 @@ import sk.baka.webvm.misc.MgmtUtils;
  */
 public final class Graphs extends WebVMPage {
 
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * The blue color used in graphs.
+     */
     public static final String COLOR_BLUE = "#7e43b2";
+    /**
+     * The brown color used in graphs.
+     */
     public static final String COLOR_BROWN = "#ff7f7f";
+    /**
+     * The darkgrey color used in graphs.
+     */
     public static final String COLOR_DARKGREY = "#888888";
 
     /**

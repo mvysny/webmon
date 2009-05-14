@@ -41,6 +41,8 @@ import sk.baka.webvm.misc.MgmtUtils;
  */
 public final class Memory extends WebVMPage {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Creates new object instance
      * @param params page parameters
@@ -88,12 +90,16 @@ public final class Memory extends WebVMPage {
     private void addMemoryPoolInfo() {
         final IModel<List<MemoryPoolMXBean>> model = new LoadableDetachableModel<List<MemoryPoolMXBean>>() {
 
+            private static final long serialVersionUID = 1L;
+
             @Override
             protected List<MemoryPoolMXBean> load() {
                 return ManagementFactory.getMemoryPoolMXBeans();
             }
         };
         border.add(new ListView<MemoryPoolMXBean>("memoryPool", model) {
+
+            private static final long serialVersionUID = 1L;
 
             @Override
             protected void populateItem(ListItem<MemoryPoolMXBean> item) {
@@ -139,6 +145,8 @@ public final class Memory extends WebVMPage {
             }
         };
         border.add(new ListView<MemoryManagerMXBean>(listId, model) {
+
+            private static final long serialVersionUID = 1L;
 
             @Override
             protected void populateItem(ListItem<MemoryManagerMXBean> item) {

@@ -43,16 +43,23 @@ import sk.baka.webvm.config.Config;
  */
 public final class Configure extends WebVMPage {
 
+    private static final long serialVersionUID = 1L;
+
     /**
-     *
+     * Creates the configure page.
      */
     public Configure() {
         // submitting forms in a page with multiple forms fails: http://issues.apache.org/jira/browse/WICKET-2134
         border.add(new ConfigForm("problemsForm", Config.GROUP_PROBLEMS));
         border.add(new ConfigForm("mailForm", Config.GROUP_MAIL) {
 
+            private static final long serialVersionUID = 1L;
+
+
             {
                 add(new Button("sendTestMail") {
+
+                    private static final long serialVersionUID = 1L;
 
                     @Override
                     public void onSubmit() {
@@ -73,8 +80,13 @@ public final class Configure extends WebVMPage {
         });
         border.add(new ConfigForm("jabberForm", Config.GROUP_JABBER) {
 
+            private static final long serialVersionUID = 1L;
+
+
             {
                 add(new Button("sendTestJabber") {
+
+                    private static final long serialVersionUID = 1L;
 
                     @Override
                     public void onSubmit() {
@@ -130,6 +142,7 @@ public final class Configure extends WebVMPage {
      */
     protected class ConfigForm extends Form {
 
+        private static final long serialVersionUID = 1L;
         /**
          * The configuration object.
          */
