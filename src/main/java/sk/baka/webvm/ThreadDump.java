@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 /**
@@ -40,64 +41,95 @@ public final class ThreadDump extends WebVMPage {
      * Constructor.
      */
     public ThreadDump() {
-        border.add(new ListView<ThreadInfo>("threadList", new LoadableDetachableModel<List<ThreadInfo>>() {
+        border.add(new ThreadListView("threadList", new ThreadListModel()));
+    }
 
-            private static final long serialVersionUID = 1L;
+    /**
+     * Provides a list of all VM threads.
+     */
+    private static class ThreadListModel extends LoadableDetachableModel<List<ThreadInfo>> {
 
-            @Override
-            protected List<ThreadInfo> load() {
-                final ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-                final ThreadInfo[] info = bean.getThreadInfo(bean.getAllThreadIds(), Integer.MAX_VALUE);
-                final List<ThreadInfo> result = new ArrayList<ThreadInfo>(info.length);
-                for (final ThreadInfo i : info) {
-                    if (i != null) {
-                        result.add(i);
-                    }
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected List<ThreadInfo> load() {
+            final ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+            final ThreadInfo[] info = bean.getThreadInfo(bean.getAllThreadIds(), Integer.MAX_VALUE);
+            final List<ThreadInfo> result = new ArrayList<ThreadInfo>(info.length);
+            for (final ThreadInfo i : info) {
+                if (i != null) {
+                    result.add(i);
                 }
-                return result;
             }
-        }) {
+            return result;
+        }
+    }
 
-            private static final long serialVersionUID = 1L;
+    /**
+     * Wicket ListView which displays a thread list.
+     */
+    private class ThreadListView extends ListView<ThreadInfo> {
 
-            @Override
-            protected void populateItem(ListItem<ThreadInfo> item) {
-                final ThreadInfo info = item.getModelObject();
-                final StringBuilder sb = new StringBuilder();
-                sb.append("0x");
-                sb.append(Long.toHexString(info.getThreadId()));
-                sb.append(" [");
-                sb.append(info.getThreadName());
-                sb.append("] ");
-                sb.append(info.getThreadState().toString());
-                if (info.isInNative()) {
-                    sb.append(", in native");
-                }
-                if (info.isSuspended()) {
-                    sb.append(", suspended");
-                }
-                final String lockName = info.getLockName();
-                if (lockName != null) {
-                    sb.append(", locked on [");
-                    sb.append(lockName);
-                    sb.append("]");
-                }
-                item.add(new Label("threadName", sb.toString()));
-                sb.delete(0, sb.length());
-                final StackTraceElement[] stack = info.getStackTrace();
-                if (stack == null) {
-                    sb.append("  stack trace not available");
-                } else if (stack.length == 0) {
-                    sb.append("  stack trace is empty");
-                } else {
-                    for (final StackTraceElement ste : stack) {
-                        sb.append("  at ");
-                        sb.append(ste.toString());
-                        sb.append('\n');
-                    }
-                }
-                item.add(new Label("threadStacktrace", sb.toString()));
+        public ThreadListView(String id, IModel<? extends List<? extends ThreadInfo>> model) {
+            super(id, model);
+        }
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void populateItem(final ListItem<ThreadInfo> item) {
+            final ThreadInfo info = item.getModelObject();
+            item.add(new Label("threadName", getThreadMetadata(info)));
+            item.add(new Label("threadStacktrace", getThreadStacktrace(info)));
+        }
+    }
+
+    /**
+     * Shows a basic thread info: thread ID, whether the thread is native, suspended, etc.
+     * @param info the thread info.
+     * @return pretty-printed thread info.
+     */
+    private static String getThreadMetadata(final ThreadInfo info) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("0x");
+        sb.append(Long.toHexString(info.getThreadId()));
+        sb.append(" [");
+        sb.append(info.getThreadName());
+        sb.append("] ");
+        sb.append(info.getThreadState().toString());
+        if (info.isInNative()) {
+            sb.append(", in native");
+        }
+        if (info.isSuspended()) {
+            sb.append(", suspended");
+        }
+        final String lockName = info.getLockName();
+        if (lockName != null) {
+            sb.append(", locked on [");
+            sb.append(lockName);
+            sb.append("]");
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Pretty-prints a thread stacktrace, similar to {@link Throwable#printStackTrace()} except that it handles nulls correctly.
+     * @param info
+     * @return string representation of the stacktrace.
+     */
+    private static String getThreadStacktrace(final ThreadInfo info) {
+        final StringBuilder sb = new StringBuilder();
+        final StackTraceElement[] stack = info.getStackTrace();
+        if (stack == null) {
+            sb.append("  stack trace not available");
+        } else if (stack.length == 0) {
+            sb.append("  stack trace is empty");
+        } else {
+            for (final StackTraceElement ste : stack) {
+                sb.append("  at ");
+                sb.append(ste.toString());
+                sb.append('\n');
             }
-        });
+        }
+        return sb.toString();
     }
 }
