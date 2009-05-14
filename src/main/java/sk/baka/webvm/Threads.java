@@ -74,7 +74,12 @@ public final class Threads extends WebVMPage {
         return history;
     }
 
-    private char getState(final ThreadInfo info) {
+    /**
+     * Returns an ASCII-graphic character representing the thread state.
+     * @param info the thread.
+     * @return the thread character.
+     */
+    private static char getStateChar(final ThreadInfo info) {
         if (info == null) {
             return ' ';
         }
@@ -109,6 +114,12 @@ public final class Threads extends WebVMPage {
         }
     }
 
+    /**
+     * Ensures that the given list is of given size, appending nulls as necessary.
+     * @param list the list to enlarge. Will be modified.
+     * @param size the desired size
+     * @return the list itself.
+     */
     private static List<ThreadInfo> ensureSize(List<ThreadInfo> list, final int size) {
         while (list.size() < size) {
             list.add(null);
@@ -116,6 +127,9 @@ public final class Threads extends WebVMPage {
         return list;
     }
 
+    /**
+     * Wicket ListView showing thread names and thread states.
+     */
     private class ThreadListView extends ListView<List<ThreadInfo>> {
 
         private static final long serialVersionUID = 1L;
@@ -147,7 +161,7 @@ public final class Threads extends WebVMPage {
             item.add(new Label("threadState", state));
             final StringBuilder sb = new StringBuilder();
             for (final ThreadInfo info : infos) {
-                sb.append(getState(info));
+                sb.append(getStateChar(info));
             }
             item.add(new Label("threadHistory", sb.toString()));
         }
