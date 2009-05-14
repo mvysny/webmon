@@ -34,6 +34,7 @@ import sk.baka.webvm.misc.GraphStyle;
  */
 public class WebVMPage extends WebPage {
 
+    private static final long serialVersionUID = 1L;
     /**
      * Each page is wrapped in this border.
      */
