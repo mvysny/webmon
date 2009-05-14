@@ -34,11 +34,15 @@ import org.apache.wicket.model.LoadableDetachableModel;
  */
 public final class ThreadDump extends WebVMPage {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Constructor.
      */
     public ThreadDump() {
         border.add(new ListView<ThreadInfo>("threadList", new LoadableDetachableModel<List<ThreadInfo>>() {
+
+            private static final long serialVersionUID = 1L;
 
             @Override
             protected List<ThreadInfo> load() {
@@ -53,6 +57,8 @@ public final class ThreadDump extends WebVMPage {
                 return result;
             }
         }) {
+
+            private static final long serialVersionUID = 1L;
 
             @Override
             protected void populateItem(ListItem<ThreadInfo> item) {
