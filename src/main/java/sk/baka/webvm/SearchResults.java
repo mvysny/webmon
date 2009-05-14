@@ -40,6 +40,8 @@ import sk.baka.webvm.wicket.WicketUtils;
  */
 public final class SearchResults extends WebVMPage {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Creates the search page and performs the search.
      * @param searchQuery the query to use. Used as substring in classloader resources names search.
@@ -50,10 +52,14 @@ public final class SearchResults extends WebVMPage {
         final List<CLResult> results = performSearch(searchQuery);
         border.add(new ListView<CLResult>("classpathItems", results) {
 
+            private static final long serialVersionUID = 1L;
+
             @Override
             protected void populateItem(ListItem<CLResult> item) {
                 final CLResult resLink = item.getModelObject();
                 item.add(new Link<CLResult>("classpathItem", item.getModel()) {
+
+                    private static final long serialVersionUID = 1L;
 
                     @Override
                     protected void onComponentTagBody(final MarkupStream markupStream, final ComponentTag openTag) {
