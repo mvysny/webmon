@@ -28,6 +28,7 @@ import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import sk.baka.webvm.analyzer.HistorySample;
 
@@ -37,15 +38,16 @@ import sk.baka.webvm.analyzer.HistorySample;
  */
 public final class Threads extends WebVMPage {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Constructor.
      */
     public Threads() {
-        final SortedMap<Long, List<ThreadInfo>> threadAnalysis = analyzeThreads();
-        drawThreads(threadAnalysis);
+        border.add(new ThreadListView("threads", new ThreadListModel()));
     }
 
-    private SortedMap<Long, List<ThreadInfo>> analyzeThreads() {
+    private static SortedMap<Long, List<ThreadInfo>> analyzeThreads() {
         final List<HistorySample> samples = WicketApplication.getHistory().getVmstatHistory();
         final SortedMap<Long, List<ThreadInfo>> history = new TreeMap<Long, List<ThreadInfo>>();
         // compute the map
@@ -72,39 +74,6 @@ public final class Threads extends WebVMPage {
         return history;
     }
 
-    private void drawThreads(final SortedMap<Long, List<ThreadInfo>> threadAnalysis) {
-        border.add(new ListView<List<ThreadInfo>>("threads", new Detachable(threadAnalysis)) {
-
-            @Override
-            protected void populateItem(ListItem<List<ThreadInfo>> item) {
-                final List<ThreadInfo> infos = item.getModelObject();
-                ThreadInfo ti = null;
-                for (final ThreadInfo info : infos) {
-                    if (info != null) {
-                        ti = info;
-                        break;
-                    }
-                }
-                final ThreadInfo last = infos.get(infos.size() - 1);
-                String name = ti.getThreadName();
-                String title = name;
-                if (name.length() > 30) {
-                    name = name.substring(0, 30) + "...";
-                }
-                final Label l = new Label("threadName", name);
-                item.add(l);
-                l.add(new SimpleAttributeModifier("title", title));
-                final String state = last == null ? "dead" : last.getThreadState().toString();
-                item.add(new Label("threadState", state));
-                final StringBuilder sb = new StringBuilder();
-                for (final ThreadInfo info : infos) {
-                    sb.append(getState(info));
-                }
-                item.add(new Label("threadHistory", sb.toString()));
-            }
-        });
-    }
-
     private char getState(final ThreadInfo info) {
         if (info == null) {
             return ' ';
@@ -125,26 +94,63 @@ public final class Threads extends WebVMPage {
         throw new AssertionError();
     }
 
-    private static class Detachable extends LoadableDetachableModel<List<List<ThreadInfo>>> {
+    private static class ThreadListModel extends LoadableDetachableModel<List<List<ThreadInfo>>> {
 
-        private final transient Map<Long, List<ThreadInfo>> map;
-
-        public Detachable(final Map<Long, List<ThreadInfo>> map) {
-            this.map = map;
-        }
+        private static final long serialVersionUID = 1L;
+        private transient Map<Long, List<ThreadInfo>> map;
 
         @Override
         protected List<List<ThreadInfo>> load() {
+            if (map == null) {
+                map = analyzeThreads();
+            }
             final List<List<ThreadInfo>> result = new ArrayList<List<ThreadInfo>>(map.values());
             return result;
         }
     }
 
-    private List<ThreadInfo> ensureSize(List<ThreadInfo> list, final int size) {
+    private static List<ThreadInfo> ensureSize(List<ThreadInfo> list, final int size) {
         while (list.size() < size) {
             list.add(null);
         }
         return list;
+    }
+
+    private class ThreadListView extends ListView<List<ThreadInfo>> {
+
+        private static final long serialVersionUID = 1L;
+
+        public ThreadListView(String id, IModel<? extends List<? extends List<ThreadInfo>>> model) {
+            super(id, model);
+        }
+
+        @Override
+        protected void populateItem(ListItem<List<ThreadInfo>> item) {
+            final List<ThreadInfo> infos = item.getModelObject();
+            ThreadInfo ti = null;
+            for (final ThreadInfo info : infos) {
+                if (info != null) {
+                    ti = info;
+                    break;
+                }
+            }
+            final ThreadInfo last = infos.get(infos.size() - 1);
+            String name = ti.getThreadName();
+            String title = name;
+            if (name.length() > 30) {
+                name = name.substring(0, 30) + "...";
+            }
+            final Label l = new Label("threadName", name);
+            item.add(l);
+            l.add(new SimpleAttributeModifier("title", title));
+            final String state = last == null ? "dead" : last.getThreadState().toString();
+            item.add(new Label("threadState", state));
+            final StringBuilder sb = new StringBuilder();
+            for (final ThreadInfo info : infos) {
+                sb.append(getState(info));
+            }
+            item.add(new Label("threadHistory", sb.toString()));
+        }
     }
 }
 
