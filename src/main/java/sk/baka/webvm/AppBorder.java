@@ -47,38 +47,54 @@ public class AppBorder extends Border {
         super(componentName);
         final DateFormat formatter = DateFormat.getTimeInstance(DateFormat.MEDIUM);
         add(new Label("currentTime", formatter.format(new Date())));
-        add(new Link<Void>("performGCLink") {
+        add(new PerformGC("performGCLink"));
+        add(new FormImpl("searchForm"));
+    }
 
-            private static final long serialVersionUID = 1L;
+    /**
+     * Performs a GC when clicked.
+     */
+    private static class PerformGC extends Link<Void> {
 
-            @Override
-            public void onClick() {
-                System.gc();
-                // force to reload the page if it does not have any parametrized constructor
-                final Class<? extends Page> pclass = getPage().getClass();
-                if (pclass != SearchResults.class) {
-                    setResponsePage(pclass);
-                }
+        public PerformGC(String id) {
+            super(id);
+        }
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public void onClick() {
+            System.gc();
+            // force to reload the page if it does not have any parametrized constructor
+            final Class<? extends Page> pclass = getPage().getClass();
+            if (pclass != SearchResults.class) {
+                setResponsePage(pclass);
             }
-        });
-        add(new Form("searchForm") {
+        }
+    }
 
-            private static final long serialVersionUID = 1L;
-            public String searchQuery = "";
+    /**
+     * Implements the Search form.
+     */
+    private static class FormImpl extends Form {
+
+        public FormImpl(String id) {
+            super(id);
+        }
+        private static final long serialVersionUID = 1L;
+        public String searchQuery = "";
 
 
-            {
-                add(new FeedbackPanel("feedback"));
-                add(new Button("submit"));
-                final TextField<String> field = new TextField<String>("searchText", new PropertyModel<String>(this, "searchQuery"));
-                field.add(new StringValidator.MinimumLengthValidator(3));
-                add(field);
-            }
+        {
+            add(new FeedbackPanel("feedback"));
+            add(new Button("submit"));
+            final TextField<String> field = new TextField<String>("searchText", new PropertyModel<String>(this, "searchQuery"));
+            field.add(new StringValidator.MinimumLengthValidator(3));
+            add(field);
+        }
 
-            @Override
-            protected void onSubmit() {
-                setResponsePage(new SearchResults(searchQuery));
-            }
-        });
+        @Override
+        protected void onSubmit() {
+            setResponsePage(new SearchResults(searchQuery));
+        }
     }
 }
