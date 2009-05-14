@@ -35,6 +35,8 @@ import sk.baka.webvm.WicketApplication;
  */
 public final class RssFeed extends HttpServlet {
 
+    private static final long serialVersionUID = 1L;
+
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
