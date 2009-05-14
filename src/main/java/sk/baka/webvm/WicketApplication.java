@@ -64,14 +64,14 @@ public final class WicketApplication extends WebApplication {
     /**
      * The configuration properties.
      */
-    private static Config CONFIG = null;
+    private static Config config = null;
 
     /**
      * Returns the configuration properties (config.properties)
      * @return the configuration properties.
      */
     public static Config getConfig() {
-        return CONFIG;
+        return config;
     }
 
     /**
@@ -80,20 +80,20 @@ public final class WicketApplication extends WebApplication {
      */
     public synchronized static void setConfig(final Config config) {
         sampler.stop();
-        CONFIG = new Config(config);
-        analyzer.configure(CONFIG);
-        sampler.configure(CONFIG);
+        WicketApplication.config = new Config(config);
+        analyzer.configure(config);
+        sampler.configure(config);
         sampler.start();
     }
 
     @Override
     protected void init() {
         super.init();
-        CONFIG = loadConfig();
+        config = loadConfig();
         analyzer = new ProblemAnalyzer();
-        analyzer.configure(CONFIG);
+        analyzer.configure(config);
         sampler = new HistorySampler(analyzer);
-        sampler.configure(CONFIG);
+        sampler.configure(config);
         sampler.start();
         mount("a", PackageName.forClass(getClass()));
         getMarkupSettings().setDefaultBeforeDisabledLink("<a href=\"#\" class=\"current_page_item\">");
