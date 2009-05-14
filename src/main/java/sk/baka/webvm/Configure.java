@@ -51,60 +51,8 @@ public final class Configure extends WebVMPage {
     public Configure() {
         // submitting forms in a page with multiple forms fails: http://issues.apache.org/jira/browse/WICKET-2134
         border.add(new ConfigForm("problemsForm", Config.GROUP_PROBLEMS));
-        border.add(new ConfigForm("mailForm", Config.GROUP_MAIL) {
-
-            private static final long serialVersionUID = 1L;
-
-
-            {
-                add(new Button("sendTestMail") {
-
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public void onSubmit() {
-                        if (!NotificationDelivery.isEmailEnabled(config)) {
-                            error("No SMTP host name is entered, mail notification is disabled");
-                            return;
-                        }
-                        final ProblemAnalyzer pa = new ProblemAnalyzer();
-                        pa.configure(config);
-                        try {
-                            NotificationDelivery.sendEmail(config, true, pa.getProblems(WicketApplication.getHistory().getVmstatHistory()));
-                        } catch (Exception ex) {
-                            error("Failed to send a message: " + ex.toString());
-                        }
-                    }
-                });
-            }
-        });
-        border.add(new ConfigForm("jabberForm", Config.GROUP_JABBER) {
-
-            private static final long serialVersionUID = 1L;
-
-
-            {
-                add(new Button("sendTestJabber") {
-
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public void onSubmit() {
-                        if (!NotificationDelivery.isJabberEnabled(config)) {
-                            error("No Jabber server is entered, jabber notification is disabled");
-                            return;
-                        }
-                        final ProblemAnalyzer pa = new ProblemAnalyzer();
-                        pa.configure(config);
-                        try {
-                            NotificationDelivery.sendJabber(config, true, pa.getProblems(WicketApplication.getHistory().getVmstatHistory()));
-                        } catch (Exception ex) {
-                            error("Failed to send a message: " + ex.toString());
-                        }
-                    }
-                });
-            }
-        });
+        border.add(new MailForm("mailForm"));
+        border.add(new JabberForm("jabberForm"));
     }
 
     @SuppressWarnings("unchecked")
@@ -140,7 +88,7 @@ public final class Configure extends WebVMPage {
     /**
      * A basic configuration form, handles retrieval of config object.
      */
-    protected class ConfigForm extends Form {
+    protected static class ConfigForm extends Form {
 
         private static final long serialVersionUID = 1L;
         /**
@@ -163,6 +111,70 @@ public final class Configure extends WebVMPage {
         @Override
         public final void onSubmit() {
             WicketApplication.setConfig(config);
+        }
+    }
+
+    /**
+     * A mail form, supports sending of a test mail.
+     */
+    private static class MailForm extends ConfigForm {
+
+        public MailForm(String componentName) {
+            super(componentName, Config.GROUP_MAIL);
+        }
+        private static final long serialVersionUID = 1L;
+        {
+            add(new Button("sendTestMail") {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void onSubmit() {
+                    if (!NotificationDelivery.isEmailEnabled(config)) {
+                        error("No SMTP host name is entered, mail notification is disabled");
+                        return;
+                    }
+                    final ProblemAnalyzer pa = new ProblemAnalyzer();
+                    pa.configure(config);
+                    try {
+                        NotificationDelivery.sendEmail(config, true, pa.getProblems(WicketApplication.getHistory().getVmstatHistory()));
+                    } catch (Exception ex) {
+                        error("Failed to send a message: " + ex.toString());
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * A Jabber configuration form, supports sending a simple notification Jabber message.
+     */
+    private static class JabberForm extends ConfigForm {
+
+        public JabberForm(String componentName) {
+            super(componentName, Config.GROUP_JABBER);
+        }
+        private static final long serialVersionUID = 1L;
+        {
+            add(new Button("sendTestJabber") {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void onSubmit() {
+                    if (!NotificationDelivery.isJabberEnabled(config)) {
+                        error("No Jabber server is entered, jabber notification is disabled");
+                        return;
+                    }
+                    final ProblemAnalyzer pa = new ProblemAnalyzer();
+                    pa.configure(config);
+                    try {
+                        NotificationDelivery.sendJabber(config, true, pa.getProblems(WicketApplication.getHistory().getVmstatHistory()));
+                    } catch (Exception ex) {
+                        error("Failed to send a message: " + ex.toString());
+                    }
+                }
+            });
         }
     }
 }
