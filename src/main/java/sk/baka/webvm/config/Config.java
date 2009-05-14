@@ -25,6 +25,9 @@ import java.io.Serializable;
  * @author Martin Vysny
  */
 public final class Config implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     /**
      * Creates new config file with default settings.
      */
@@ -40,7 +43,6 @@ public final class Config implements Serializable {
         super();
         Binder.copy(other, this);
     }
-
     /**
      * The problems settings group.
      */
@@ -53,7 +55,6 @@ public final class Config implements Serializable {
      * The jabber settings group.
      */
     public static final int GROUP_JABBER = 3;
-
     /**
      * Triggers a problem when there is less than minFreeDiskSpaceMb of free space on some drive
      */
@@ -122,21 +123,21 @@ public final class Config implements Serializable {
     /**
      * Jabber server.
      */
-    @Bind(key="jabber.server", required = false, group = GROUP_JABBER)
+    @Bind(key = "jabber.server", required = false, group = GROUP_JABBER)
     public String jabberServer;
     /**
      * Jabber user name.
      */
-    @Bind(key="jabber.username", required = false, group = GROUP_JABBER)
+    @Bind(key = "jabber.username", required = false, group = GROUP_JABBER)
     public String jabberUsername;
     /**
      * Jabber password.
      */
-    @Bind(key="jabber.password", required = false, password=true, group = GROUP_JABBER)
+    @Bind(key = "jabber.password", required = false, password = true, group = GROUP_JABBER)
     public String jabberPassword;
     /**
      * Jabber recipients, split by a comma
      */
-    @Bind(key="jabber.recipients", required = false, group = GROUP_JABBER)
+    @Bind(key = "jabber.recipients", required = false, group = GROUP_JABBER)
     public String jabberRecipients;
 }
