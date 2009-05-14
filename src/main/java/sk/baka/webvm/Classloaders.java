@@ -57,6 +57,8 @@ import sk.baka.webvm.wicket.WicketUtils;
  */
 public final class Classloaders extends WebVMPage {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Constructor.
      */
@@ -70,16 +72,7 @@ public final class Classloaders extends WebVMPage {
     private void analyzeClashes(AppBorder border) {
         final Map<URI, List<Integer>> clashes = getClashes();
         final List<URI> uris = new ArrayList<URI>(clashes.keySet());
-        border.add(new ListView<URI>("clRow", uris) {
-
-            @Override
-            protected void populateItem(ListItem<URI> item) {
-                final URI uri = item.getModelObject();
-                item.add(new Label("clURI", uri.toString()));
-                final List<Integer> clNumbers = clashes.get(uri);
-                item.add(new Label("clClassLoader", clNumbers.toString()));
-            }
-        });
+        border.add(new ClassloaderClashes("clRow", uris, clashes));
     }
 
     private Map<URI, List<Integer>> getClashes() {
@@ -106,37 +99,17 @@ public final class Classloaders extends WebVMPage {
         final MutableTreeNode root = new DefaultMutableTreeNode("root");
         analyzeClassloader(root, Thread.currentThread().getContextClassLoader());
         final TreeModel model = new DefaultTreeModel(root);
-        final LinkTree result = new LinkTree("classloaderHierarchy", model) {
-
-            @Override
-            protected void onNodeLinkClicked(Object node, BaseTree tree, AjaxRequestTarget target) {
-                final DefaultMutableTreeNode n = (DefaultMutableTreeNode) node;
-                if (!(n.getUserObject() instanceof ResourceLink)) {
-                    tree.getTreeState().expandNode(node);
-                    return;
-                }
-                final ResourceLink parent = (ResourceLink) n.getUserObject();
-                final boolean redirected = WicketUtils.redirectTo(parent);
-                if (redirected) {
-                    return;
-                }
-                if (parent.isPackage()) {
-                    expandNode(node);
-                    tree.getTreeState().expandNode(node);
-                    return;
-                }
-            }
-        };
-        result.getTreeState().addTreeStateListener(new Listener());
+        final LinkTree result = new ClassloaderHierarchyTree("classloaderHierarchy", model);
         result.setRootLess(true);
         // resource download does not work with AJAX links
         // @TODO fix this - provide regular links for downloads, ajax links for anything else
         result.setLinkType(LinkType.REGULAR);
         result.invalidateAll();
+        result.getTreeState().addTreeStateListener(new Listener());
         return result;
     }
 
-    private void expandNode(final Object node) {
+    private static void expandNode(final Object node, final DefaultTreeModel tree) {
         final DefaultMutableTreeNode n = (DefaultMutableTreeNode) node;
         if (!(n.getUserObject() instanceof ResourceLink)) {
             return;
@@ -148,21 +121,7 @@ public final class Classloaders extends WebVMPage {
         n.removeAllChildren();
         try {
             final List<ResourceLink> children = parent.listAndGroup();
-            Collections.sort(children, new Comparator<ResourceLink>() {
-
-                public int compare(ResourceLink o1, ResourceLink o2) {
-                    if (o1.isPackage()) {
-                        if (!o2.isPackage()) {
-                            return -1;
-                        }
-                    } else {
-                        if (o2.isPackage()) {
-                            return 1;
-                        }
-                    }
-                    return o1.getName().compareToIgnoreCase(o2.getName());
-                }
-            });
+            Collections.sort(children, new DirAndNameComparator());
             for (final ResourceLink link : children) {
                 n.add(new TreeNode(link));
             }
@@ -170,8 +129,7 @@ public final class Classloaders extends WebVMPage {
             log.log(Level.SEVERE, "Error while retrieving resources", ex);
             n.add(new DefaultMutableTreeNode("Error while retrieving resources: " + ex.toString()));
         }
-        final DefaultTreeModel model = getModel();
-        model.nodeStructureChanged(n);
+        tree.nodeStructureChanged(n);
     }
 
     private DefaultTreeModel getModel() {
@@ -179,6 +137,8 @@ public final class Classloaders extends WebVMPage {
     }
 
     private class Listener implements ITreeStateListener, Serializable {
+
+        private static final long serialVersionUID = 1L;
 
         public void allNodesCollapsed() {
             // do nothing
@@ -200,7 +160,7 @@ public final class Classloaders extends WebVMPage {
         }
 
         public void nodeExpanded(Object node) {
-            expandNode(node);
+            expandNode(node, getModel());
         }
 
         public void nodeSelected(Object node) {
@@ -215,6 +175,8 @@ public final class Classloaders extends WebVMPage {
     private static final int MAX_CLASSLOADER_NAME_LENGTH = 60;
 
     private static class TreeNode extends DefaultMutableTreeNode {
+
+        private static final long serialVersionUID = 1L;
 
         public TreeNode(final ResourceLink link) {
             super(link);
@@ -254,6 +216,78 @@ public final class Classloaders extends WebVMPage {
             final File file = FileUtils.toFile(url);
             final DefaultMutableTreeNode node = (file == null) ? new DefaultMutableTreeNode(url) : new TreeNode(ResourceLink.newFor(file));
             result.add(node);
+        }
+    }
+
+    /**
+     * Shows class/resource clashes between different classloaders.
+     */
+    private static class ClassloaderClashes extends ListView<URI> {
+
+        private static final long serialVersionUID = 1L;
+        private final Map<URI, List<Integer>> clashes;
+
+        public ClassloaderClashes(String id, List<? extends URI> list, Map<URI, List<Integer>> clashes) {
+            super(id, list);
+            this.clashes = clashes;
+        }
+
+        @Override
+        protected void populateItem(final ListItem<URI> item) {
+            final URI uri = item.getModelObject();
+            item.add(new Label("clURI", uri.toString()));
+            final List<Integer> clNumbers = clashes.get(uri);
+            item.add(new Label("clClassLoader", clNumbers.toString()));
+        }
+    }
+
+    /**
+     * A tree component showing the classloader hierarchy.
+     */
+    private static class ClassloaderHierarchyTree extends LinkTree {
+
+        private static final long serialVersionUID = 1L;
+
+        public ClassloaderHierarchyTree(String id, TreeModel model) {
+            super(id, model);
+        }
+
+        @Override
+        protected void onNodeLinkClicked(Object node, BaseTree tree, AjaxRequestTarget target) {
+            final DefaultMutableTreeNode n = (DefaultMutableTreeNode) node;
+            if (!(n.getUserObject() instanceof ResourceLink)) {
+                tree.getTreeState().expandNode(node);
+                return;
+            }
+            final ResourceLink parent = (ResourceLink) n.getUserObject();
+            final boolean redirected = WicketUtils.redirectTo(parent);
+            if (redirected) {
+                return;
+            }
+            if (parent.isPackage()) {
+                expandNode(node, (DefaultTreeModel) getModelObject());
+                tree.getTreeState().expandNode(node);
+                return;
+            }
+        }
+    }
+
+    /**
+     * Sorts ResourceLinks, packages first, then by a name.
+     */
+    private static class DirAndNameComparator implements Comparator<ResourceLink> {
+
+        public int compare(ResourceLink o1, ResourceLink o2) {
+            if (o1.isPackage()) {
+                if (!o2.isPackage()) {
+                    return -1;
+                }
+            } else {
+                if (o2.isPackage()) {
+                    return 1;
+                }
+            }
+            return o1.getName().compareToIgnoreCase(o2.getName());
         }
     }
 }
