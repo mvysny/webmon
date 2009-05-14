@@ -44,6 +44,8 @@ import org.apache.wicket.model.LoadableDetachableModel;
  */
 public final class Jndi extends WebVMPage {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Constructor.
      */
@@ -54,6 +56,8 @@ public final class Jndi extends WebVMPage {
 
     private static LabelTree newJndiTree(final String treeId, final String context) {
         final LabelTree tree = new LabelTree(treeId, new LoadableDetachableModel<TreeModel>() {
+
+            private static final long serialVersionUID = 1L;
 
             @Override
             protected TreeModel load() {
@@ -179,6 +183,7 @@ public final class Jndi extends WebVMPage {
      */
     private static class JndiTreeNode extends DefaultMutableTreeNode {
 
+        private static final long serialVersionUID = 1L;
         /**
          * true if given nameclass pair is a context which may contain other pairs.
          */

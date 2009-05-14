@@ -49,6 +49,8 @@ public class HomePage extends WebVMPage {
         // java properties
         listMap(border, new Producer<Map<String, String>>() {
 
+            private static final long serialVersionUID = 1L;
+
             @SuppressWarnings("unchecked")
             public Map<String, String> produce() {
                 return (Map<String, String>) (Map) System.getProperties();
@@ -56,6 +58,8 @@ public class HomePage extends WebVMPage {
         }, "systemProperties", "sysPropName", "sysPropValue");
         // environment properties
         listMap(border, new Producer<Map<String, String>>() {
+
+            private static final long serialVersionUID = 1L;
 
             public Map<String, String> produce() {
                 return System.getenv();
@@ -65,6 +69,8 @@ public class HomePage extends WebVMPage {
 
     private void listMap(final AppBorder border, final Producer<Map<String, String>> producer, final String listId, final String keyId, final String valueId) {
         final IModel<List<Map.Entry<String, String>>> model = new LoadableDetachableModel<List<Map.Entry<String, String>>>() {
+
+            private static final long serialVersionUID = 1L;
 
             @Override
             protected List<Map.Entry<String, String>> load() {
@@ -80,6 +86,8 @@ public class HomePage extends WebVMPage {
             }
         };
         border.add(new ListView<Map.Entry<String, String>>(listId, model) {
+
+            private static final long serialVersionUID = 1L;
 
             @Override
             protected void populateItem(ListItem<Map.Entry<String, String>> item) {
