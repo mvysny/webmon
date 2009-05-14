@@ -33,11 +33,15 @@ import org.apache.wicket.model.LoadableDetachableModel;
  */
 public final class Problems extends WebVMPage {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Creates new instance
      */
     public Problems() {
         final IModel<List<ProblemReport>> model = new LoadableDetachableModel<List<ProblemReport>>() {
+
+            private static final long serialVersionUID = 1L;
 
             @Override
             protected List<ProblemReport> load() {
@@ -45,6 +49,8 @@ public final class Problems extends WebVMPage {
             }
         };
         final ListView<ProblemReport> list = new ListView<ProblemReport>("problemList", model) {
+
+            private static final long serialVersionUID = 1L;
 
             @Override
             protected void populateItem(ListItem<ProblemReport> item) {

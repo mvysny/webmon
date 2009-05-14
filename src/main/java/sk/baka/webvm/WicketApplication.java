@@ -43,15 +43,15 @@ public final class WicketApplication extends WebApplication {
     public Class<HomePage> getHomePage() {
         return HomePage.class;
     }
-    private static HistorySampler SAMPLER = null;
-    private static ProblemAnalyzer ANALYZER = null;
+    private static HistorySampler sampler = null;
+    private static ProblemAnalyzer analyzer = null;
 
     /**
      * Returns a history sampler.
      * @return the history sampler.
      */
     public static HistorySampler getHistory() {
-        return SAMPLER;
+        return sampler;
     }
 
     /**
@@ -59,7 +59,7 @@ public final class WicketApplication extends WebApplication {
      * @return the problem analyzer.
      */
     public static ProblemAnalyzer getAnalyzer() {
-        return ANALYZER;
+        return analyzer;
     }
     /**
      * The configuration properties.
@@ -79,22 +79,22 @@ public final class WicketApplication extends WebApplication {
      * @param config the new config, must not be null.
      */
     public synchronized static void setConfig(final Config config) {
-        SAMPLER.stop();
+        sampler.stop();
         CONFIG = new Config(config);
-        ANALYZER.configure(CONFIG);
-        SAMPLER.configure(CONFIG);
-        SAMPLER.start();
+        analyzer.configure(CONFIG);
+        sampler.configure(CONFIG);
+        sampler.start();
     }
 
     @Override
     protected void init() {
         super.init();
         CONFIG = loadConfig();
-        ANALYZER = new ProblemAnalyzer();
-        ANALYZER.configure(CONFIG);
-        SAMPLER = new HistorySampler(ANALYZER);
-        SAMPLER.configure(CONFIG);
-        SAMPLER.start();
+        analyzer = new ProblemAnalyzer();
+        analyzer.configure(CONFIG);
+        sampler = new HistorySampler(analyzer);
+        sampler.configure(CONFIG);
+        sampler.start();
         mount("a", PackageName.forClass(getClass()));
         getMarkupSettings().setDefaultBeforeDisabledLink("<a href=\"#\" class=\"current_page_item\">");
         getMarkupSettings().setDefaultAfterDisabledLink("</a>");
@@ -102,7 +102,7 @@ public final class WicketApplication extends WebApplication {
 
     @Override
     protected void onDestroy() {
-        SAMPLER.stop();
+        sampler.stop();
         super.onDestroy();
     }
 
