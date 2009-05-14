@@ -20,6 +20,7 @@ package sk.baka.webvm;
 
 import java.text.DateFormat;
 import java.util.Date;
+import org.apache.wicket.Page;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.border.Border;
 import org.apache.wicket.markup.html.form.Button;
@@ -36,6 +37,8 @@ import org.apache.wicket.validation.validator.StringValidator;
  */
 public class AppBorder extends Border {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Creates new application border.
      * @param componentName the component id
@@ -46,14 +49,21 @@ public class AppBorder extends Border {
         add(new Label("currentTime", formatter.format(new Date())));
         add(new Link<Void>("performGCLink") {
 
+            private static final long serialVersionUID = 1L;
+
             @Override
             public void onClick() {
                 System.gc();
-                setResponsePage(getPage().getClass());
+                // force to reload the page if it does not have any parametrized constructor
+                final Class<? extends Page> pclass = getPage().getClass();
+                if (pclass != SearchResults.class) {
+                    setResponsePage(pclass);
+                }
             }
         });
         add(new Form("searchForm") {
 
+            private static final long serialVersionUID = 1L;
             public String searchQuery = "";
 
 
