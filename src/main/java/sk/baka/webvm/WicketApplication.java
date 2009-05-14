@@ -89,11 +89,7 @@ public final class WicketApplication extends WebApplication {
     @Override
     protected void init() {
         super.init();
-        config = loadConfig();
-        analyzer = new ProblemAnalyzer();
-        analyzer.configure(config);
-        sampler = new HistorySampler(analyzer);
-        sampler.configure(config);
+        initialize(loadConfig());
         sampler.start();
         mount("a", PackageName.forClass(getClass()));
         getMarkupSettings().setDefaultBeforeDisabledLink("<a href=\"#\" class=\"current_page_item\">");
@@ -104,6 +100,14 @@ public final class WicketApplication extends WebApplication {
     protected void onDestroy() {
         sampler.stop();
         super.onDestroy();
+    }
+
+    private static void initialize(final Config cfg) {
+        config = cfg;
+        analyzer = new ProblemAnalyzer();
+        analyzer.configure(config);
+        sampler = new HistorySampler(analyzer);
+        sampler.configure(config);
     }
 
     private Config loadConfig() {
