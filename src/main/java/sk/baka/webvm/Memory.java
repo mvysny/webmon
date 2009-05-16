@@ -27,12 +27,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import sk.baka.webvm.misc.DivGraph;
 import sk.baka.webvm.misc.MgmtUtils;
 
 /**
@@ -45,9 +45,8 @@ public final class Memory extends WebVMPage {
 
     /**
      * Creates new object instance
-     * @param params page parameters
      */
-    public Memory(PageParameters params) {
+    public Memory() {
         MemoryUsage usage = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
         drawMemoryStatus(usage, "heapStatusBar", 300);
         border.add(new Label("heapStatusText", MgmtUtils.toString(usage, true)));
@@ -125,7 +124,7 @@ public final class Memory extends WebVMPage {
                 }
                 final StringBuilder sb = new StringBuilder();
                 if (usage != null) {
-                    sb.append(drawMemoryStatus(usage, 200));
+                    sb.append(DivGraph.drawMemoryStatus(usage, 200));
                 }
                 sb.append(MgmtUtils.toString(usage, true));
                 final Label label = new Label(wid, sb.toString());
