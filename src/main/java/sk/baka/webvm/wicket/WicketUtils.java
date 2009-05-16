@@ -55,8 +55,7 @@ public final class WicketUtils {
     private WicketUtils() {
         throw new AssertionError();
     }
-
-    private final static Logger log = Logger.getLogger(WicketUtils.class.getName());
+    private static final Logger LOG = Logger.getLogger(WicketUtils.class.getName());
 
     /**
      * Converts a resource link to a resource stream.
@@ -67,52 +66,64 @@ public final class WicketUtils {
         if (link.isPackage()) {
             throw new IllegalArgumentException(link.getFullName() + " is a package");
         }
-        return new IResourceStream() {
+        return new ResourceLinkStream(link);
+    }
 
-            public String getContentType() {
-                return URLConnection.getFileNameMap().getContentTypeFor(link.getName());
-            }
+    /**
+     * Provides a Wicket resource stream for given resource link.
+     */
+    private static class ResourceLinkStream implements IResourceStream {
 
-            public long length() {
-                try {
-                    return link.getLength();
-                } catch (IOException ex) {
-                    log.log(Level.WARNING, null, ex);
-                    return -1;
-                }
-            }
+        private static final long serialVersionUID = 1L;
+        private final ResourceLink link;
 
-            public InputStream getInputStream() throws ResourceStreamNotFoundException {
-                final InputStream result;
-                try {
-                    result = link.open();
-                } catch (IOException ex) {
-                    throw new ResourceStreamNotFoundException(ex);
-                }
-                streams.add(result);
-                return result;
-            }
-            private final List<InputStream> streams = new ArrayList<InputStream>();
+        public ResourceLinkStream(ResourceLink link) {
+            this.link = link;
+        }
 
-            public void close() throws IOException {
-                for (final InputStream is : streams) {
-                    IOUtils.closeQuietly(is);
-                }
-                streams.clear();
-            }
+        public String getContentType() {
+            return URLConnection.getFileNameMap().getContentTypeFor(link.getName());
+        }
 
-            public Locale getLocale() {
-                return locale;
+        public long length() {
+            try {
+                return link.getLength();
+            } catch (IOException ex) {
+                LOG.log(Level.WARNING, null, ex);
+                return -1;
             }
-            private Locale locale;
+        }
 
-            public void setLocale(Locale locale) {
-                this.locale = locale;
+        public InputStream getInputStream() throws ResourceStreamNotFoundException {
+            final InputStream result;
+            try {
+                result = link.open();
+            } catch (IOException ex) {
+                throw new ResourceStreamNotFoundException(ex);
             }
+            streams.add(result);
+            return result;
+        }
+        private final List<InputStream> streams = new ArrayList<InputStream>();
 
-            public Time lastModifiedTime() {
-                return Time.milliseconds(1);
+        public void close() throws IOException {
+            for (final InputStream is : streams) {
+                IOUtils.closeQuietly(is);
             }
-        };
+            streams.clear();
+        }
+
+        public Locale getLocale() {
+            return locale;
+        }
+        private Locale locale;
+
+        public void setLocale(Locale locale) {
+            this.locale = locale;
+        }
+
+        public Time lastModifiedTime() {
+            return Time.milliseconds(1);
+        }
     }
 }
