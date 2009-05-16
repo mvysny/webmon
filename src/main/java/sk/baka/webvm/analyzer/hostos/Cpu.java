@@ -94,17 +94,17 @@ public final class Cpu {
      */
     private static class CpuUsageLinuxStrategy implements ICpuUsageMeasure {
 
-        private final File procStat = new File("/proc/stat");
+        private static final File PROC_STAT = new File("/proc/stat");
 
         public boolean supported() {
-            return procStat.exists();
+            return PROC_STAT.exists();
         }
 
         public Object measure() throws Exception {
             // the object is really an array of longs: [user, nice, system, idle].
             // To compute the CPU usage, we have to perform:
             // (idle2-idle1)*100/(user2+nice2+system2+idle2-user1-nice1-system1-idle1)
-            final BufferedReader in = new BufferedReader(new FileReader(procStat));
+            final BufferedReader in = new BufferedReader(new FileReader(PROC_STAT));
             try {
                 for (String line = in.readLine(); line != null; line = in.readLine()) {
                     if (line.startsWith("cpu ")) {
@@ -120,17 +120,22 @@ public final class Cpu {
             } finally {
                 IOUtils.closeQuietly(in);
             }
-            throw new RuntimeException("No cpu line");
+            throw new IllegalStateException("No cpu line");
         }
+        private static final int MEASURE_USER = 0;
+        private static final int MEASURE_NICE = 1;
+        private static final int MEASURE_SYSTEM = 2;
+        private static final int MEASURE_IDLE = 3;
 
         public int getAvgCpuUsage(Object m1, Object m2) {
             final long[] me1 = (long[]) m1;
             final long[] me2 = (long[]) m2;
-            final long sampleTimeDelta = me2[0] + me2[1] + me2[2] + me2[3] - me1[0] - me1[1] - me1[2] - me1[3];
+            final long sampleTimeDelta = me2[MEASURE_USER] + me2[MEASURE_NICE] + me2[MEASURE_SYSTEM] + me2[MEASURE_IDLE] -
+                    me1[MEASURE_USER] - me1[MEASURE_NICE] - me1[MEASURE_SYSTEM] - me1[MEASURE_IDLE];
             if (sampleTimeDelta <= 0) {
                 return 0;
             }
-            final long cpuIdle = (me2[3] - me1[3]) * 100 / sampleTimeDelta;
+            final long cpuIdle = (me2[MEASURE_IDLE] - me1[MEASURE_IDLE]) * 100 / sampleTimeDelta;
             return 100 - ((int) cpuIdle);
         }
     }
@@ -140,10 +145,10 @@ public final class Cpu {
      */
     private static class IOCpuUsageLinuxStrategy implements ICpuUsageMeasure {
 
-        private final File procDisk = new File("/proc/diskstats");
+        private final static File DISKSTATS = new File("/proc/diskstats");
 
         public boolean supported() {
-            return procDisk.exists();
+            return DISKSTATS.exists();
         }
 
         public Object measure() throws Exception {
@@ -151,18 +156,18 @@ public final class Cpu {
             // To compute the CPU usage, we have to perform:
             // (weightedMillisSpentIO2-weightedMillisSpentIO1)*100/(currentTimeMillis2-currentTimeMillis1)
             long weightedMillisSpentIOTotal = 0;
-            final BufferedReader in = new BufferedReader(new FileReader(procDisk));
+            final BufferedReader in = new BufferedReader(new FileReader(DISKSTATS));
             final long currentTimeMillis = System.currentTimeMillis();
             try {
                 for (String line = in.readLine(); line != null; line = in.readLine()) {
                     final StringTokenizer t = new StringTokenizer(line);
                     final List<Object> tokens = Collections.list(t);
-                    final String devname = (String) tokens.get(2);
+                    final String devname = (String) tokens.get(DISKSTATS_DEVNAME);
                     if (Character.isDigit(devname.charAt(devname.length() - 1))) {
                         // ignore sda2 etc - we are interested in sda only
                         continue;
                     }
-                    final long weightedMillisSpentIO = Long.parseLong((String) tokens.get(12));
+                    final long weightedMillisSpentIO = Long.parseLong((String) tokens.get(DISKSTATS_MILLIS_SPENT_IO));
                     weightedMillisSpentIOTotal += weightedMillisSpentIO;
                 }
             } finally {
@@ -170,15 +175,19 @@ public final class Cpu {
             }
             return new long[]{weightedMillisSpentIOTotal, currentTimeMillis};
         }
+        private static final int MEASURE_MILLIS_SPENT_IO = 0;
+        private static final int MEASURE_CURRENT_TIME_MILLIS = 1;
+        private static final int DISKSTATS_DEVNAME = 2;
+        private static final int DISKSTATS_MILLIS_SPENT_IO = 12;
 
         public int getAvgCpuUsage(Object m1, Object m2) {
             final long[] me1 = (long[]) m1;
             final long[] me2 = (long[]) m2;
-            final long sampleTimeDelta = me2[1] - me1[1];
+            final long sampleTimeDelta = me2[MEASURE_CURRENT_TIME_MILLIS] - me1[MEASURE_CURRENT_TIME_MILLIS];
             if (sampleTimeDelta <= 0) {
                 return 0;
             }
-            long cpuSpentIO = (me2[0] - me1[0]) * 100 / sampleTimeDelta / NUMBER_OF_PROCESSORS;
+            long cpuSpentIO = (me2[MEASURE_MILLIS_SPENT_IO] - me1[MEASURE_MILLIS_SPENT_IO]) * 100 / sampleTimeDelta / NUMBER_OF_PROCESSORS;
             return (int) cpuSpentIO;
         }
     }
@@ -217,16 +226,17 @@ public final class Cpu {
             long totalCpuTime = System.nanoTime();
             return new long[]{processCpuTime, totalCpuTime};
         }
+        private static final int TOTAL_CPU_TIME = 1;
+        private static final int PROCESS_CPU_TIME = 0;
 
         public int getAvgCpuUsage(Object m1, Object m2) {
             final long[] me1 = (long[]) m1;
             final long[] me2 = (long[]) m2;
-            final long sampleTimeDelta = me2[1] - me1[1];
+            final long sampleTimeDelta = me2[TOTAL_CPU_TIME] - me1[TOTAL_CPU_TIME];
             if (sampleTimeDelta <= 0) {
                 return 0;
             }
-            final long cpuUsage = (me2[0] - me1[0]) * 100 / sampleTimeDelta;
-            return (int) cpuUsage;
+            return (int) ((me2[PROCESS_CPU_TIME] - me1[PROCESS_CPU_TIME]) * 100 / sampleTimeDelta);
         }
     }
 
