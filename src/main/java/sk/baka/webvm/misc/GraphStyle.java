@@ -26,6 +26,7 @@ import java.io.Serializable;
  */
 public final class GraphStyle implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     /**
      * The caption of the graph.
      */
@@ -120,13 +121,15 @@ public final class GraphStyle implements Serializable {
         if (colors.length == 0) {
             throw new IllegalArgumentException("colors must contain at least one color");
         }
-        if ((showValues || showPercentage) && (fontColors != null)) {
-            if (colors.length != fontColors.length) {
-                throw new IllegalArgumentException("fontColors must have the same length as colors");
-            }
+        if (isCaptionColorDifferToBarColor() && (colors.length != fontColors.length)) {
+            throw new IllegalArgumentException("fontColors must have the same length as colors");
         }
         if (style == null) {
             throw new IllegalArgumentException("style is null");
         }
+    }
+
+    private boolean isCaptionColorDifferToBarColor() {
+        return (showValues || showPercentage) && (fontColors != null);
     }
 }
