@@ -131,7 +131,7 @@ public final class Binder {
         if (Enum.class.isAssignableFrom(requiredClass)) {
             return Enum.valueOf(requiredClass.asSubclass(Enum.class), value);
         }
-        throw new RuntimeException("Unsupported class: " + requiredClass);
+        throw new IllegalArgumentException("Unsupported class: " + requiredClass);
     }
 
     @SuppressWarnings("unchecked")
@@ -150,7 +150,7 @@ public final class Binder {
         }
         return Collections.emptyMap();
     }
-    private final static Map<Class<?>, Class<?>> primitiveToClass = new HashMap<Class<?>, Class<?>>();
+    private static final Map<Class<?>, Class<?>> primitiveToClass = new HashMap<Class<?>, Class<?>>();
 
 
     static {
@@ -194,7 +194,7 @@ public final class Binder {
                 field.set(to, fieldValue);
             }
         } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException("Cannot read/write annotated field", e);
         }
     }
 
