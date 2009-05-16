@@ -130,7 +130,7 @@ public final class Threads extends WebVMPage {
     /**
      * Wicket ListView showing thread names and thread states.
      */
-    private class ThreadListView extends ListView<List<ThreadInfo>> {
+    private static class ThreadListView extends ListView<List<ThreadInfo>> {
 
         private static final long serialVersionUID = 1L;
 

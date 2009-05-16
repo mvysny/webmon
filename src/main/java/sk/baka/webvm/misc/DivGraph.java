@@ -19,12 +19,105 @@
 package sk.baka.webvm.misc;
 
 import java.lang.management.MemoryUsage;
+import sk.baka.webvm.Graphs;
 
 /**
  * Draws stacked bars.
  * @author Martin Vysny
  */
 public final class DivGraph {
+
+    /**
+     * Draws a HTML DIV element with required properties and style.
+     * @param pixelSize the desired pixel width/height.
+     * @param i the value index, used to determine the div color.
+     * @param style the style
+     * @param value the value
+     * @param max maximum value
+     * @return a HTML DIV element.
+     */
+    private static String drawBarValueAsDiv(final int pixelSize, int i, final GraphStyle style, final int value, final int max) {
+        final StringBuilder sb = new StringBuilder();
+        final boolean isEmpty = pixelSize == 0;
+        if (isEmpty) {
+            return "";
+        }
+        final boolean isMax = i == style.colors.length - 1;
+        sb.append("<div style=\"");
+        if (!isMax) {
+            sb.append("background-color: ");
+            sb.append(style.colors[i]);
+            sb.append("; ");
+            if (style.fontColors != null) {
+                final String fontColor = style.fontColors[i];
+                if (fontColor != null) {
+                    sb.append("color: ");
+                    sb.append(fontColor);
+                    sb.append("; ");
+                }
+            }
+        }
+        if (!isMax && !style.vertical) {
+            sb.append("float: left; ");
+        }
+        sb.append(style.vertical ? "height: " : "width: ");
+        sb.append(pixelSize);
+        sb.append("px;\">");
+        if (!isMax) {
+            if (style.showValues) {
+                sb.append(value);
+                if (style.showPercentage) {
+                    sb.append(" (");
+                }
+            }
+            if (style.showPercentage) {
+                sb.append(value * 100 / max);
+                sb.append('%');
+                if (style.showValues) {
+                    sb.append(')');
+                }
+            }
+        }
+        if (isMax || (!style.showValues && !style.showPercentage)) {
+            // IE hack
+            sb.append("<!-- -->");
+        }
+        sb.append("</div>");
+        return sb.toString();
+    }
+
+    /**
+     * Retrieves a HTML div element style, based on given graph style.
+     * @param style the style
+     * @param floatLeft if true then the <code>float:left</code> will be used.
+     * @return the HTML style
+     */
+    private static String getDivStyle(final GraphStyle style, final boolean floatLeft) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("style=\"");
+        if (style.border != null) {
+            sb.append("border: 1px solid ");
+            sb.append(style.border);
+            sb.append("; ");
+        }
+        if (style.showPercentage || style.showValues) {
+            sb.append("text-align: ");
+            sb.append(style.vertical ? "center" : "right");
+            sb.append("; ");
+        }
+        if (style.vertical) {
+            // if multiple stacked bars are drawn, make sure they are positioned horizontally.
+            if (floatLeft) {
+                sb.append("float:left; ");
+            }
+        }
+        sb.append("width: ");
+        sb.append(style.width);
+        sb.append("px; height: ");
+        sb.append(style.height);
+        sb.append("px;\"");
+        return sb.toString();
+    }
 
     private DivGraph() {
         throw new AssertionError();
@@ -55,75 +148,19 @@ public final class DivGraph {
     public static void drawStackedBar(final GraphStyle style, final int[] values, final int max, final boolean floatLeft, final StringBuilder sb) {
         style.validate();
         final int[] pixels = toPixels(values, max, style.vertical ? style.height : style.width);
-        sb.append("<div style=\"");
-        if (style.border != null) {
-            sb.append("border: 1px solid ");
-            sb.append(style.border);
-            sb.append("; ");
-        }
-        if (style.showPercentage || style.showValues) {
-            sb.append("text-align: ");
-            sb.append(style.vertical ? "center" : "right");
-            sb.append("; ");
-        }
-        if (style.vertical) {
-            // if multiple stacked bars are drawn, make sure they are positioned horizontally.
-            if (floatLeft) {
-                sb.append("float:left; ");
-            }
-        }
-        sb.append("width: ");
-        sb.append(style.width);
-        sb.append("px; height: ");
-        sb.append(style.height);
-        sb.append("px;\">");
+        sb.append("<div ");
+        sb.append(getDivStyle(style, floatLeft));
+        sb.append(">");
         // go from pixels.length-1 to 0 when vertical
         // go from 0 to pixels.length-1 when horizontal
-        for (int i = style.vertical ? pixels.length - 1 : 0; style.vertical ? i >= 0 : i < pixels.length; i += style.vertical ? -1 : 1) {
-            final boolean isEmpty = pixels[i] == 0;
-            if (isEmpty) {
-                continue;
+        if (style.vertical) {
+            for (int i = pixels.length - 1; i >= 0; i--) {
+                sb.append(drawBarValueAsDiv(pixels[i], i, style, values[i], max));
             }
-            final boolean isMax = i == pixels.length - 1;
-            sb.append("<div style=\"");
-            if (!isMax) {
-                sb.append("background-color: ");
-                sb.append(style.colors[i]);
-                sb.append("; ");
-                if (style.fontColors != null) {
-                    final String fontColor = style.fontColors[i];
-                    if (fontColor != null) {
-                        sb.append("color: ");
-                        sb.append(fontColor);
-                        sb.append("; ");
-                    }
-                }
+        } else {
+            for (int i = 0; i < pixels.length; i++) {
+                sb.append(drawBarValueAsDiv(pixels[i], i, style, values[i], max));
             }
-            if (!isMax && !style.vertical) {
-                sb.append("float: left; ");
-            }
-            sb.append(style.vertical ? "height: " : "width: ");
-            sb.append(pixels[i]);
-            sb.append("px;\">");
-            if (!isMax) {
-                if (style.showValues) {
-                    sb.append(values[i]);
-                    if (style.showPercentage) {
-                        sb.append(" (");
-                    }
-                }
-                if (style.showPercentage) {
-                    sb.append(values[i] * 100 / max);
-                    sb.append('%');
-                    if (style.showValues) {
-                        sb.append(')');
-                    }
-                }
-            }
-            if (isMax || (!style.showValues && !style.showPercentage)) {
-                sb.append("<!-- -->");
-            }
-            sb.append("</div>");
         }
         sb.append("</div>");
     }
@@ -175,7 +212,7 @@ public final class DivGraph {
         gs.width = width;
         gs.height = 20;
         gs.showPercentage = true;
-        gs.colors = new String[]{"#7e43b2", "#ff7f7f"};
+        gs.colors = new String[]{Graphs.COLOR_BLUE, Graphs.COLOR_BROWN};
         gs.border = "#999999";
         gs.fontColors = new String[]{"#ffffff", null};
         final int max;

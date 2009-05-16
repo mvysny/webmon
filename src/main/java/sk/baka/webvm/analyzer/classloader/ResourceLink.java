@@ -221,6 +221,7 @@ public abstract class ResourceLink implements Serializable {
  */
 final class DirResourceLink extends ResourceLink {
 
+    private static final long serialVersionUID = 1L;
     private final File file;
     private final boolean isRoot;
 
@@ -306,6 +307,7 @@ final class DirResourceLink extends ResourceLink {
  */
 final class JarResourceLink extends ResourceLink {
 
+    private static final long serialVersionUID = 1L;
     private final File jarFile;
     private final String fullEntryName;
     private final boolean isRoot;
@@ -471,6 +473,7 @@ final class JarResourceLink extends ResourceLink {
  */
 final class ResourceLinkGroup extends ResourceLink {
 
+    private static final long serialVersionUID = 1L;
     private final String name;
     private final ResourceLink delegate;
 
