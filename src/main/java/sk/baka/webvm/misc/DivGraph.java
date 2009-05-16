@@ -28,6 +28,11 @@ import sk.baka.webvm.Graphs;
 public final class DivGraph {
 
     /**
+     * The height of a memory status bar.
+     */
+    public static final int MEMSTAT_BAR_HEIGHT = 20;
+
+    /**
      * Draws a HTML DIV element with required properties and style.
      * @param pixels the desired pixel width/height.
      * @param i the value index, used to determine the div color.
@@ -208,11 +213,11 @@ public final class DivGraph {
         final GraphStyle gs = new GraphStyle();
         gs.vertical = false;
         gs.width = width;
-        gs.height = 20;
+        gs.height = MEMSTAT_BAR_HEIGHT;
         gs.showPercentage = true;
         gs.colors = new String[]{Graphs.COLOR_BLUE, Graphs.COLOR_BROWN};
-        gs.border = "#999999";
-        gs.fontColors = new String[]{"#ffffff", null};
+        gs.border = Graphs.COLOR_GREY;
+        gs.fontColors = new String[]{Graphs.COLOR_WHITE, null};
         final int max;
         if (usage.getMax() != Long.MAX_VALUE) {
             max = (int) usage.getMax();
