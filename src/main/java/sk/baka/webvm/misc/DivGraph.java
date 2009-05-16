@@ -29,20 +29,20 @@ public final class DivGraph {
 
     /**
      * Draws a HTML DIV element with required properties and style.
-     * @param pixelSize the desired pixel width/height.
+     * @param pixels the desired pixel width/height.
      * @param i the value index, used to determine the div color.
      * @param style the style
-     * @param value the value
+     * @param values the values
      * @param max maximum value
      * @return a HTML DIV element.
      */
-    private static String drawBarValueAsDiv(final int pixelSize, int i, final GraphStyle style, final int value, final int max) {
+    private static String drawBarValueAsDiv(final int[] pixels, int i, final GraphStyle style, final int[] values, final int max) {
         final StringBuilder sb = new StringBuilder();
-        final boolean isEmpty = pixelSize == 0;
+        final boolean isEmpty = pixels[i] == 0;
         if (isEmpty) {
             return "";
         }
-        final boolean isMax = i == style.colors.length - 1;
+        final boolean isMax = i == pixels.length - 1;
         sb.append("<div style=\"");
         if (!isMax) {
             sb.append("background-color: ");
@@ -61,17 +61,17 @@ public final class DivGraph {
             sb.append("float: left; ");
         }
         sb.append(style.vertical ? "height: " : "width: ");
-        sb.append(pixelSize);
+        sb.append(pixels[i]);
         sb.append("px;\">");
         if (!isMax) {
             if (style.showValues) {
-                sb.append(value);
+                sb.append(values[i]);
                 if (style.showPercentage) {
                     sb.append(" (");
                 }
             }
             if (style.showPercentage) {
-                sb.append(value * 100 / max);
+                sb.append(values[i] * 100 / max);
                 sb.append('%');
                 if (style.showValues) {
                     sb.append(')');
@@ -153,11 +153,11 @@ public final class DivGraph {
         // go from 0 to pixels.length-1 when horizontal
         if (style.vertical) {
             for (int i = pixels.length - 1; i >= 0; i--) {
-                sb.append(drawBarValueAsDiv(pixels[i], i, style, values[i], max));
+                sb.append(drawBarValueAsDiv(pixels, i, style, values, max));
             }
         } else {
             for (int i = 0; i < pixels.length; i++) {
-                sb.append(drawBarValueAsDiv(pixels[i], i, style, values[i], max));
+                sb.append(drawBarValueAsDiv(pixels, i, style, values, max));
             }
         }
         sb.append("</div>");
@@ -204,7 +204,7 @@ public final class DivGraph {
      * @param width width of result in pixels.
      * @return a string representation of a horizontal bar line.
      */
-    public static String getMemoryStatus(final MemoryUsage usage, final int width) {
+    public static String drawMemoryStatus(final MemoryUsage usage, final int width) {
         final GraphStyle gs = new GraphStyle();
         gs.vertical = false;
         gs.width = width;

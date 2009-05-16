@@ -104,30 +104,7 @@ public class WebVMPage extends WebPage {
      * @param width the width of the bar in pixels.
      */
     public void drawMemoryStatus(final MemoryUsage usage, final String wid, final int width) {
-        final String bar = drawMemoryStatus(usage, width);
+        final String bar = DivGraph.drawMemoryStatus(usage, width);
         unescaped(wid, bar);
-    }
-
-    /**
-     * Draws a memory usage status for given memory usage object
-     * @param usage the memory usage object, must be in megabytes as int arithmetics is used.
-     * @param width the width of the bar in pixels.
-     * @return the HTML bar code
-     */
-    public static String drawMemoryStatus(final MemoryUsage usage, final int width) {
-        final GraphStyle gs = new GraphStyle();
-        gs.vertical = false;
-        gs.width = width;
-        gs.height = 20;
-        gs.showPercentage = true;
-        gs.colors = new String[]{"#7e43b2", "#ff7f7f"};
-        gs.border = "#999999";
-        gs.fontColors = new String[]{"#ffffff", null};
-        int max = (int) usage.getMax();
-        if (max == -1) {
-            max = (int) usage.getCommitted() * 5 / 4;
-        }
-        final String bar = DivGraph.drawStackedBar(gs, new int[]{(int) usage.getUsed(), (int) usage.getCommitted()}, max, false);
-        return bar;
     }
 }
