@@ -78,7 +78,7 @@ public final class WicketApplication extends WebApplication {
      * Sets the new configuration and restarts analyzer and sampler.
      * @param config the new config, must not be null.
      */
-    public synchronized static void setConfig(final Config config) {
+    public static synchronized void setConfig(final Config config) {
         sampler.stop();
         WicketApplication.config = new Config(config);
         analyzer.configure(config);
@@ -110,6 +110,20 @@ public final class WicketApplication extends WebApplication {
         sampler.configure(config);
     }
 
+    /**
+     * Returns given resource as stream, failing if given resource does not exist.
+     * @param resource the resource to load
+     * @return resource stream, never null
+     * @throws java.io.IOException if the resource is missing.
+     */
+    private static InputStream getResourceAsStream(final String resource) throws IOException {
+        final InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
+        if (in == null) {
+            throw new IOException("Resource not found: " + resource);
+        }
+        return in;
+    }
+
     private Config loadConfig() {
         String configUrl = getInitParameter("configFile");
         if (configUrl == null) {
@@ -119,10 +133,7 @@ public final class WicketApplication extends WebApplication {
             final InputStream in;
             if (configUrl.startsWith("classpath:")) {
                 final String resource = configUrl.substring("classpath:".length());
-                in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
-                if (in == null) {
-                    throw new IOException("Resource not found: " + resource);
-                }
+                in = getResourceAsStream(resource);
             } else {
                 in = new URL(configUrl).openStream();
             }
@@ -131,15 +142,15 @@ public final class WicketApplication extends WebApplication {
                 props.load(in);
                 final Config result = new Config();
                 final Map<String, String> warnings = Binder.bindBeanMap(result, props, false, true);
-                Binder.log(log, warnings);
+                Binder.log(LOG, warnings);
                 return result;
             } finally {
                 IOUtils.closeQuietly(in);
             }
-        } catch (Exception ex) {
-            log.log(Level.WARNING, "Failed to load " + configUrl + ", keeping defaults", ex);
+        } catch (IOException ex) {
+            LOG.log(Level.WARNING, "Failed to load " + configUrl + ", keeping defaults", ex);
         }
         return new Config();
     }
-    private static final Logger log = Logger.getLogger(WicketApplication.class.getName());
+    private static final Logger LOG = Logger.getLogger(WicketApplication.class.getName());
 }
