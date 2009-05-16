@@ -36,7 +36,7 @@ import org.apache.commons.io.IOUtils;
  */
 public final class Memory {
 
-    private final static Logger log = Logger.getLogger(Memory.class.getName());
+    private static final Logger LOG = Logger.getLogger(Memory.class.getName());
 
     /**
      * Returns physical memory information for host OS.
@@ -65,7 +65,7 @@ public final class Memory {
     /**
      * Retrieves host OS memory info using /proc/meminfo (Linux only)
      */
-    private static class MemoryLinuxStrategy {
+    private static final class MemoryLinuxStrategy {
 
         private static final boolean AVAIL;
         private static final String MEMINFO = "/proc/meminfo";
@@ -104,7 +104,7 @@ public final class Memory {
                 parseMeminfo(MEMINFO);
                 avail = true;
             } catch (Exception ex) {
-                log.log(Level.INFO, "MemoryLinuxStrategy disabled: " + MEMINFO + " not available", ex);
+                LOG.log(Level.INFO, "MemoryLinuxStrategy disabled: " + MEMINFO + " not available", ex);
             }
             AVAIL = avail;
         }
@@ -174,7 +174,7 @@ public final class Memory {
     /**
      * Retrieves host OS memory info using com.sun.management.OperatingSystemMXBean
      */
-    private static class MemoryJMXStrategy {
+    private static final class MemoryJMXStrategy {
 
         private static final OperatingSystemMXBean BEAN;
         private static final Class<?> BEAN_CLASS;
@@ -185,8 +185,8 @@ public final class Memory {
             try {
                 clazz = Class.forName("com.sun.management.OperatingSystemMXBean");
                 b = OperatingSystemMXBean.class.cast(clazz.cast(ManagementFactory.getOperatingSystemMXBean()));
-            } catch (Throwable ex) {
-                log.log(Level.INFO, "MemoryJMXStrategy disabled: com.sun.management.OperatingSystemMXBean unavailable", ex);
+            } catch (ClassNotFoundException ex) {
+                LOG.log(Level.INFO, "MemoryJMXStrategy disabled: com.sun.management.OperatingSystemMXBean unavailable", ex);
             }
             BEAN = b;
             BEAN_CLASS = clazz;
@@ -213,7 +213,7 @@ public final class Memory {
                 final long free = (Long) BEAN_CLASS.getMethod("getFreePhysicalMemorySize").invoke(BEAN);
                 final long used = total - free;
                 return new MemoryUsage(-1, used, used, total);
-            } catch (Throwable t) {
+            } catch (Exception e) {
                 return null;
             }
         }
@@ -231,7 +231,7 @@ public final class Memory {
                 final long free = (Long) BEAN_CLASS.getMethod("getFreeSwapSpaceSize").invoke(BEAN);
                 final long used = total - free;
                 return new MemoryUsage(-1, used, used, total);
-            } catch (Throwable t) {
+            } catch (Exception e) {
                 return null;
             }
         }
