@@ -88,7 +88,7 @@ public final class ThreadDump extends WebVMPage {
      * @param info the thread info.
      * @return pretty-printed thread info.
      */
-    private static String getThreadMetadata(final ThreadInfo info) {
+    public static String getThreadMetadata(final ThreadInfo info) {
         final StringBuilder sb = new StringBuilder();
         sb.append("0x");
         sb.append(Long.toHexString(info.getThreadId()));
@@ -106,6 +106,11 @@ public final class ThreadDump extends WebVMPage {
         if (lockName != null) {
             sb.append(", locked on [");
             sb.append(lockName);
+            sb.append("]");
+            sb.append(" owned by thread ");
+            sb.append(info.getLockOwnerId());
+            sb.append(" [");
+            sb.append(info.getLockOwnerName());
             sb.append("]");
         }
         return sb.toString();
