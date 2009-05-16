@@ -105,11 +105,9 @@ public final class DivGraph {
             sb.append(style.vertical ? "center" : "right");
             sb.append("; ");
         }
-        if (style.vertical) {
-            // if multiple stacked bars are drawn, make sure they are positioned horizontally.
-            if (floatLeft) {
-                sb.append("float:left; ");
-            }
+        // if multiple stacked bars are drawn, make sure they are positioned horizontally.
+        if (style.vertical && floatLeft) {
+            sb.append("float:left; ");
         }
         sb.append("width: ");
         sb.append(style.width);
