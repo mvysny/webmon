@@ -20,7 +20,6 @@ package sk.baka.webvm.analyzer;
 
 import sk.baka.webvm.analyzer.hostos.Memory;
 import java.io.File;
-import sk.baka.webvm.misc.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
@@ -35,6 +34,7 @@ import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
 import sk.baka.webvm.ThreadDump;
 import sk.baka.webvm.config.Config;
+import sk.baka.webvm.misc.MgmtUtils;
 
 /**
  * Analyzes VM problems.
@@ -345,6 +345,7 @@ public final class ProblemAnalyzer {
                 sb.append(FileUtils.byteCountToDisplaySize(freeSpaceKb * 1024));
                 sb.append(" free\n");
             } catch (Exception ex) {
+                LOG.log(Level.INFO, "Failed to get free space on " + root.getAbsolutePath(), ex);
                 sb.append("Failed to get free space on ");
                 sb.append(root.getAbsolutePath());
                 sb.append(": ");
