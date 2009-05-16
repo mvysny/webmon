@@ -68,7 +68,7 @@ public final class ThreadDump extends WebVMPage {
     /**
      * Wicket ListView which displays a thread list.
      */
-    private class ThreadListView extends ListView<ThreadInfo> {
+    private static class ThreadListView extends ListView<ThreadInfo> {
 
         public ThreadListView(String id, IModel<? extends List<? extends ThreadInfo>> model) {
             super(id, model);
@@ -121,7 +121,7 @@ public final class ThreadDump extends WebVMPage {
      * @param info
      * @return string representation of the stacktrace.
      */
-    private static String getThreadStacktrace(final ThreadInfo info) {
+    public static String getThreadStacktrace(final ThreadInfo info) {
         final StringBuilder sb = new StringBuilder();
         final StackTraceElement[] stack = info.getStackTrace();
         if (stack == null) {

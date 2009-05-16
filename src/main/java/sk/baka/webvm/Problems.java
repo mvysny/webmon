@@ -39,33 +39,48 @@ public final class Problems extends WebVMPage {
      * Creates new instance
      */
     public Problems() {
-        final IModel<List<ProblemReport>> model = new LoadableDetachableModel<List<ProblemReport>>() {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            protected List<ProblemReport> load() {
-                return WicketApplication.getAnalyzer().getProblems(WicketApplication.getHistory().getVmstatHistory());
-            }
-        };
-        final ListView<ProblemReport> list = new ListView<ProblemReport>("problemList", model) {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            protected void populateItem(ListItem<ProblemReport> item) {
-                final ProblemReport pr = item.getModelObject();
-                item.add(new Label("problemClass", pr.pclass));
-                final Label l = new Label("problemSeverity", pr.isProblem ? "WARN" : "OK");
-                l.add(new SimpleAttributeModifier("bgcolor", pr.isProblem ? "#d24343" : "#28cb17"));
-                item.add(l);
-                final Label desc = new Label("problemDesc", pr.desc);
-                desc.setEscapeModelStrings(false);
-                item.add(desc);
-                item.add(new Label("problemDiagnosis", pr.diagnosis));
-            }
-        };
+        final IModel<List<ProblemReport>> model = new ProblemsModel();
+        final ListView<ProblemReport> list = new ProblemsListView("problemList", model);
         border.add(list);
+    }
+
+    /**
+     * Provides a list of model. Stateless.
+     */
+    private static class ProblemsModel extends LoadableDetachableModel<List<ProblemReport>> {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected List<ProblemReport> load() {
+            return WicketApplication.getAnalyzer().getProblems(WicketApplication.getHistory().getVmstatHistory());
+        }
+    }
+    public static final String DARK_GREEN = "#28cb17";
+    public static final String LIGHT_RED = "#d24343";
+
+    /**
+     * Shows a list of problem reports.
+     */
+    private static class ProblemsListView extends ListView<ProblemReport> {
+
+        public ProblemsListView(String id, IModel<? extends List<? extends ProblemReport>> model) {
+            super(id, model);
+        }
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void populateItem(ListItem<ProblemReport> item) {
+            final ProblemReport pr = item.getModelObject();
+            item.add(new Label("problemClass", pr.pclass));
+            final Label l = new Label("problemSeverity", pr.isProblem ? "WARN" : "OK");
+            l.add(new SimpleAttributeModifier("bgcolor", pr.isProblem ? LIGHT_RED : DARK_GREEN));
+            item.add(l);
+            final Label desc = new Label("problemDesc", pr.desc);
+            desc.setEscapeModelStrings(false);
+            item.add(desc);
+            item.add(new Label("problemDiagnosis", pr.diagnosis));
+        }
     }
 }
 

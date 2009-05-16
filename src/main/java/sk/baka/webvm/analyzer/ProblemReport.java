@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import sk.baka.webvm.Problems;
 
 /**
  * Describes a potential problem.
@@ -29,6 +30,7 @@ import java.util.Map;
  */
 public final class ProblemReport implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     /**
      * Checks if this really is a problem. true if this might be a serious problem, false if everything is OK or this is only a minor issue.
      */
@@ -110,7 +112,7 @@ public final class ProblemReport implements Serializable {
             sb.append("<tr><td>");
             sb.append(r.pclass);
             sb.append("</td><td bgcolor=\"#");
-            sb.append(r.isProblem ? "d24343" : "28cb17");
+            sb.append(r.isProblem ? Problems.LIGHT_RED : Problems.DARK_GREEN);
             sb.append("\">");
             sb.append(r.isProblem ? "WARN" : "OK");
             sb.append("</td><td><pre>");
