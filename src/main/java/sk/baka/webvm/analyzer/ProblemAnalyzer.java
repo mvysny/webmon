@@ -33,6 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
+import sk.baka.webvm.ThreadDump;
 import sk.baka.webvm.config.Config;
 
 /**
@@ -41,7 +42,19 @@ import sk.baka.webvm.config.Config;
  */
 public final class ProblemAnalyzer {
 
-    private final static Logger log = Logger.getLogger(ProblemAnalyzer.class.getName());
+    private static final Logger LOG = Logger.getLogger(ProblemAnalyzer.class.getName());
+
+    private static long[] findDeadlockedThreads(final ThreadMXBean bean) {
+        long[] dt;
+        try {
+            // unsupported on Java 1.5
+            dt = bean.findDeadlockedThreads();
+        } catch (Throwable ex) {
+            // an ugly way to retain support for Java 1.5
+            dt = bean.findMonitorDeadlockedThreads();
+        }
+        return dt;
+    }
 
     /**
      * Parses init values from given application.
@@ -50,7 +63,7 @@ public final class ProblemAnalyzer {
     public void configure(final Config config) {
         this.config = new Config(config);
     }
-    private Config config;
+    private Config config = null;
 
     /**
      * Parses given property and returns it as an integer. Allows default value to be returned in case of null.
@@ -68,7 +81,7 @@ public final class ProblemAnalyzer {
         try {
             return Integer.parseInt(arg);
         } catch (final Exception ex) {
-            log.log(Level.SEVERE, propName + ": failed to parse '" + arg + "'", ex);
+            LOG.log(Level.SEVERE, propName + ": failed to parse '" + arg + "'", ex);
         }
         return defaultValue;
     }
@@ -287,42 +300,15 @@ public final class ProblemAnalyzer {
         if (bean == null) {
             return new ProblemReport(false, CLASS_DEADLOCKED_THREADS, "INFO: Report Unavailable - ThreadMXBean null", CLASS_DEADLOCKED_THREADS_DESC);
         }
-        long[] dt;
-        try {
-            // unsupported on Java 1.5
-            dt = bean.findDeadlockedThreads();
-        } catch (Throwable ex) {
-            // an ugly way to retain support for Java 1.5
-            dt = bean.findMonitorDeadlockedThreads();
-        }
+        final long[] dt = findDeadlockedThreads(bean);
         if ((dt == null) || (dt.length == 0)) {
             return new ProblemReport(false, CLASS_DEADLOCKED_THREADS, "None", CLASS_DEADLOCKED_THREADS_DESC);
         }
         for (final long thread : dt) {
             final ThreadInfo info = bean.getThreadInfo(thread, Integer.MAX_VALUE);
             sb.append("Locked thread: ");
-            sb.append(info.getThreadId());
-            sb.append(": ");
-            sb.append(info.getThreadName());
-            sb.append(" ");
-            sb.append(info.getThreadState());
-            if (info.isInNative()) {
-                sb.append(" InNative");
-            }
-            if (info.isSuspended()) {
-                sb.append(" Suspended");
-            }
+            sb.append(ThreadDump.getThreadMetadata(info));
             sb.append('\n');
-            final String lockName = info.getLockName();
-            if (lockName != null) {
-                sb.append("Locked on lock ");
-                sb.append(lockName);
-                sb.append(" owned by thread ");
-                sb.append(info.getLockOwnerId());
-                sb.append(": ");
-                sb.append(info.getLockOwnerName());
-                sb.append('\n');
-            }
             sb.append("Stacktrace:");
             final StackTraceElement[] trace = info.getStackTrace();
             if (trace == null || trace.length == 0) {
