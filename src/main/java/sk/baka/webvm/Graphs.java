@@ -55,6 +55,8 @@ public final class Graphs extends WebVMPage {
      * The darkgrey color used in graphs.
      */
     public static final String COLOR_DARKGREY = "#888888";
+    public static final String COLOR_WHITE = "#ffffff";
+    public static final String COLOR_GREY = "#999999";
 
     /**
      * Creates the page instance.
@@ -75,7 +77,7 @@ public final class Graphs extends WebVMPage {
      * Creates the default telemetry graph style.
      * @return the graph style.
      */
-    private static GraphStyle newDefaultStyle() {
+    public static GraphStyle newDefaultStyle() {
         final GraphStyle gs = new GraphStyle();
         gs.height = GRAPH_HEIGHT_PX;
         gs.width = GRAPH_WIDTH_PX;

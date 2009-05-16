@@ -34,6 +34,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import sk.baka.webvm.misc.DivGraph;
 import sk.baka.webvm.misc.MgmtUtils;
+import sk.baka.webvm.misc.Producer;
 
 /**
  * Shows detailed memory information.
@@ -56,9 +57,9 @@ public final class Memory extends WebVMPage {
         usage = MgmtUtils.getInMB(sk.baka.webvm.analyzer.hostos.Memory.getSwap());
         drawMemoryStatus(usage, "swapStatusBar", 300);
         border.add(new Label("swapStatusText", MgmtUtils.toString(usage, true)));
-        displayMemInfo(border, ManagementFactory.getMemoryManagerMXBeans(), "memoryManagers", "memManName", "memManValid", "memManProperties");
-        displayMemInfo(border, ManagementFactory.getGarbageCollectorMXBeans(), "gc", "gcName", "gcValid", "gcProperties");
-        addMemoryPoolInfo(border);
+        addMemoryPoolInfo(border, new MemoryBeansProducer(false), "memoryManagers", "memManName", "memManValid", "memManProperties");
+        addMemoryPoolInfo(border, new MemoryBeansProducer(true), "gc", "gcName", "gcValid", "gcProperties");
+        addDetailedMemoryPoolInfo(border);
         addGCStats();
     }
 
@@ -86,7 +87,7 @@ public final class Memory extends WebVMPage {
         border.add(new Label("gcTime", Long.toString(collectTime)));
     }
 
-    private static void addMemoryPoolInfo(final AppBorder border) {
+    private static void addDetailedMemoryPoolInfo(final AppBorder border) {
         final IModel<List<MemoryPoolMXBean>> model = new LoadableDetachableModel<List<MemoryPoolMXBean>>() {
 
             private static final long serialVersionUID = 1L;
@@ -96,78 +97,116 @@ public final class Memory extends WebVMPage {
                 return ManagementFactory.getMemoryPoolMXBeans();
             }
         };
-        border.add(new ListView<MemoryPoolMXBean>("memoryPool", model) {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            protected void populateItem(ListItem<MemoryPoolMXBean> item) {
-                final MemoryPoolMXBean bean = item.getModelObject();
-                item.add(new Label("poolName", bean.getName()));
-                item.add(new Label("poolType", "" + bean.getType()));
-                item.add(new Label("poolValid", bean.isValid() ? "Y" : "N"));
-                MemoryUsage usage = MgmtUtils.getInMB(bean.getCollectionUsage());
-                add(item, "poolCollects", usage, true);
-                item.add(new Label("poolCollectsPerc", MgmtUtils.getUsagePerc(usage)));
-                usage = MgmtUtils.getInMB(bean.getPeakUsage());
-                add(item, "poolPeak", usage, false);
-                item.add(new Label("poolPeakPerc", MgmtUtils.getUsagePerc(usage)));
-                usage = MgmtUtils.getInMB(bean.getUsage());
-                add(item, "poolUsage", usage, false);
-                item.add(new Label("poolUsagePerc", MgmtUtils.getUsagePerc(usage)));
-            }
-
-            private void add(final ListItem<?> item, final String wid, MemoryUsage usage, final boolean gc) {
-                if (usage == null && gc) {
-                    item.add(new Label(wid, "Not collectable"));
-                    return;
-                }
-                final StringBuilder sb = new StringBuilder();
-                if (usage != null) {
-                    sb.append(DivGraph.drawMemoryStatus(usage, 200));
-                }
-                sb.append(MgmtUtils.toString(usage, true));
-                final Label label = new Label(wid, sb.toString());
-                label.setEscapeModelStrings(false);
-                item.add(label);
-            }
-        });
+        border.add(new MemoryPoolDetailListView("memoryPool", model));
     }
 
-    private static void displayMemInfo(final AppBorder border, final List<? extends MemoryManagerMXBean> b, final String listId, final String nameId, final String validId, final String propsId) {
-        final List<? extends MemoryManagerMXBean> beans = b != null ? b : Collections.<MemoryManagerMXBean>emptyList();
-        final IModel<List<MemoryManagerMXBean>> model = new LoadableDetachableModel<List<MemoryManagerMXBean>>(new ArrayList<MemoryManagerMXBean>(beans)) {
+    private static void addMemoryPoolInfo(final AppBorder border, final Producer<? extends List<? extends MemoryManagerMXBean>> memoryBeansProducer, final String listId, final String nameId, final String validId, final String propsId) {
+        final IModel<List<MemoryManagerMXBean>> model = new LoadableDetachableModel<List<MemoryManagerMXBean>>(null) {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected List<MemoryManagerMXBean> load() {
-                return null;
+                final List<? extends MemoryManagerMXBean> beans = memoryBeansProducer.produce();
+                return beans != null ? new ArrayList<MemoryManagerMXBean>(beans) : Collections.<MemoryManagerMXBean>emptyList();
             }
         };
-        border.add(new ListView<MemoryManagerMXBean>(listId, model) {
+        border.add(new MemoryPoolListView(listId, model, nameId, validId, propsId));
+    }
 
-            private static final long serialVersionUID = 1L;
+    /**
+     * Shows a list of detailed information about memory pools.
+     */
+    private static class MemoryPoolDetailListView extends ListView<MemoryPoolMXBean> {
 
-            @Override
-            protected void populateItem(ListItem<MemoryManagerMXBean> item) {
-                final MemoryManagerMXBean bean = item.getModelObject();
-                item.add(new Label(nameId, bean.getName()));
-                item.add(new Label(validId, bean.isValid() ? "Y" : "N"));
-                final StringBuilder sb = new StringBuilder();
-                sb.append("Memory Pools: ");
-                sb.append(Arrays.toString(bean.getMemoryPoolNames()));
-                if (bean instanceof GarbageCollectorMXBean) {
-                    final GarbageCollectorMXBean gb = (GarbageCollectorMXBean) bean;
-                    sb.append("; Collections: ");
-                    sb.append(gb.getCollectionCount());
-                    sb.append("; Time: ");
-                    sb.append(gb.getCollectionTime());
-                    sb.append("ms");
-                }
-                item.add(new Label(propsId, sb.toString()));
+        public MemoryPoolDetailListView(String id, IModel<? extends List<? extends MemoryPoolMXBean>> model) {
+            super(id, model);
+        }
+        private static final int MEMSTAT_GRAPH_WIDTH = 200;
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void populateItem(ListItem<MemoryPoolMXBean> item) {
+            final MemoryPoolMXBean bean = item.getModelObject();
+            item.add(new Label("poolName", bean.getName()));
+            item.add(new Label("poolType", "" + bean.getType()));
+            item.add(new Label("poolValid", bean.isValid() ? "Y" : "N"));
+            MemoryUsage usage = MgmtUtils.getInMB(bean.getCollectionUsage());
+            add(item, "poolCollects", usage, true);
+            item.add(new Label("poolCollectsPerc", MgmtUtils.getUsagePerc(usage)));
+            usage = MgmtUtils.getInMB(bean.getPeakUsage());
+            add(item, "poolPeak", usage, false);
+            item.add(new Label("poolPeakPerc", MgmtUtils.getUsagePerc(usage)));
+            usage = MgmtUtils.getInMB(bean.getUsage());
+            add(item, "poolUsage", usage, false);
+            item.add(new Label("poolUsagePerc", MgmtUtils.getUsagePerc(usage)));
+        }
+
+        private void add(final ListItem<?> item, final String wid, MemoryUsage usage, final boolean gc) {
+            if (usage == null && gc) {
+                item.add(new Label(wid, "Not collectable"));
+                return;
             }
-        });
+            final StringBuilder sb = new StringBuilder();
+            if (usage != null) {
+                sb.append(DivGraph.drawMemoryStatus(usage, MEMSTAT_GRAPH_WIDTH));
+            }
+            sb.append(MgmtUtils.toString(usage, true));
+            final Label label = new Label(wid, sb.toString());
+            label.setEscapeModelStrings(false);
+            item.add(label);
+        }
+    }
+
+    private static class MemoryBeansProducer implements Producer<List<? extends MemoryManagerMXBean>> {
+
+        private final boolean isGcOnly;
+
+        public MemoryBeansProducer(boolean isGcOnly) {
+            this.isGcOnly = isGcOnly;
+        }
+        private static final long serialVersionUID = 1L;
+
+        public List<? extends MemoryManagerMXBean> produce() {
+            return isGcOnly ? ManagementFactory.getGarbageCollectorMXBeans() : ManagementFactory.getMemoryManagerMXBeans();
+        }
+    }
+
+    /**
+     * Shows a quick memory pool overview.
+     */
+    private static class MemoryPoolListView extends ListView<MemoryManagerMXBean> {
+
+        private final String nameId;
+        private final String validId;
+        private final String propsId;
+
+        public MemoryPoolListView(String id, IModel<? extends List<? extends MemoryManagerMXBean>> model, String nameId, String validId, String propsId) {
+            super(id, model);
+            this.nameId = nameId;
+            this.validId = validId;
+            this.propsId = propsId;
+        }
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void populateItem(ListItem<MemoryManagerMXBean> item) {
+            final MemoryManagerMXBean bean = item.getModelObject();
+            item.add(new Label(nameId, bean.getName()));
+            item.add(new Label(validId, bean.isValid() ? "Y" : "N"));
+            final StringBuilder sb = new StringBuilder();
+            sb.append("Memory Pools: ");
+            sb.append(Arrays.toString(bean.getMemoryPoolNames()));
+            if (bean instanceof GarbageCollectorMXBean) {
+                final GarbageCollectorMXBean gb = (GarbageCollectorMXBean) bean;
+                sb.append("; Collections: ");
+                sb.append(gb.getCollectionCount());
+                sb.append("; Time: ");
+                sb.append(gb.getCollectionTime());
+                sb.append("ms");
+            }
+            item.add(new Label(propsId, sb.toString()));
+        }
     }
 }
 

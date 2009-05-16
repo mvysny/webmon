@@ -55,17 +55,13 @@ public class WebVMPage extends WebPage {
      * @param wid chain result with this wicket id
      * @param index the memory usage index to the {@link HistorySample#memUsage} array.
      */
-    public void drawMemoryUsageGraph(final List<HistorySample> history, final String wid, final int index) {
+    public final void drawMemoryUsageGraph(final List<HistorySample> history, final String wid, final int index) {
         if (history.size() == 0) {
             border.add(new Label(wid, ""));
             return;
         }
-        final GraphStyle gs = new GraphStyle();
-        gs.height = 120;
-        gs.width = 300;
-        gs.colors = new String[]{"#7e43b2", "#ff7f7f"};
-        gs.border = "black";
-        gs.yLegend = true;
+        final GraphStyle gs = Graphs.newDefaultStyle();
+        gs.colors = new String[]{Graphs.COLOR_BLUE, Graphs.COLOR_BROWN};
         long maxMem = history.get(0).memPoolUsage[index].getMax();
         if (maxMem == -1) {
             maxMem = 0;
@@ -91,7 +87,7 @@ public class WebVMPage extends WebPage {
      * @param wid the wicket component
      * @param value the value to show
      */
-    public void unescaped(final String wid, final String value) {
+    public final void unescaped(final String wid, final String value) {
         final Label l = new Label(wid, value);
         l.setEscapeModelStrings(false);
         border.add(l);
@@ -103,7 +99,7 @@ public class WebVMPage extends WebPage {
      * @param wid the wicket component
      * @param width the width of the bar in pixels.
      */
-    public void drawMemoryStatus(final MemoryUsage usage, final String wid, final int width) {
+    public final void drawMemoryStatus(final MemoryUsage usage, final String wid, final int width) {
         final String bar = DivGraph.drawMemoryStatus(usage, width);
         unescaped(wid, bar);
     }
