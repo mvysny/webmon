@@ -219,7 +219,6 @@ public final class DivGraph {
         } else {
             max = (int) (usage.getCommitted() * 7 / 5);
         }
-        final String bar = DivGraph.drawStackedBar(gs, new int[]{(int) usage.getUsed(), (int) usage.getCommitted()}, max, false);
-        return bar;
+        return DivGraph.drawStackedBar(gs, new int[]{(int) usage.getUsed(), (int) usage.getCommitted()}, max, false);
     }
 }
