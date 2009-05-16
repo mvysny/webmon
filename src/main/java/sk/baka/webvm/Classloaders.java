@@ -126,7 +126,7 @@ public final class Classloaders extends WebVMPage {
                 n.add(new TreeNode(link));
             }
         } catch (Exception ex) {
-            log.log(Level.SEVERE, "Error while retrieving resources", ex);
+            LOG.log(Level.SEVERE, "Error while retrieving resources", ex);
             n.add(new DefaultMutableTreeNode("Error while retrieving resources: " + ex.toString()));
         }
         tree.nodeStructureChanged(n);
@@ -171,7 +171,7 @@ public final class Classloaders extends WebVMPage {
             // do nothing
         }
     }
-    private static final Logger log = Logger.getLogger(Classloaders.class.getName());
+    private static final Logger LOG = Logger.getLogger(Classloaders.class.getName());
     private static final int MAX_CLASSLOADER_NAME_LENGTH = 60;
 
     private static class TreeNode extends DefaultMutableTreeNode {
