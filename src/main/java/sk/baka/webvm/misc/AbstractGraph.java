@@ -60,7 +60,7 @@ public abstract class AbstractGraph {
      * Adds given value array to the graph. The array must be ascending.
      * @param values the values to add. There must be exactly one value for each {@link GraphStyle#colors graph column}.
      */
-    public void add(final int[] values) {
+    public final void add(final int[] values) {
         if (values.length != style.colors.length) {
             throw new IllegalArgumentException("Expected " + style.colors.length + " columns but got " + values.length);
         }
@@ -80,7 +80,7 @@ public abstract class AbstractGraph {
      * Append several zero values until a desired data length is reached.
      * @param desiredLength desired length of X axis.
      */
-    public void fillWithZero(final int desiredLength) {
+    public final void fillWithZero(final int desiredLength) {
         int[] empty = new int[style.colors.length];
         while (values.size() < desiredLength) {
             values.add(empty);
