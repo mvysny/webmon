@@ -45,6 +45,50 @@ public final class BluffGraph extends AbstractGraph {
             sb.append("; \"");
         }
         sb.append("></canvas><script type=\"text/javascript\">\n");
+        drawBluffInitializationScript(sb, id);
+        for (int i = 0; i < style.colors.length; i++) {
+            drawBluffDataAxis(sb, i);
+        }
+        sb.append("  g.minimum_value=0;g.maximum_value=");
+        sb.append(max);
+        sb.append(";\n");
+        sb.append("  g.draw();\n");
+        sb.append("</script>\n");
+    }
+
+    private void drawBluffDataAxis(StringBuilder sb, int i) {
+        sb.append("  g.data(\"\", [");
+        boolean first = true;
+        // hack to suppress the "No Data" message - displayed when a bunch of zeroes is fed to the graph.
+        // Just add a single "1" to the end of the graph :)
+        boolean zeroesOnly = true;
+        for (final int[] vals : this.values) {
+            if (first) {
+                first = false;
+            } else {
+                sb.append(",");
+            }
+            int val = vals[i];
+            if (style.style == GraphStyle.GraphStyleEnum.StackedBar) {
+                // elements are stacked on top of each other, not behind themselves. Recompute items values to fix this.
+                for (int j = 0; j < i; j++) {
+                    val -= vals[j];
+                }
+            }
+            if (val != 0) {
+                zeroesOnly = false;
+            }
+            sb.append(val);
+        }
+        if (zeroesOnly) {
+            sb.append('1');
+        }
+        sb.append("], '");
+        sb.append(style.colors[i]);
+        sb.append("');\n");
+    }
+
+    private void drawBluffInitializationScript(StringBuilder sb, final String id) {
         sb.append("  var g = new Bluff.");
         switch (style.style) {
             case StackedBar:
@@ -69,44 +113,8 @@ public final class BluffGraph extends AbstractGraph {
             sb.append("';\n");
         }
         if (!style.yLegend) {
-            sb.append("  g.hide_line_numbers = true;");
+            sb.append("g.hide_line_numbers = true;");
         }
-        sb.append("  g.hide_legend = true;g.set_margins(0);g.sort = false;g.theme_37signals();\n");
-        for (int i = 0; i < style.colors.length; i++) {
-            sb.append("  g.data(\"\", [");
-            boolean first = true;
-            // hack to suppress the "No Data" message - displayed when a bunch of zeroes is fed to the graph.
-            // Just add a single "1" to the end of the graph :)
-            boolean zeroesOnly = true;
-            for (final int[] vals : this.values) {
-                if (first) {
-                    first = false;
-                } else {
-                    sb.append(",");
-                }
-                int val = vals[i];
-                if (style.style == GraphStyle.GraphStyleEnum.StackedBar) {
-                    // elements are stacked on top of each other, not behind themselves. Recompute items values to fix this.
-                    for (int j = 0; j < i; j++) {
-                        val -= vals[j];
-                    }
-                }
-                if (val != 0) {
-                    zeroesOnly = false;
-                }
-                sb.append(val);
-            }
-            if (zeroesOnly) {
-                sb.append('1');
-            }
-            sb.append("], '");
-            sb.append(style.colors[i]);
-            sb.append("');\n");
-        }
-        sb.append("  g.minimum_value=0;g.maximum_value=");
-        sb.append(max);
-        sb.append(";\n");
-        sb.append("  g.draw();\n");
-        sb.append("</script>\n");
+        sb.append("g.hide_legend = true;g.set_margins(0);g.sort = false;g.theme_37signals();\n");
     }
 }
