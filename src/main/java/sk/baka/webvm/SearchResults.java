@@ -19,6 +19,7 @@
 package sk.baka.webvm;
 
 import java.io.File;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IModel;
 import sk.baka.webvm.analyzer.classloader.ClassLoaderUtils;
 import sk.baka.webvm.analyzer.classloader.ResourceLink;
 import sk.baka.webvm.wicket.WicketUtils;
@@ -50,34 +52,7 @@ public final class SearchResults extends WebVMPage {
         super();
         border.add(new Label("searchQuery", searchQuery));
         final List<CLResult> results = performSearch(searchQuery);
-        border.add(new ListView<CLResult>("classpathItems", results) {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            protected void populateItem(ListItem<CLResult> item) {
-                final CLResult resLink = item.getModelObject();
-                item.add(new Link<CLResult>("classpathItem", item.getModel()) {
-
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    protected void onComponentTagBody(final MarkupStream markupStream, final ComponentTag openTag) {
-                        final CLResult model = getModelObject();
-                        final String caption = model.toString();
-                        replaceComponentTagBody(markupStream, openTag, caption);
-                    }
-
-                    @Override
-                    public void onClick() {
-                        if (resLink.res == null) {
-                            return;
-                        }
-                        WicketUtils.redirectTo(resLink.res);
-                    }
-                });
-            }
-        });
+        border.add(new ResultsListView("classpathItems", results));
     }
 
     /**
@@ -117,8 +92,9 @@ public final class SearchResults extends WebVMPage {
     /**
      * The classloader search result item, contains either a resource link or an error message.
      */
-    private static class CLResult implements Comparable<CLResult> {
+    private static class CLResult implements Comparable<CLResult>, Serializable {
 
+        private static final long serialVersionUID = 1L;
         /**
          * A link to the resource item.
          */
@@ -127,10 +103,6 @@ public final class SearchResults extends WebVMPage {
          * If we were unable to obtain a resource link then this is the error message.
          */
         public String error;
-        /**
-         * Originating classloader.
-         */
-        public ClassLoader classloader;
         /**
          * Classloader number, 1 is the context classloader, 2 is its parent etc.
          */
@@ -148,7 +120,6 @@ public final class SearchResults extends WebVMPage {
             for (final ResourceLink res : source) {
                 final CLResult cresult = new CLResult();
                 cresult.res = res;
-                cresult.classloader = cl;
                 cresult.clIndex = clIndex;
                 result.add(cresult);
             }
@@ -165,7 +136,6 @@ public final class SearchResults extends WebVMPage {
         public static CLResult from(final Throwable t, final ClassLoader cl, final int clIndex) {
             final CLResult result = new CLResult();
             result.error = t.toString();
-            result.classloader = cl;
             result.clIndex = clIndex;
             return result;
         }
@@ -179,6 +149,49 @@ public final class SearchResults extends WebVMPage {
         @Override
         public String toString() {
             return res != null ? "[" + clIndex + "] " + res.getFullName() : error;
+        }
+    }
+
+    /**
+     * Shows search result list.
+     */
+    private static class ResultsListView extends ListView<CLResult> {
+
+        public ResultsListView(String id, List<? extends CLResult> list) {
+            super(id, list);
+        }
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void populateItem(ListItem<CLResult> item) {
+            final CLResult resLink = item.getModelObject();
+            item.add(new DownloadableResultLink("classpathItem", item.getModel(), resLink));
+        }
+
+        private static class DownloadableResultLink extends Link<CLResult> {
+
+            private final CLResult resLink;
+
+            public DownloadableResultLink(String id, IModel<CLResult> model, CLResult resLink) {
+                super(id, model);
+                this.resLink = resLink;
+            }
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected void onComponentTagBody(final MarkupStream markupStream, final ComponentTag openTag) {
+                final CLResult model = getModelObject();
+                final String caption = model.toString();
+                replaceComponentTagBody(markupStream, openTag, caption);
+            }
+
+            @Override
+            public void onClick() {
+                if (resLink.res == null) {
+                    return;
+                }
+                WicketUtils.redirectTo(resLink.res);
+            }
         }
     }
 }
