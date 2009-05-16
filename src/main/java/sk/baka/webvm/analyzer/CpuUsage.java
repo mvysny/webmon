@@ -28,7 +28,7 @@ import sk.baka.webvm.analyzer.hostos.Cpu;
  */
 public final class CpuUsage {
 
-    private final static Logger log = Logger.getLogger(Cpu.class.getName());
+    private static final Logger LOG = Logger.getLogger(Cpu.class.getName());
     /**
      * The CPU usage measurer.
      */
@@ -66,7 +66,7 @@ public final class CpuUsage {
             try {
                 cpuMeasurement = cpuUsage.measure();
             } catch (Exception ex) {
-                log.log(Level.SEVERE, "Failed to measure a CPU usage", ex);
+                LOG.log(Level.SEVERE, "Failed to measure a CPU usage", ex);
                 return -1;
             }
             return 0;
@@ -75,7 +75,7 @@ public final class CpuUsage {
         try {
             newMeasurement = cpuUsage.measure();
         } catch (Exception ex) {
-            log.log(Level.SEVERE, "Failed to measure a CPU usage", ex);
+            LOG.log(Level.SEVERE, "Failed to measure a CPU usage", ex);
             return -1;
         }
         final int result = cpuUsage.getAvgCpuUsage(cpuMeasurement, newMeasurement);
