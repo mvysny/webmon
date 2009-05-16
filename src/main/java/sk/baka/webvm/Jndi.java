@@ -79,8 +79,7 @@ public final class Jndi extends WebVMPage {
 
     private static TreeModel toModel(Exception ex) {
         final TreeNode root = new DefaultMutableTreeNode("Error listing JNDI tree: " + ex.toString());
-        final TreeModel m = new DefaultTreeModel(root);
-        return m;
+        return new DefaultTreeModel(root);
     }
 
     /**
@@ -118,7 +117,7 @@ public final class Jndi extends WebVMPage {
                     try {
                         listUnprotected(ctx, parent, pair, depth);
                     } catch (final Exception e) {
-                        log.log(Level.SEVERE, "JNDI examination error", e);
+                        LOG.log(Level.SEVERE, "JNDI examination error", e);
                         final StringBuilder sb = new StringBuilder();
                         sb.append(pair.getName());
                         sb.append(": Failed to examine: ");
@@ -130,7 +129,7 @@ public final class Jndi extends WebVMPage {
                 closeQuietly(ne);
             }
         } catch (Exception ex) {
-            log.log(Level.SEVERE, "JNDI examination error", ex);
+            LOG.log(Level.SEVERE, "JNDI examination error", ex);
             String name = "[unknown]";
             try {
                 name = ctx.getNameInNamespace();
@@ -176,10 +175,10 @@ public final class Jndi extends WebVMPage {
         try {
             c.close();
         } catch (final Exception ex) {
-            log.log(Level.FINE, "Failed to close an object", ex);
+            LOG.log(Level.FINE, "Failed to close an object", ex);
         }
     }
-    private final static Logger log = Logger.getLogger(Jndi.class.getName());
+    private static final Logger LOG = Logger.getLogger(Jndi.class.getName());
 
     /**
      * A model object which constructs itself from given JNDI information.

@@ -37,7 +37,7 @@ import sk.baka.webvm.misc.SimpleFixedSizeFIFO;
  */
 public final class HistorySampler extends BackgroundService {
 
-    private static final Logger log = Logger.getLogger(HistorySampler.class.getName());
+    private static final Logger LOG = Logger.getLogger(HistorySampler.class.getName());
     private final ProblemAnalyzer analyzer;
 
     /**
@@ -62,7 +62,6 @@ public final class HistorySampler extends BackgroundService {
         problemHistory = new SimpleFixedSizeFIFO<List<ProblemReport>>(problemConfig.getHistoryLength());
         this.analyzer = analyzer;
     }
-    private volatile Config config = new Config();
     private final SamplerConfig problemConfig;
     /**
      * Default VMStat history.
@@ -79,7 +78,6 @@ public final class HistorySampler extends BackgroundService {
      * @param config the new config file.
      */
     public void configure(final Config config) {
-        this.config = new Config(config);
         notificator.configure(config);
     }
 
@@ -129,7 +127,8 @@ public final class HistorySampler extends BackgroundService {
                 ioUsage = ioUsage < 0 ? 0 : ioUsage;
                 vmstatHistory.add(new HistorySample(cpuUsageByGC, usage, javaUsage, ioUsage));
             } catch (Throwable e) {
-                log.log(Level.SEVERE, "The Sampler thread failed", e);
+                // catch all throwables as the thread is going to terminate anyway
+                LOG.log(Level.SEVERE, "The Sampler thread failed", e);
             }
         }
     }
@@ -194,7 +193,8 @@ public final class HistorySampler extends BackgroundService {
                 problemHistory.add(currentProblems);
                 notificator.deliverAsync(currentProblems);
             } catch (Throwable e) {
-                log.log(Level.SEVERE, "The ProblemSampler timer failed", e);
+                // catch all throwables as the thread is going to terminate anyway
+                LOG.log(Level.SEVERE, "The ProblemSampler timer failed", e);
             }
         }
     }
