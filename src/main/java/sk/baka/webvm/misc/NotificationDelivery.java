@@ -18,7 +18,6 @@
  */
 package sk.baka.webvm.misc;
 
-import sk.baka.webvm.analyzer.*;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
@@ -34,6 +33,7 @@ import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
+import sk.baka.webvm.analyzer.ProblemReport;
 import sk.baka.webvm.config.Config;
 
 /**
@@ -151,7 +151,7 @@ public final class NotificationDelivery extends BackgroundService {
             asyncQueue.put(reports);
         } catch (InterruptedException ex) {
             // we do not have a space-bound queue
-            throw new Error("Shouldn't happen", ex);
+            throw new AssertionError(ex);
         }
     }
     private final BlockingQueue<List<ProblemReport>> asyncQueue = new LinkedBlockingQueue<List<ProblemReport>>();
@@ -189,15 +189,15 @@ public final class NotificationDelivery extends BackgroundService {
                 try {
                     NotificationDelivery.sendEmail(config, false, reports);
                 } catch (Exception ex) {
-                    log.log(Level.SEVERE, "Failed to send email", ex);
+                    LOG.log(Level.SEVERE, "Failed to send email", ex);
                 }
                 try {
                     NotificationDelivery.sendJabber(config, false, reports);
                 } catch (Exception ex) {
-                    log.log(Level.SEVERE, "Failed to send jabber message", ex);
+                    LOG.log(Level.SEVERE, "Failed to send jabber message", ex);
                 }
             }
         }
     }
-    private static final Logger log = Logger.getLogger(NotificationDelivery.class.getName());
+    private static final Logger LOG = Logger.getLogger(NotificationDelivery.class.getName());
 }
