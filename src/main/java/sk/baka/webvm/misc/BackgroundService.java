@@ -70,14 +70,14 @@ public abstract class BackgroundService {
      * Returns the executor.
      * @return the executor. null if not started.
      */
-    protected final ScheduledExecutorService getExecutor() {
+    protected synchronized final ScheduledExecutorService getExecutor() {
         return executor;
     }
 
     /**
      * Disposes of this sampler. This instance is no longer usable and cannot be started again.
      */
-    public synchronized void stop() {
+    public final synchronized void stop() {
         if (executor != null) {
             executor.shutdownNow();
             executor = null;
@@ -86,7 +86,7 @@ public abstract class BackgroundService {
     }
 
     /**
-     * The service is stopped.
+     * Invoked after the service has been stopped.
      */
     protected abstract void stopped();
 
