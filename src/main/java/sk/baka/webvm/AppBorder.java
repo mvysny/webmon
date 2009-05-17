@@ -75,7 +75,7 @@ public class AppBorder extends Border {
     /**
      * Implements the Search form.
      */
-    private static class FormImpl extends Form {
+    private static class FormImpl extends Form<String> {
 
         public FormImpl(String id) {
             super(id);

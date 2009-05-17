@@ -88,7 +88,7 @@ public final class Configure extends WebVMPage {
     /**
      * A basic configuration form, handles retrieval of config object.
      */
-    protected static class ConfigForm extends Form {
+    protected static class ConfigForm extends Form<Config> {
 
         private static final long serialVersionUID = 1L;
         /**
