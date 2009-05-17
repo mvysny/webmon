@@ -1,3 +1,8 @@
 target
 profiles.xml
 
+\.orig\..*$
+\.orig$
+\.chg\..*$
+\.rej$
+\.conflict\~$
