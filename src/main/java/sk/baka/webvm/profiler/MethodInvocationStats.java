@@ -23,8 +23,14 @@ package sk.baka.webvm.profiler;
  * @author Martin Vysny
  */
 public final class MethodInvocationStats {
+
     /**
      * How long this method has been active, in ms.
      */
     public long activeTime = 0;
+
+    @Override
+    public String toString() {
+        return activeTime + "ms";
+    }
 }

@@ -14,6 +14,14 @@
                 <div class="entry">
                     A very simple profiler which performs stack trace dumps each 100 milliseconds.<br/>
                     The profiler is <span wicket:id="profilerState"/>. <a wicket:id="profilerStart">Start</a> <a wicket:id="profilerStop">Stop</a>.
+                    <table id="table">
+                        <thead><tr><th>Class</th><th>Method</th><th>Time</th></tr></thead>
+                        <tr wicket:id="profilerTable">
+                            <td wicket:id="profiledClass"/>
+                            <td wicket:id="profiledMethod"/>
+                            <td wicket:id="profiledTime"/>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>

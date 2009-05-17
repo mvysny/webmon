@@ -118,8 +118,14 @@ public final class ProfilerEngine {
 
         public void run() {
             final ThreadInfo[] info = bean.getThreadInfo(bean.getAllThreadIds(), Integer.MAX_VALUE);
-            final long sampleDelay = System.currentTimeMillis() - lastSampleTime;
-            lastSampleTime += sampleDelay;
+            long sampleDelay;
+            if (lastSampleTime != 0) {
+                sampleDelay = System.currentTimeMillis() - lastSampleTime;
+                lastSampleTime += sampleDelay;
+            } else {
+                sampleDelay = 0;
+                lastSampleTime = System.currentTimeMillis();
+            }
             analyzeThreads(info, sampleDelay);
         }
 
