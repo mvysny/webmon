@@ -33,15 +33,15 @@ import java.util.concurrent.TimeUnit;
  * The profiler implementation.
  * @author Martin Vysny
  */
-public final class Profiler {
+public final class ProfilerEngine {
 
-    private static final Profiler INSTANCE = new Profiler();
+    private static final ProfilerEngine INSTANCE = new ProfilerEngine();
 
     /**
      * Returns the singleton profiler instance.
      * @return the instance.
      */
-    public static Profiler getInstance() {
+    public static ProfilerEngine getInstance() {
         return INSTANCE;
     }
     private ScheduledExecutorService threadDumper = null;
@@ -76,6 +76,7 @@ public final class Profiler {
         if (threadDumper == null) {
             return;
         }
+        dumperFuture.cancel(true);
         threadDumper.shutdownNow();
         threadDumper = null;
         try {
