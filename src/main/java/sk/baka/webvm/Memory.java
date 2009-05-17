@@ -101,7 +101,8 @@ public final class Memory extends WebVMPage {
     }
 
     private static void addMemoryPoolInfo(final AppBorder border, final Producer<? extends List<? extends MemoryManagerMXBean>> memoryBeansProducer, final String listId, final String nameId, final String validId, final String propsId) {
-        final IModel<List<MemoryManagerMXBean>> model = new LoadableDetachableModel<List<MemoryManagerMXBean>>(null) {
+        final ArrayList<MemoryManagerMXBean> beans = new ArrayList<MemoryManagerMXBean>(memoryBeansProducer.produce());
+        final IModel<List<MemoryManagerMXBean>> model = new LoadableDetachableModel<List<MemoryManagerMXBean>>(beans) {
 
             private static final long serialVersionUID = 1L;
 
