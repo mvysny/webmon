@@ -18,8 +18,17 @@
  */
 package sk.baka.webvm;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
+import sk.baka.webvm.profiler.MethodInvocationStats;
 import sk.baka.webvm.profiler.ProfilerEngine;
 
 /**
@@ -37,6 +46,7 @@ public final class Profiler extends WebVMPage {
         border.add(new Label("profilerState", ProfilerEngine.getInstance().isRunning() ? "profiling" : "stopped"));
         border.add(new StartProfilerLink("profilerStart"));
         border.add(new StopProfilerLink("profilerStop"));
+        border.add(new ProfilerOutputListView("profilerTable", new ProfilerDataModel()));
     }
 
     private static class StartProfilerLink extends Link<Void> {
@@ -66,6 +76,33 @@ public final class Profiler extends WebVMPage {
         public void onClick() {
             ProfilerEngine.getInstance().stop();
             setResponsePage(Profiler.class);
+        }
+    }
+
+    private static class ProfilerOutputListView extends ListView<Entry<String, Map<String, MethodInvocationStats>>> {
+
+        private static final long serialVersionUID = 1L;
+
+        public ProfilerOutputListView(String id, IModel<? extends List<? extends Entry<String, Map<String, MethodInvocationStats>>>> model) {
+            super(id, model);
+        }
+
+        @Override
+        protected void populateItem(ListItem<Entry<String, Map<String, MethodInvocationStats>>> item) {
+            item.add(new Label("profiledClass", item.getModelObject().getKey()));
+            item.add(new Label("profiledMethod", item.getModelObject().getValue().keySet().toString()));
+            item.add(new Label("profiledTime", item.getModelObject().getValue().values().toString()));
+        }
+    }
+
+    static class ProfilerDataModel extends LoadableDetachableModel<List<? extends Entry<String, Map<String, MethodInvocationStats>>>> {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected List<? extends Entry<String, Map<String, MethodInvocationStats>>> load() {
+            final Map<String, Map<String, MethodInvocationStats>> profilingData = ProfilerEngine.getInstance().getData();
+            return profilingData == null ? new ArrayList<Entry<String, Map<String, MethodInvocationStats>>>() : new ArrayList<Entry<String, Map<String, MethodInvocationStats>>>(profilingData.entrySet());
         }
     }
 }
