@@ -25,6 +25,7 @@ import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -46,11 +47,20 @@ public final class ProblemAnalyzer {
 
     private static long[] findDeadlockedThreads(final ThreadMXBean bean) {
         long[] dt;
+        // try to get the "findDeadlockedThreads()" 1.6 method.
+        Method m = null;
         try {
-            // unsupported on Java 1.5
-            dt = bean.findDeadlockedThreads();
-        } catch (Throwable ex) {
-            // an ugly way to retain support for Java 1.5
+            m = ThreadMXBean.class.getMethod("findDeadlockedThreads");
+        } catch (NoSuchMethodException ex) {
+            // nope. We are on 1.5. We'll use findMonitorDeadlockedThreads()
+        }
+        if (m != null) {
+            try {
+                dt = (long[]) m.invoke(bean);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        } else {
             dt = bean.findMonitorDeadlockedThreads();
         }
         return dt;
