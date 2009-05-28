@@ -25,6 +25,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 
 /**
  * Simulates a deadlock.
@@ -130,7 +131,11 @@ public final class Deadlock {
         assertTrue(t1.isAlive());
         assertTrue(t2.isAlive());
         // sanity-check for JVM to report correct values
-        final long ids[] = ManagementFactory.getThreadMXBean().findMonitorDeadlockedThreads();
-        assertTrue("The JVM does not correctly report deadlocked threads", ids != null && ids.length > 0);
+        final long ids[] = ProblemAnalyzer.findDeadlockedThreads(ManagementFactory.getThreadMXBean());
+        // this assumption fails on 1.5 as it does not support finding deadlocks in a ReentrantLock.
+        // we could form a deadlock using the synchronized keyword but there is no way to interrupt
+        // wait in the synchronized block thus the threads will never end - this will interfere with other tests.
+        // Just skip the tests on 1.5.
+        assumeTrue(ids != null && ids.length > 0);
     }
 }

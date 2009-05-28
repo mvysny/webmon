@@ -45,7 +45,12 @@ public final class ProblemAnalyzer {
 
     private static final Logger LOG = Logger.getLogger(ProblemAnalyzer.class.getName());
 
-    private static long[] findDeadlockedThreads(final ThreadMXBean bean) {
+    /**
+     * Finds deadlocked threads. Uses {@link ThreadMXBean#findDeadlockedThreads} on 1.6, falls back to {@link ThreadMXBean#findMonitorDeadlockedThreads()} on 1.5.
+     * @param bean the thread mx bean
+     * @return ids of deadlocked threads, null if no threads are deadlocked.
+     */
+    public static long[] findDeadlockedThreads(final ThreadMXBean bean) {
         long[] dt;
         // try to get the "findDeadlockedThreads()" 1.6 method.
         Method m = null;
