@@ -18,26 +18,26 @@
  */
 package sk.baka.webvm;
 
-import junit.framework.TestCase;
 import org.apache.wicket.util.tester.WicketTester;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Simple test using the WicketTester
  * @author Martin Vysny
  */
-public class TestHomePage extends TestCase
-{
-	private WicketTester tester;
+public class TestHomePage {
 
-	@Override
-	public void setUp()
-	{
-		tester = new WicketTester(new WicketApplication());
-	}
+    private WicketTester tester;
 
-	public void testRenderMyPage()
-	{
-		tester.startPage(HomePage.class);
-		tester.assertRenderedPage(HomePage.class);
-	}
+    @Before
+    public void setUp() {
+        tester = new WicketTester(new WicketApplication());
+    }
+
+    @Test
+    public void testRenderMyPage() {
+        tester.startPage(HomePage.class);
+        tester.assertRenderedPage(HomePage.class);
+    }
 }
