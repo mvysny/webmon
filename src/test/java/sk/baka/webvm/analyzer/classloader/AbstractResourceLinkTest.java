@@ -25,13 +25,15 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link ResourceLink} class.
  * @author Martin Vysny
  */
-public abstract class AbstractResourceLinkTest extends TestCase {
+public abstract class AbstractResourceLinkTest {
 
     /**
      * Returns the file to test on.
@@ -43,9 +45,8 @@ public abstract class AbstractResourceLinkTest extends TestCase {
      */
     protected File file = null;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         file = getFile();
         assertTrue(file.exists());
     }
@@ -53,6 +54,7 @@ public abstract class AbstractResourceLinkTest extends TestCase {
     /**
      * @throws java.io.IOException if i/o error occurs.
      */
+    @Test
     public void testRoot() throws IOException {
         final ResourceLink link = ResourceLink.newFor(file);
         assertTrue(link.isRoot());
@@ -65,6 +67,7 @@ public abstract class AbstractResourceLinkTest extends TestCase {
      * Tests the {@link ResourceLink#getName()} method.
      * @throws java.io.IOException
      */
+    @Test
     public void testName() throws IOException {
         ResourceLink link = ResourceLink.newFor(file);
         assertEquals(file.getAbsolutePath(), link.getName());
@@ -75,6 +78,7 @@ public abstract class AbstractResourceLinkTest extends TestCase {
     /**
      * @throws java.io.IOException if i/o error occurs.
      */
+    @Test
     public void testRootFullName() throws IOException {
         ResourceLink link = ResourceLink.newFor(file);
         assertEquals(file.getAbsolutePath(), link.getFullName());
@@ -84,16 +88,18 @@ public abstract class AbstractResourceLinkTest extends TestCase {
      * Tests contents of the root package.
      * @throws java.io.IOException if i/o error occurs.
      */
+    @Test
     public void testRootContents() throws IOException {
         final ResourceLink link = ResourceLink.newFor(file);
         final List<ResourceLink> children = link.list();
-        assertEquals(new String[]{"META-INF", "com"}, children);
+        assertEqualsLinks(new String[]{"META-INF", "com"}, children);
     }
 
     /**
      * Tests package content walking.
      * @throws java.io.IOException if i/o error occurs.
      */
+    @Test
     public void testContentsWalking() throws IOException {
         final ResourceLink link = ResourceLink.newFor(file);
         final ResourceLink comLink = ResourceLink.findFirstByName(link.list(), "com");
@@ -122,10 +128,11 @@ public abstract class AbstractResourceLinkTest extends TestCase {
      * Tests package name grouping.
      * @throws java.io.IOException if i/o error occurs.
      */
+    @Test
     public void testRootContentsGrouping() throws IOException {
         final ResourceLink link = ResourceLink.newFor(file);
         final List<ResourceLink> children = link.listAndGroup();
-        assertEquals(new String[]{"META-INF", "com.sun.crypto.provider"}, children);
+        assertEqualsLinks(new String[]{"META-INF", "com.sun.crypto.provider"}, children);
     }
 
     /**
@@ -146,7 +153,7 @@ public abstract class AbstractResourceLinkTest extends TestCase {
      * @param expected the expected resource names.
      * @param got actual resource list. Must contain unique items.
      */
-    public static void assertEquals(String[] expected, final List<ResourceLink> got) {
+    public static void assertEqualsLinks(String[] expected, final List<ResourceLink> got) {
         final Set<String> expectedSet = new HashSet<String>(Arrays.asList(expected));
         final List<String> gotList = ResourceLink.getNames(got);
         assertDistinctItems(gotList);

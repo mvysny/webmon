@@ -20,42 +20,44 @@ package sk.baka.webvm.analyzer;
 
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Test;
 import sk.baka.webvm.config.Config;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link HistorySampler}.
  * @author Martin Vysny
  */
-public class HistorySamplerTest extends TestCase {
+public class HistorySamplerTest {
 
-	/**
-	 * Test of getProblemHistory method, of class HistorySampler.
+    /**
+     * Test of getProblemHistory method, of class HistorySampler.
      * @throws Exception 
      */
-	public void testGetProblemHistory() throws Exception {
-		final ProblemAnalyzer a = new ProblemAnalyzer();
-		a.configure(new Config());
-		final HistorySampler hs = new HistorySampler(new SamplerConfig(100, Integer.MAX_VALUE, Integer.MAX_VALUE), new SamplerConfig(100, 50, 0), a);
-		hs.start();
-		try {
-			Thread.sleep(100);
-			List<List<ProblemReport>> history = hs.getProblemHistory();
-			assertEquals(new ArrayList<Object>(), history);
-			final Deadlock d = new Deadlock();
-			d.simulate();
-			try {
-				Thread.sleep(200);
-				history = hs.getProblemHistory();
-				assertEquals(1, history.size());
-			} finally {
-				d.cancel();
-			}
-			Thread.sleep(200);
-			history = hs.getProblemHistory();
-			assertEquals(2, history.size());
-		} finally {
-			hs.stop();
-		}
-	}
+    @Test
+    public void testGetProblemHistory() throws Exception {
+        final ProblemAnalyzer a = new ProblemAnalyzer();
+        a.configure(new Config());
+        final HistorySampler hs = new HistorySampler(new SamplerConfig(100, Integer.MAX_VALUE, Integer.MAX_VALUE), new SamplerConfig(100, 50, 0), a);
+        hs.start();
+        try {
+            Thread.sleep(100);
+            List<List<ProblemReport>> history = hs.getProblemHistory();
+            assertEquals(new ArrayList<Object>(), history);
+            final Deadlock d = new Deadlock();
+            d.simulate();
+            try {
+                Thread.sleep(200);
+                history = hs.getProblemHistory();
+                assertEquals(1, history.size());
+            } finally {
+                d.cancel();
+            }
+            Thread.sleep(200);
+            history = hs.getProblemHistory();
+            assertEquals(2, history.size());
+        } finally {
+            hs.stop();
+        }
+    }
 }

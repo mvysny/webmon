@@ -21,6 +21,8 @@ package sk.baka.webvm.analyzer.classloader;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -39,32 +41,35 @@ public class DirResourceLinkTest extends AbstractResourceLinkTest {
      * Tests the search functionality.
      * @throws IOException on i/o error.
      */
+    @Test
     public void testSearch() throws IOException {
         ResourceLink link = ResourceLink.newFor(file);
         List<ResourceLink> result = link.search("com");
-        assertEquals(new String[]{"com"}, result);
+        assertEqualsLinks(new String[]{"com"}, result);
         result = link.search("META");
-        assertEquals(new String[]{"META-INF"}, result);
+        assertEqualsLinks(new String[]{"META-INF"}, result);
         result = link.search("c");
-        assertEquals(new String[]{"com", "crypto", "AESCipher.class"}, result);
+        assertEqualsLinks(new String[]{"com", "crypto", "AESCipher.class"}, result);
         link = getSun();
         result = link.search("c");
-        assertEquals(new String[]{"crypto", "AESCipher.class"}, result);
+        assertEqualsLinks(new String[]{"crypto", "AESCipher.class"}, result);
     }
 
     /**
      * Check that search does not return the root container even if it matches
      * @throws IOException on i/o error.
      */
+    @Test
     public void testSearchDoesNotReturnRoot() throws IOException {
         ResourceLink link = ResourceLink.newFor(file);
         List<ResourceLink> result = link.search("provider");
-        assertEquals(new String[]{"provider"}, result);
+        assertEqualsLinks(new String[]{"provider"}, result);
     }
 
     /**
      * @throws java.io.IOException if i/o error occurs.
      */
+    @Test
     public void testFullName() throws IOException, IOException {
         ResourceLink link = getSun();
         assertEquals(file.getAbsolutePath() + File.separator + "com" + File.separator + "sun", link.getFullName());

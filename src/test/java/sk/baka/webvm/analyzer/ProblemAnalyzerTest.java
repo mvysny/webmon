@@ -1,31 +1,33 @@
 package sk.baka.webvm.analyzer;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link ProblemAnalyzer}.
  * @author Martin Vysny
  */
-public class ProblemAnalyzerTest extends TestCase {
+public class ProblemAnalyzerTest {
 
-	/**
-	 * Test of getDeadlockReport method, of class ProblemAnalyzer.
+    /**
+     * Test of getDeadlockReport method, of class ProblemAnalyzer.
      * @throws Exception
      */
-	public void testGetDeadlockReport() throws Exception {
-		final Deadlock d = new Deadlock();
-		d.simulate();
-		try {
-			final ProblemReport pr = ProblemAnalyzer.getDeadlockReport();
-			System.out.println(pr.diagnosis);
-			assertTrue(pr.isProblem);
-			assertTrue(pr.diagnosis.contains("deadlock1"));
-			assertTrue(pr.diagnosis.contains("deadlock2"));
-			// check for the stack-trace presence
-			assertTrue(pr.diagnosis.contains(Deadlock.class.getName()));
-			assertTrue(pr.diagnosis.contains("run("));
-		} finally {
-			d.cancel();
-		}
-	}
+    @Test
+    public void testGetDeadlockReport() throws Exception {
+        final Deadlock d = new Deadlock();
+        d.simulate();
+        try {
+            final ProblemReport pr = ProblemAnalyzer.getDeadlockReport();
+            System.out.println(pr.diagnosis);
+            assertTrue(pr.isProblem);
+            assertTrue(pr.diagnosis.contains("deadlock1"));
+            assertTrue(pr.diagnosis.contains("deadlock2"));
+            // check for the stack-trace presence
+            assertTrue(pr.diagnosis.contains(Deadlock.class.getName()));
+            assertTrue(pr.diagnosis.contains("run("));
+        } finally {
+            d.cancel();
+        }
+    }
 }
