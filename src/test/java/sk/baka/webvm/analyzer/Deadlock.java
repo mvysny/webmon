@@ -18,11 +18,13 @@
  */
 package sk.baka.webvm.analyzer;
 
+import java.lang.management.ManagementFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static org.junit.Assert.*;
 
 /**
  * Simulates a deadlock.
@@ -30,10 +32,15 @@ import java.util.logging.Logger;
  */
 public final class Deadlock {
 
+    // we cannot use ReentrantLock as JVM 1.5 does not detect this type of deadlock.
     private final Lock lock1 = new ReentrantLock();
     private final Lock lock2 = new ReentrantLock();
     private Thread t1 = null;
     private Thread t2 = null;
+    /**
+     * If one of the threads fail then the cause is stored here.
+     */
+    public volatile Throwable t = null;
 
     /**
      * Simulates a deadlock. The deadlock should be already simulated when the method finishes.
@@ -46,15 +53,19 @@ public final class Deadlock {
 
             @Override
             public void run() {
-                lock1.tryLock();
                 try {
-                    Thread.sleep(100);
-                    lock2.tryLock(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-                    lock2.unlock();
-                } catch (InterruptedException ex) {
-                    // okay
-                } finally {
-                    lock1.unlock();
+                    lock1.tryLock();
+                    try {
+                        Thread.sleep(100);
+                        lock2.tryLock(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+                        lock2.unlock();
+                    } catch (InterruptedException ex) {
+                        // okay
+                    } finally {
+                        lock1.unlock();
+                    }
+                } catch (Throwable ex) {
+                    t = ex;
                 }
             }
         };
@@ -63,15 +74,19 @@ public final class Deadlock {
 
             @Override
             public void run() {
-                lock2.tryLock();
                 try {
-                    Thread.sleep(100);
-                    lock1.tryLock(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-                    lock1.unlock();
-                } catch (InterruptedException ex) {
-                    // okay
-                } finally {
-                    lock2.unlock();
+                    lock2.tryLock();
+                    try {
+                        Thread.sleep(100);
+                        lock1.tryLock(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+                        lock1.unlock();
+                    } catch (InterruptedException ex) {
+                        // okay
+                    } finally {
+                        lock2.unlock();
+                    }
+                } catch (Throwable ex) {
+                    t = ex;
                 }
             }
         };
@@ -105,5 +120,17 @@ public final class Deadlock {
                 Logger.getLogger(Deadlock.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+
+    /**
+     * Checks that the threads are running and no exception was thrown.
+     */
+    public void checkThreads() {
+        assertNull("An exception was thrown while forming a deadlock: " + t, t);
+        assertTrue(t1.isAlive());
+        assertTrue(t2.isAlive());
+        // sanity-check for JVM to report correct values
+        final long ids[] = ManagementFactory.getThreadMXBean().findMonitorDeadlockedThreads();
+        assertTrue("The JVM does not correctly report deadlocked threads", ids != null && ids.length > 0);
     }
 }

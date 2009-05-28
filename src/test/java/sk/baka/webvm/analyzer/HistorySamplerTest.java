@@ -47,6 +47,7 @@ public class HistorySamplerTest {
             final Deadlock d = new Deadlock();
             d.simulate();
             try {
+                d.checkThreads();
                 Thread.sleep(200);
                 history = hs.getProblemHistory();
                 assertEquals(1, history.size());
