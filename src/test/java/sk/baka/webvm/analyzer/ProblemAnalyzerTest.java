@@ -18,8 +18,8 @@ public class ProblemAnalyzerTest {
         final Deadlock d = new Deadlock();
         d.simulate();
         try {
+            d.checkThreads();
             final ProblemReport pr = ProblemAnalyzer.getDeadlockReport();
-            System.out.println(pr.diagnosis);
             assertTrue(pr.isProblem);
             assertTrue(pr.diagnosis.contains("deadlock1"));
             assertTrue(pr.diagnosis.contains("deadlock2"));
