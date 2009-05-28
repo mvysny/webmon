@@ -20,54 +20,58 @@ package sk.baka.webvm.config;
 
 import java.util.Map;
 import java.util.Properties;
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link Binder} class.
  * @author Martin Vysny
  */
-public class BinderTest extends TestCase {
+public class BinderTest {
 
-	/**
-	 * Test of bindBeanView method, of class Binder.
-	 */
-	public void testBindToBean() {
-		Properties p = new Properties();
-		p.put("minFreeDiskSpaceMb", "25");
-		p.put("mail.smtp.encryption", "SSL");
-		p.put("mail.to", "foo@bar.baz");
-		Config c1 = new Config();
-		final Map<String, String> warnings = Binder.bindBeanMap(c1, p, false, true);
-		assertTrue(warnings.isEmpty());
-		assertEquals(25, c1.minFreeDiskSpaceMb);
-		assertEquals(EncryptionEnum.SSL, c1.mailSmtpEncryption);
-		assertEquals("foo@bar.baz", c1.mailTo);
-	}
+    /**
+     * Test of bindBeanView method, of class Binder.
+     */
+    @Test
+    public void testBindToBean() {
+        Properties p = new Properties();
+        p.put("minFreeDiskSpaceMb", "25");
+        p.put("mail.smtp.encryption", "SSL");
+        p.put("mail.to", "foo@bar.baz");
+        Config c1 = new Config();
+        final Map<String, String> warnings = Binder.bindBeanMap(c1, p, false, true);
+        assertTrue(warnings.isEmpty());
+        assertEquals(25, c1.minFreeDiskSpaceMb);
+        assertEquals(EncryptionEnum.SSL, c1.mailSmtpEncryption);
+        assertEquals("foo@bar.baz", c1.mailTo);
+    }
 
-	/**
-	 * Test of bindBeanView method, of class Binder.
-	 */
-	public void testBindToProperties() {
-		Properties p = new Properties();
-		final Map<String, String> warnings = Binder.bindBeanMap(new Config(), p, true, true);
-		assertTrue(warnings.isEmpty());
-		assertEquals("100", p.getProperty("minFreeDiskSpaceMb"));
-		assertEquals("NONE", p.getProperty("mail.smtp.encryption"));
-		assertNull(p.getProperty("mail.to"));
-	}
+    /**
+     * Test of bindBeanView method, of class Binder.
+     */
+    @Test
+    public void testBindToProperties() {
+        Properties p = new Properties();
+        final Map<String, String> warnings = Binder.bindBeanMap(new Config(), p, true, true);
+        assertTrue(warnings.isEmpty());
+        assertEquals("100", p.getProperty("minFreeDiskSpaceMb"));
+        assertEquals("NONE", p.getProperty("mail.smtp.encryption"));
+        assertNull(p.getProperty("mail.to"));
+    }
 
-	/**
-	 * Test of copy method, of class Binder.
-	 */
-	public void testCopy() {
-		Config c1 = new Config();
-		c1.gcCpuTreshold = 2000;
-		c1.mailTo = "foo@bar.baz";
-		c1.mailSmtpEncryption = EncryptionEnum.SSL;
-		Config c2 = new Config();
-		Binder.copy(c1, c2);
-		assertEquals(EncryptionEnum.SSL, c2.mailSmtpEncryption);
-		assertEquals("foo@bar.baz", c2.mailTo);
-		assertEquals(2000, c2.gcCpuTreshold);
-	}
+    /**
+     * Test of copy method, of class Binder.
+     */
+    @Test
+    public void testCopy() {
+        Config c1 = new Config();
+        c1.gcCpuTreshold = 2000;
+        c1.mailTo = "foo@bar.baz";
+        c1.mailSmtpEncryption = EncryptionEnum.SSL;
+        Config c2 = new Config();
+        Binder.copy(c1, c2);
+        assertEquals(EncryptionEnum.SSL, c2.mailSmtpEncryption);
+        assertEquals("foo@bar.baz", c2.mailTo);
+        assertEquals(2000, c2.gcCpuTreshold);
+    }
 }
