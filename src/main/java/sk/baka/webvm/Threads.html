@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta http-equiv="refresh" content="2"/>
+        <title>Threads</title>
+        <link rel="stylesheet" type="text/css" href="style.css" media="screen"/>
+    </head>
+    <body>
+        <div wicket:id="appBorder">
+            <div class="post">
+                <h2 class="title">Threads</h2>
+                <div class="entry">
+                    <table id="table">
+                        <tr>
+                            <td>Legend:</td>
+                            <td><strong>.</strong></td><td><a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#NEW">New</a></td>
+                            <td><strong>|</strong></td><td><a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#RUNNABLE">Runnable</a></td>
+                            <td><strong>x</strong></td><td><a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#BLOCKED">Blocked</a></td>
+                            <td><strong>z</strong></td><td><a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#WAITING">Waiting</a> or <a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#TIMED_WAITING">Timed waiting</a></td>
+                            <td><strong>_</strong></td><td><a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.State.html#TERMINATED">Terminated</a></td>
+                        </tr>
+                    </table>
+                    <table id="table">
+                        <caption>Thread list</caption>
+                        <thead>
+                            <tr>
+                                <th>Name</th><th>State</th><th>History</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr wicket:id="threads">
+                                <td wicket:id="threadName"/>
+                                <td wicket:id="threadState"/>
+                                <td><pre class="graph" wicket:id="threadHistory"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
