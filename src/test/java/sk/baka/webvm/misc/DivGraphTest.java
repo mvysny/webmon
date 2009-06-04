@@ -19,17 +19,18 @@
 package sk.baka.webvm.misc;
 
 import java.util.Arrays;
-import junit.framework.TestCase;
-
+import org.junit.Test;
+import static org.junit.Assert.*;
 /**
  * Tests the {@link DivGraph} class.
  * @author Martin Vysny
  */
-public class DivGraphTest extends TestCase {
+public class DivGraphTest {
 
     /**
      * Tests a simple example consisting of a single value.
      */
+    @Test
     public void testToPixelsSimple() {
         int[] result = DivGraph.toPixels(new int[]{1}, 10, 10);
         assertTrue(Arrays.equals(new int[]{1, 9}, result));
@@ -40,6 +41,7 @@ public class DivGraphTest extends TestCase {
     /**
      * Tests an example where a value exceeds the max. value.
      */
+    @Test
     public void testToPixelsOverMax() {
         int[] result = DivGraph.toPixels(new int[]{20}, 10, 10);
         assertTrue(Arrays.equals(new int[]{10, 0}, result));
@@ -48,6 +50,7 @@ public class DivGraphTest extends TestCase {
     /**
      * Tests an example with three values.
      */
+    @Test
     public void testToPixelsThreeValues() {
         int[] result = DivGraph.toPixels(new int[]{1, 2, 3}, 10, 10);
         assertTrue(Arrays.equals(new int[]{1, 1, 1, 7}, result));
