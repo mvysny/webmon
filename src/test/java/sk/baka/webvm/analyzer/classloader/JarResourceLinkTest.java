@@ -21,6 +21,8 @@ package sk.baka.webvm.analyzer.classloader;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Runs the tests on a jar file.
@@ -39,36 +41,39 @@ public class JarResourceLinkTest extends AbstractResourceLinkTest {
      * Tests the search functionality.
      * @throws IOException on i/o error.
      */
+    @Test
     public void testSearch() throws IOException {
         ResourceLink link = ResourceLink.newFor(file);
         List<ResourceLink> result = link.search("com");
         // note: JAR file itself is not a tree hierarchy - it is a list of names instead. Thus the only item should match: the com/sun/crypto/provider zip entry.
-        assertEquals(new String[]{"provider"}, result);
+        assertEqualsLinks(new String[]{"provider"}, result);
         result = link.search("META");
-        assertEquals(new String[]{"META-INF"}, result);
+        assertEqualsLinks(new String[]{"META-INF"}, result);
         result = link.search("c");
         // note: this test does not match a single "com" folder as there is no such entry in JAR.
-        assertEquals(new String[]{"provider", "AESCipher.class"}, result);
+        assertEqualsLinks(new String[]{"provider", "AESCipher.class"}, result);
         link = getSun();
         result = link.search("c");
-        assertEquals(new String[]{"provider", "AESCipher.class"}, result);
+        assertEqualsLinks(new String[]{"provider", "AESCipher.class"}, result);
         result = link.search("META");
-        assertEquals(new String[]{}, result);
+        assertEqualsLinks(new String[]{}, result);
     }
 
     /**
      * Check that search does not return the root container even if it matches
      * @throws IOException on i/o error.
      */
+    @Test
     public void testSearchDoesNotReturnRoot() throws IOException {
         ResourceLink link = ResourceLink.newFor(file);
         List<ResourceLink> result = link.search("provider");
-        assertEquals(new String[]{"provider"}, result);
+        assertEqualsLinks(new String[]{"provider"}, result);
     }
 
     /**
      * @throws java.io.IOException if i/o error occurs.
      */
+    @Test
     public void testFullName() throws IOException, IOException {
         ResourceLink link = getSun();
         assertEquals(file.getAbsolutePath() + "!/com/sun", link.getFullName());
