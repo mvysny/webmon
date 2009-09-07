@@ -76,7 +76,11 @@ public final class DivGraph {
                 }
             }
             if (style.showPercentage) {
-                sb.append(values[i] * 100 / max);
+                if (max <= 0) {
+                    sb.append('?');
+                } else {
+                    sb.append(values[i] * 100 / max);
+                }
                 sb.append('%');
                 if (style.showValues) {
                     sb.append(')');
@@ -150,6 +154,9 @@ public final class DivGraph {
      */
     public static void drawStackedBar(final GraphStyle style, final int[] values, final int max, final boolean floatLeft, final StringBuilder sb) {
         style.validate();
+        if (max < 0) {
+            throw new IllegalArgumentException("Invalid max value: " + max);
+        }
         final int[] pixels = toPixels(values, max, style.vertical ? style.height : style.width);
         sb.append("<div ");
         sb.append(getDivStyle(style, floatLeft));
@@ -214,15 +221,19 @@ public final class DivGraph {
         gs.vertical = false;
         gs.width = width;
         gs.height = MEMSTAT_BAR_HEIGHT;
-        gs.showPercentage = true;
+        gs.showValues = true;
         gs.colors = new String[]{Graphs.COLOR_BLUE, Graphs.COLOR_BROWN};
         gs.border = Graphs.COLOR_GREY;
         gs.fontColors = new String[]{Graphs.COLOR_WHITE, null};
-        final int max;
-        if (usage.getMax() != Long.MAX_VALUE) {
+        int max;
+        if (usage.getMax() >= 0) {
             max = (int) usage.getMax();
         } else {
             max = (int) (usage.getCommitted() * 7 / 5);
+        }
+        if (max <= 0) {
+            // if "0 out of 0" is about to be displayed, show the graph as empty.
+            max = 1;
         }
         return DivGraph.drawStackedBar(gs, new int[]{(int) usage.getUsed(), (int) usage.getCommitted()}, max, false);
     }
