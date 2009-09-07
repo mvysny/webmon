@@ -26,12 +26,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides utilities for the java.util.management package.
  * @author Martin Vysny
  */
 public final class MgmtUtils {
+
+    private static final Logger LOG = Logger.getLogger(MgmtUtils.class.getName());
 
     /**
      * Sums up all non-heap pools and return their memory usage.
@@ -54,9 +58,14 @@ public final class MgmtUtils {
     }
     private static final boolean IS_NON_HEAP;
 
-
     static {
-        IS_NON_HEAP = getNonHeapSummary() != null;
+        boolean isNonHeap = false;
+        try {
+            isNonHeap = getNonHeapSummary() != null;
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "Failed to get non-heap pools: " + ex, ex);
+        }
+        IS_NON_HEAP = isNonHeap;
     }
 
     /**
@@ -89,7 +98,14 @@ public final class MgmtUtils {
      * @return a summed usage, never null
      */
     public static MemoryUsage add(final MemoryUsage u1, final MemoryUsage u2) {
-        return new MemoryUsage(u1.getInit() + u2.getInit(), u1.getUsed() + u2.getUsed(), u1.getCommitted() + u2.getCommitted(), u1.getMax() + u2.getMax());
+        return new MemoryUsage(addMem(u1.getInit(), u2.getInit()), u1.getUsed() + u2.getUsed(), u1.getCommitted() + u2.getCommitted(), addMem(u1.getMax(), u2.getMax()));
+    }
+
+    private static long addMem(final long l1, final long l2) {
+        if (l1 < 0 || l2 < 0) {
+            return -1;
+        }
+        return l1 + l2;
     }
 
     /**
@@ -167,18 +183,21 @@ public final class MgmtUtils {
     }
     private static final SortedMap<String, MemoryPoolMXBean> MEMORY_POOLS;
 
-
     static {
         final SortedMap<String, MemoryPoolMXBean> pools = new TreeMap<String, MemoryPoolMXBean>();
-        final List<MemoryPoolMXBean> beans = ManagementFactory.getMemoryPoolMXBeans();
-        if (beans != null && !beans.isEmpty()) {
-            for (final MemoryPoolMXBean bean : beans) {
-                final MemoryUsage usage = bean.getUsage();
-                if (usage == null || !bean.isUsageThresholdSupported()) {
-                    continue;
+        try {
+            final List<MemoryPoolMXBean> beans = ManagementFactory.getMemoryPoolMXBeans();
+            if (beans != null && !beans.isEmpty()) {
+                for (final MemoryPoolMXBean bean : beans) {
+                    final MemoryUsage usage = bean.getUsage();
+                    if (usage == null || !bean.isUsageThresholdSupported()) {
+                        continue;
+                    }
+                    pools.put(bean.getName(), bean);
                 }
-                pools.put(bean.getName(), bean);
             }
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "Failed to get MemoryPools: " + ex, ex);
         }
         MEMORY_POOLS = Collections.unmodifiableSortedMap(pools);
     }
