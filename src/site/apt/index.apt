@@ -14,7 +14,7 @@ About the project
 
   This software uses the following projects:
   
-  * {{{http://wicket.apache.org/}Wicket}} 1.4-rc4
+  * {{{http://wicket.apache.org/}Wicket}} 1.4.1
   
   * Several {{{http://commons.apache.org/}Apache commons}} libraries
   
