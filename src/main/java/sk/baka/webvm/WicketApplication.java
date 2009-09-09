@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -126,8 +127,21 @@ public final class WicketApplication extends WebApplication {
 
     private Config loadConfig() {
         String configUrl = getInitParameter("configFile");
+        if (configUrl != null) {
+            LOG.info("Configuration file specified in the webvm.war/WEB-INF/web.xml descriptor: " + configUrl);
+        } else {
+            configUrl = "/etc/webvm.properties";
+            final File f = new File(configUrl);
+            if (!f.exists() || !f.isFile()) {
+                configUrl = null;
+            } else {
+                configUrl = "file:" + configUrl;
+                LOG.info("Loading configuration file from /etc: " + configUrl);
+            }
+        }
         if (configUrl == null) {
             configUrl = "classpath:config.properties";
+            LOG.info("Loading default configuration file from webvm.war/WEB-INF/classes/config.properties");
         }
         try {
             final InputStream in;
