@@ -36,6 +36,9 @@
 			<item name="Download" href="http://kenai.com/projects/webvm/downloads"/>
 			<item name="What's new" href="changes-report.html"/>
 		</menu>
+		<menu name="Using">
+			<item name="Configuration" href="config.html"/>
+		</menu>
 		<menu ref="modules" />
 		<menu ref="reports" />
 	</body>
