@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright 2009 Martin Vysny.
+ *
+ * This file is part of WebVM.
+ *
+ * WebVM is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * WebVM is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with WebVM.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+    <display-name>WebVM</display-name>
+    <!-- Do not use Wicket Filter as it does not work properly on OC4J:
+       http://markmail.org/message/v6sdegy4weylqfjg
+       -->
+    <servlet>
+        <servlet-name>WebVM</servlet-name>
+        <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
+        <init-param>
+            <param-name>applicationClassName</param-name>
+            <param-value>sk.baka.webvm.WicketApplication</param-value>
+        </init-param>
+            <!--
+				The configuration file location URL. You may supply any URL, such as:
+				file:/home/user/config.properties
+				classpath:config.properties (the default, the file is in WAR/WEB-INF/classes/config.properties)
+				http://server/config.properties
+            -->
+        <!-- <init-param>
+            <param-name>configFile</param-name>
+            <param-value>classpath:config.properties</param-value>
+        </init-param> -->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet>
+        <servlet-name>RssFeed</servlet-name>
+        <servlet-class>sk.baka.webvm.rss.RssFeed</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RssFeed</servlet-name>
+        <url-pattern>/rss.xml</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WebVM</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+</web-app>

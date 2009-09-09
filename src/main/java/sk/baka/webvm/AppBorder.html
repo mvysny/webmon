@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <body>
+        <wicket:border>
+            <div id="header">
+                <div id="logo">
+                    <h1><a href="#">WebVM</a></h1>
+                    <p><a href="#">VM analysis; [<span wicket:id="currentTime"/>]</a></p>
+                </div>
+                <div id="menu">
+                    <ul>
+                        <wicket:link>
+                            <li><a href="HomePage.html">Overview</a></li>
+                            <li><a href="Problems.html">Problems</a></li>
+                            <li><a href="Graphs.html">Graphs</a></li>
+                            <li><a href="Memory.html">Memory</a></li>
+                            <li><a href="Threads.html">Threads</a></li>
+                            <li><a href="Jndi.html">JNDI</a></li>
+                            <li><a href="Classloaders.html">Classloaders</a></li>
+                            <li class="last"><a href="Configure.html">Configure</a></li>
+                        </wicket:link>
+                    </ul>
+                </div>
+            </div>
+            <div id="page">
+                <div id="sidebar">
+                    <ul>
+                        <li id="search" style="background: none;">
+                            <form id="searchform" wicket:id="searchForm">
+                                <div>
+                                    <input type="text" wicket:id="searchText" size="15" id="s"/>
+                                    <br />
+                                    <input type="submit" wicket:id="submit" value="Search" />
+                                </div>
+                                <div wicket:id="feedback">[Feedback Panel]</div>
+                            </form>
+                        </li>
+                        <li id="categories">
+                            <h2>Operations</h2>
+                            <ul>
+                                <li><a wicket:id="performGCLink">Perform GC</a></li>
+                                <li><a href="a/ThreadDump">Thread dump</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div id="content">
+                    <wicket:body/>
+                </div>
+                <div style="clear: both;">&nbsp;</div>
+            </div>
+            <div id="footer">
+                <p><a href="rss.xml" class="rss" title="Subscribe to WebVM Problems feed">Problems (<abbr title="Really Simple Syndication">RSS</abbr>)</a>
+                    &nbsp;&nbsp;&nbsp;
+                    &copy;2009 Martin Vysny, All Rights Reserved. &nbsp;&bull;&nbsp;<a href="http://kenai.com/projects/webvm/">Project home</a>&nbsp;&bull;&nbsp; Design by <a href="http://www.freecsstemplates.org/">Free CSS Templates</a>.</p>
+            </div>
+        </wicket:border>
+    </body>
+</html>

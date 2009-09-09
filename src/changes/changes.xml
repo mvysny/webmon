@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright 2009 Martin Vysny.
+ *
+ * This file is part of WebVM.
+ *
+ * WebVM is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * WebVM is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with WebVM.  If not, see <http://www.gnu.org/licenses />.
+-->
+<document>
+    <properties>
+        <title>WebVM changelog</title>
+        <author email="vysny@baka.sk">Martin Vysny</author>
+    </properties>
+    <body>
+        <release version="0.5" date="9. September 2009">
+       		<action dev="vyzivus" type="update">
+               The history graphs now start to fill from the right
+        		</action>
+        		<action dev="vyzivus" type="update">
+               Memory tab: show real values instead of percentages. This will allow to display valid labels even when MAX memory value is not known.
+        		</action>
+        		<action dev="vyzivus" type="fix">
+               IBM java reports -1 as maximum non-heap memory. The old code threw an exception and thus the MgmtUtils class was reported to be unloadable.
+        		</action>
+        		<action dev="vyzivus" type="add">
+               Added Tomcat configuration file.
+        		</action>
+        		<action dev="vyzivus" type="add">
+               A problem report notification trigger mechanism description is added to the Problem Report page.
+        		</action>
+        		<action dev="vyzivus" type="update">
+               Config file is now loaded from /etc/webvm.properties as well (if it exists)
+        		</action>
+        		<action dev="vyzivus" type="update">
+               Wicket version bump to 1.4.1
+        		</action>
+        		<action dev="vyzivus" type="fix">
+        			Compilation failed on Java 1.5
+        		</action>
+        </release>
+        <release version="0.4" date="21. May 2009">
+        		<action dev="vyzivus" type="fix">
+        			Fixed: Compatibility with OC4J (thanks to Eduardo Leiva).
+        		</action>
+        		<action dev="vyzivus" type="fix">
+        			Fixed: performGC on search page results would fail
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Switched to Wicket 1.4-rc4
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			CPU IO times (Linux only).
+        		</action>
+        		<action dev="vyzivus" type="remove">
+        			No profiler. Adding a full-blown profiler is a major deed and is out of scope of this project. The project
+        			will focus on server monitoring and warning/problems, not on debugging/profiling applications.
+        		</action>
+        		<action dev="vyzivus" type="remove">
+        			No JMX browser. There already are WARs that allow JMX configuration.
+        		</action>
+        		<action dev="vyzivus" type="fix">
+        			Fixed: saving the configuration fails. Fixed by migrating to Wicket 1.4-rc4.
+        		</action>
+        </release>
+        <release version="0.3" date="10. April 2009">
+        		<action dev="vyzivus" type="update">
+        			Known bug: saving the configuration fails. A bug in Wicket: http://issues.apache.org/jira/browse/WICKET-2134
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added support for Java process CPU usage measurement. Enabled only when
+        			JavaVM provides the com.sun.management.OperatingSystemMXBean class.
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added support for Host CPU usage measurement (currently Linux only)
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added Host OS memory graphs and problem analyzer. Full memory stats only
+        			on Linux; partial memory status only available when JavaVM provides the
+        			com.sun.management.OperatingSystemMXBean class.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Graphs are now linked to appropriate pages.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Configuration split to separate groups for easier editing.
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Implemented a classloader resources search
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Revamped the main page: memory overview moved to the Memory page;
+        			class and thread overview moved to the Graph page;
+        			Java and environment properties moved to the main page
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Better ASCII graphic for thread state table
+        		</action>
+        		<action dev="vyzivus" type="update">
+					All graphs are now drawn using Bluff
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Fixed GC usage display in the Problems tab - only the problematic values average is shown instead of the 150sec average.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			A graphical bar showing pool usage is now displayed in the Memory view
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Revamped the graph page: added the thread count and class count graphs.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Non-Heap memory usage is now displayed as well
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			The Memory page now shows a progress bar showing memory usage
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Implemented a simple thread dump.
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added threads analysis page.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Table cells are now aligned to the left for better readability; correct style set for table.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			The Free Disk Space problem analyzer now shows free disk space on all devices.
+        		</action>
+        		<action dev="vyzivus" type="fix">
+        			Fixed application link in RSS feed; server URL now auto-detected in RSS feed.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Shorter application description and time format displayed, to prevent menu disappearing on smaller resolutions.
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added project home link.
+        		</action>
+        </release>
+        <release version="0.2" date="11. March 2009">
+        		<action dev="vyzivus" type="update">
+					The "Perform GC" link moved to a sidebar.
+        		</action>
+        		<action dev="vyzivus" type="add" issue="1">
+					Added the ClassLoader analysis page. Resources and jar files are downloadable.
+        		</action>
+        		<action dev="vyzivus" type="add">
+					Problem list: the description is now displayed above the diagnosis.
+        		</action>
+        		<action dev="vyzivus" type="add">
+					Added Jabber notification support
+        		</action>
+        		<action dev="vyzivus" type="update">
+					JNDI: Maximum depth of 5 is examined. This prevents VERY long JNDI examination on WebSphere.
+        		</action>
+        		<action dev="vyzivus" type="fix">
+					Fixed: Problem Analyzer could miss GC CPU usage samples
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added a web configuration page
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added a Mail notification support
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			All problems reports triggers are now configurable in WEB-INF/classes/config.properties
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added problem trigger descriptions
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added JNDI list
+        		</action>
+        		<action dev="vyzivus" type="add">
+        			Added disk free space problem checks
+        		</action>
+        		<action dev="vyzivus" type="fix">
+        			Fixed Wicket page naming
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Graphs page is now reloaded automatically each 2 seconds.
+        		</action>
+        		<action dev="vyzivus" type="update">
+        			Problems report is now sampled each 30 seconds and stored into its own history. This history is fed to RSS. RSS shouldn't receive duplicate events anymore.
+        		</action>
+            <action dev="vyzivus" type="update">
+                RSS problem report is now formatted in a HTML table
+            </action>
+            <action dev="vyzivus" type="fix">
+                Fixed the app name: from Sysinfo to WebVM
+            </action>
+        </release>
+        <release version="0.1" date="23. February 2009">
+            <action dev="vyzivus" type="add">
+                Initial release
+            </action>
+        </release>
+    </body>
+</document>

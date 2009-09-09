@@ -1,0 +1,44 @@
+            ------
+            About
+            ------
+            Martin Vysny
+            ------
+            2009-04-10
+
+About the project
+
+  WebVM allows monitoring of Java Virtual Machine over HTTP. It is a WAR application, deployable to any servlet container/embeddable
+  to your EAR. You may receive RSS/e-mail/Jabber notifications of potential problems. If you cannot use traditional
+  tools such as {{{http://java.sun.com/developer/technicalArticles/J2SE/jconsole.html}JConsole}} or
+  {{{https://visualvm.dev.java.net/}VisualVM}} then this is for you.
+
+  This software uses the following projects:
+  
+  * {{{http://wicket.apache.org/}Wicket}} 1.4.1
+  
+  * Several {{{http://commons.apache.org/}Apache commons}} libraries
+  
+  * {{{http://www.igniterealtime.org/projects/smack/index.jsp}Smack}} 3.0.4 for jabber notification
+  
+  * {{{http://bluff.jcoglan.com/}Bluff}} 0.3.4.2 for drawing graphs
+  
+  []
+
+  WebVM requires JRE 5 or later.
+
+* Screenshots
+
+** Graphs displaying various aspects of Java VM and/or host OS
+
+[images/screenshot_graphs.png]
+
+** A problem diagnosis page: monitors a VM and sends a notification when a potential problem is found
+
+[images/screenshot_problems.png]
+
+* Credits
+
+  * Martin Vyšný - programming
+
+  []
+
