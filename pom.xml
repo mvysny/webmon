@@ -180,7 +180,7 @@
                 <version>2.0-beta-9</version>
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <preparationGoals>clean install</preparationGoals>
+                    <preparationGoals>clean install site changes:announcement-generate</preparationGoals>
                     <goals>clean deploy site-deploy changes:announcement-mail</goals>
                     <username>${kenai.username}</username>
                     <password>${kenai.password}</password>
