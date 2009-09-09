@@ -195,6 +195,10 @@
                     <toAddresses>
                         <toAddress>users@webvm.kenai.com</toAddress>
                     </toAddresses>
+                    <mailSender>
+                        <name>Martin Vysny</name>
+                        <email>vysny@baka.sk</email>
+                    </mailSender>
                     <urlDownload>http://kenai.com/projects/webvm/downloads</urlDownload>
                     <url>${project.url}</url>
                     <issueLinkTemplate>http://kenai.com/jira/browse/WEBVM-%ISSUE%</issueLinkTemplate>
