@@ -29,16 +29,16 @@
             <param-name>applicationClassName</param-name>
             <param-value>sk.baka.webvm.WicketApplication</param-value>
         </init-param>
-        <init-param>
             <!--
 				The configuration file location URL. You may supply any URL, such as:
 				file:/home/user/config.properties
 				classpath:config.properties (the default, the file is in WAR/WEB-INF/classes/config.properties)
 				http://server/config.properties
             -->
+        <!-- <init-param>
             <param-name>configFile</param-name>
             <param-value>classpath:config.properties</param-value>
-        </init-param>
+        </init-param> -->
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
