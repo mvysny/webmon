@@ -20,6 +20,7 @@ package sk.baka.webvm.misc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -79,11 +80,18 @@ public abstract class AbstractGraph {
     /**
      * Append several zero values until a desired data length is reached.
      * @param desiredLength desired length of X axis.
+     * @param fillToRight if true then the zero values are appended to the value list. If false then the zero values are prepended before all list values.
      */
-    public final void fillWithZero(final int desiredLength) {
-        int[] empty = new int[style.colors.length];
-        while (values.size() < desiredLength) {
-            values.add(empty);
+    public final void fillWithZero(final int desiredLength, final boolean fillToRight) {
+        final int dif = desiredLength - values.size();
+        if (dif <= 0) {
+            return;
+        }
+        final List<int[]> listOfZeroes = Collections.nCopies(dif, new int[style.colors.length]);
+        if (fillToRight) {
+            values.addAll(listOfZeroes);
+        } else {
+            values.addAll(0, listOfZeroes);
         }
     }
 
