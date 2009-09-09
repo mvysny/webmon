@@ -78,7 +78,7 @@ public class WebVMPage extends WebPage {
             final MemoryUsage usage = hs.memPoolUsage[index];
             dg.add(new int[]{(int) usage.getUsed(), (int) usage.getCommitted()});
         }
-        dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
+        dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength(), false);
         unescaped(wid, dg.draw());
     }
 

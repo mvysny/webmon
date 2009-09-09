@@ -100,7 +100,7 @@ public final class Graphs extends WebVMPage {
         for (final HistorySample hs : history) {
             dg.add(new int[]{hs.classesLoaded});
         }
-        dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
+        dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength(), false);
         unescaped("classesGraph", dg.draw());
         final ClassLoadingMXBean bean = ManagementFactory.getClassLoadingMXBean();
         border.add(new Label("classesCurrentlyLoaded", Integer.toString(bean.getLoadedClassCount())));
@@ -120,7 +120,7 @@ public final class Graphs extends WebVMPage {
             for (final HistorySample hs : history) {
                 dg.add(new int[]{hs.cpuJavaUsage, hs.cpuUsage, hs.cpuIOUsage});
             }
-            dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
+            dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength(), false);
             unescaped("cpuUsageGraph", dg.draw());
             final HistorySample last = history.isEmpty() ? null : history.get(history.size() - 1);
             border.add(new Label("cpuUsagePerc", last == null || !hostCpu ? "?" : Integer.toString(last.cpuUsage)));
@@ -141,7 +141,7 @@ public final class Graphs extends WebVMPage {
         for (final HistorySample hs : history) {
             dg.add(new int[]{hs.gcCpuUsage});
         }
-        dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
+        dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength(), false);
         unescaped("gcCPUUsageGraph", dg.draw());
         final HistorySample last = history.isEmpty() ? null : history.get(history.size() - 1);
         border.add(new Label("gcCPUUsagePerc", last == null ? "?" : Integer.toString(last.gcCpuUsage)));
@@ -205,7 +205,7 @@ public final class Graphs extends WebVMPage {
         for (final HistorySample hs : history) {
             dg.add(new int[]{hs.daemonThreadCount, hs.threadCount});
         }
-        dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength());
+        dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength(), false);
         unescaped("threadsGraph", dg.draw());
         final ThreadMXBean bean = ManagementFactory.getThreadMXBean();
         border.add(new Label("liveThreads", Integer.toString(bean.getThreadCount())));
