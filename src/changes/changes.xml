@@ -23,6 +23,32 @@
         <author email="vysny@baka.sk">Martin Vysny</author>
     </properties>
     <body>
+        <release version="0.5" date="9. September 2009">
+       		<action dev="vyzivus" type="update">
+               The history graphs now start to fill from the right
+        		</action>
+        		<action dev="vyzivus" type="update">
+               Memory tab: show real values instead of percentages. This will allow to display valid labels even when MAX memory value is not known.
+        		</action>
+        		<action dev="vyzivus" type="fix">
+               IBM java reports -1 as maximum non-heap memory. The old code threw an exception and thus the MgmtUtils class was reported to be unloadable.
+        		</action>
+        		<action dev="vyzivus" type="add">
+               Added Tomcat configuration file.
+        		</action>
+        		<action dev="vyzivus" type="add">
+               A problem report notification trigger mechanism description is added to the Problem Report page.
+        		</action>
+        		<action dev="vyzivus" type="update">
+               Config file is now loaded from /etc/webvm.properties as well (if it exists)
+        		</action>
+        		<action dev="vyzivus" type="update">
+               Wicket version bump to 1.4.1
+        		</action>
+        		<action dev="vyzivus" type="fix">
+        			Compilation failed on Java 1.5
+        		</action>
+        </release>
         <release version="0.4" date="21. May 2009">
         		<action dev="vyzivus" type="fix">
         			Fixed: Compatibility with OC4J (thanks to Eduardo Leiva).
