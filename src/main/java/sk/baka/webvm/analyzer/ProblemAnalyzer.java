@@ -188,11 +188,16 @@ public final class ProblemAnalyzer {
         sb.append(phys.getUsed() * 100 / phys.getMax());
         sb.append("%\nSwap used: ");
         if (swap == null) {
-            sb.append("-");
+            sb.append("not available");
         } else {
-            sb.append(swap.getUsed() * 100 / swap.getMax());
+            if (swap.getMax() == 0) {
+                sb.append("no swap");
+            } else {
+                sb.append(swap.getUsed() * 100 / swap.getMax());
+                sb.append('%');
+            }
         }
-        sb.append("%\n");
+        sb.append('\n');
         final long total = phys.getMax() + (swap == null ? 0 : swap.getMax());
         final long used = phys.getUsed() + (swap == null ? 0 : swap.getUsed());
         final long usedPerc = used * 100 / total;

@@ -149,7 +149,11 @@ public final class MgmtUtils {
                 sb.append("M");
             }
             sb.append(" - ");
-            sb.append(mu.getUsed() * 100 / mu.getMax());
+            if (mu.getMax() > 0) {
+                sb.append(mu.getUsed() * 100 / mu.getMax());
+            } else {
+                sb.append('0');
+            }
             sb.append('%');
         } else {
             sb.append(" / ?");
