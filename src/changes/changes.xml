@@ -23,6 +23,14 @@
         <author email="vysny@baka.sk">Martin Vysny</author>
     </properties>
     <body>
+        <release version="0.6" date="-">
+       		<action dev="vyzivus" type="update">
+               The Configure tab now mentions all possibilities of config file location
+        		</action>
+       		<action dev="vyzivus" type="fix" issue="2">
+               Fixed division by zero when there is no swap on a Linux machine.
+        		</action>
+        </release>
         <release version="0.5" date="9. September 2009">
        		<action dev="vyzivus" type="update">
                The history graphs now start to fill from the right
