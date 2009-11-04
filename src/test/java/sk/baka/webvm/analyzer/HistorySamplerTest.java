@@ -37,7 +37,7 @@ public class HistorySamplerTest {
      */
     @Test
     public void testGetProblemHistory() throws Exception {
-        if (SystemUtils.isJavaVersionAtLeast(160)) {
+        if (!SystemUtils.isJavaVersionAtLeast(160)) {
             System.out.println("Skipping HistorySamplerTest.testGetProblemHistory() as Java 1.5.x does not report deadlock in Locks");
             return;
         }
