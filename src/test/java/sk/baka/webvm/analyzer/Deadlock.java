@@ -136,7 +136,7 @@ public final class Deadlock {
         // we could form a deadlock using the synchronized keyword but there is no way to interrupt
         // wait in the synchronized block thus the threads will never end - this will interfere with other tests.
         // Just skip the tests on 1.5.
-        if (SystemUtils.IS_JAVA_1_6) {
+        if (SystemUtils.isJavaVersionAtLeast(160)) {
             assertTrue(ids != null && ids.length == 2);
         }
     }

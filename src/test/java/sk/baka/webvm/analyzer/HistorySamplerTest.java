@@ -20,6 +20,7 @@ package sk.baka.webvm.analyzer;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang.SystemUtils;
 import org.testng.annotations.Test;
 import sk.baka.webvm.config.Config;
 import static org.testng.AssertJUnit.*;
@@ -36,6 +37,10 @@ public class HistorySamplerTest {
      */
     @Test
     public void testGetProblemHistory() throws Exception {
+        if (SystemUtils.isJavaVersionAtLeast(160)) {
+            System.out.println("Skipping HistorySamplerTest.testGetProblemHistory() as Java 1.5.x does not report deadlock in Locks");
+            return;
+        }
         final ProblemAnalyzer a = new ProblemAnalyzer();
         a.configure(new Config());
         final HistorySampler hs = new HistorySampler(new SamplerConfig(100, Integer.MAX_VALUE, Integer.MAX_VALUE), new SamplerConfig(100, 50, 0), a);
