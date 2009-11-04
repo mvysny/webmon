@@ -18,8 +18,8 @@
  */
 package sk.baka.webvm.analyzer;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.testng.annotations.Test;
+import static org.testng.Assert.*;
 
 /**
  * Tests the {@link ProblemAnalyzer}.
