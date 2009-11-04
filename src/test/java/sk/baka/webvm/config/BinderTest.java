@@ -20,8 +20,8 @@ package sk.baka.webvm.config;
 
 import java.util.Map;
 import java.util.Properties;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 /**
  * Tests the {@link Binder} class.

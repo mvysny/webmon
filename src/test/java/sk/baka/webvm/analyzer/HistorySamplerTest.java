@@ -20,9 +20,9 @@ package sk.baka.webvm.analyzer;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Test;
+import org.testng.annotations.Test;
 import sk.baka.webvm.config.Config;
-import static org.junit.Assert.*;
+import static org.testng.AssertJUnit.*;
 
 /**
  * Tests the {@link HistorySampler}.

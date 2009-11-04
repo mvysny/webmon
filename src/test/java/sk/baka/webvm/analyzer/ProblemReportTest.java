@@ -20,8 +20,8 @@ package sk.baka.webvm.analyzer;
 
 import java.util.Arrays;
 import java.util.Collections;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 /**
  * Tests {@link ProblemReport}.

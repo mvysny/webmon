@@ -21,8 +21,8 @@ package sk.baka.webvm.analyzer.classloader;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 /**
  *

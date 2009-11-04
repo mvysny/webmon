@@ -24,8 +24,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static org.junit.Assert.*;
-import static org.junit.Assume.*;
+import org.apache.commons.lang.SystemUtils;
+import static org.testng.AssertJUnit.*;
 
 /**
  * Simulates a deadlock.
@@ -136,6 +136,8 @@ public final class Deadlock {
         // we could form a deadlock using the synchronized keyword but there is no way to interrupt
         // wait in the synchronized block thus the threads will never end - this will interfere with other tests.
         // Just skip the tests on 1.5.
-        assumeTrue(ids != null && ids.length > 0);
+        if (SystemUtils.IS_JAVA_1_6) {
+            assertTrue(ids != null && ids.length == 2);
+        }
     }
 }

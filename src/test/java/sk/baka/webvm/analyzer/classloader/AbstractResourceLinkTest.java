@@ -25,9 +25,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 /**
  * Tests the {@link ResourceLink} class.
@@ -45,7 +45,7 @@ public abstract class AbstractResourceLinkTest {
      */
     protected File file = null;
 
-    @Before
+    @BeforeMethod
     public void setUp() throws Exception {
         file = getFile();
         assertTrue(file.exists());
