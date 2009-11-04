@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm.analyzer;
 
+import org.apache.commons.lang.SystemUtils;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -33,6 +34,10 @@ public class ProblemAnalyzerTest {
      */
     @Test
     public void testGetDeadlockReport() throws Exception {
+        if (!SystemUtils.isJavaVersionAtLeast(160)) {
+            System.out.println("Skipping ProblemAnalyzerTest.testGetDeadlockReport() as Java 1.5.x does not report deadlock in Locks");
+            return;
+        }
         final Deadlock d = new Deadlock();
         d.simulate();
         try {
