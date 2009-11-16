@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm;
 
+import java.lang.reflect.Constructor;
 import java.text.DateFormat;
 import java.util.Date;
 import org.apache.wicket.Page;
@@ -66,10 +67,19 @@ public class AppBorder extends Border {
             System.gc();
             // force to reload the page if it does not have any parametrized constructor
             final Class<? extends Page> pclass = getPage().getClass();
-            if (pclass != SearchResults.class) {
+            if (hasZeroArgConstructor(pclass)) {
                 setResponsePage(pclass);
             }
         }
+    }
+
+    private static boolean hasZeroArgConstructor(final Class<?> clazz) {
+        for (Constructor<?> c : clazz.getConstructors()) {
+            if (c.getParameterTypes().length == 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
