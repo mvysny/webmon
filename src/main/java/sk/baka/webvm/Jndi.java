@@ -37,6 +37,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import org.apache.wicket.markup.html.tree.LabelTree;
 import org.apache.wicket.model.LoadableDetachableModel;
+import sk.baka.tools.javaee.JeeServer;
 
 /**
  * Shows the JNDI tree.
@@ -150,7 +151,7 @@ public final class Jndi extends WebVMPage {
         if (node.isContext) {
             //sometimes there is an StackOverflow exception, we rather check it with primitive condition
             if (depth < MAX_DEPTH) {
-                final Object value = ctx.lookup(pair.getName());
+                final Object value = ctx.lookup(jndiFix(pair.getName()));
                 final Context subctx = (Context) value;
                 list(subctx, node, depth + 1);
             } else {
@@ -212,7 +213,7 @@ public final class Jndi extends WebVMPage {
         public JndiTreeNode(final Context ctx, final NameClassPair pair) throws NamingException {
             super();
             final StringBuilder sb = new StringBuilder();
-            final String name = pair.getName();
+            final String name = jndiFix(pair.getName());
             sb.append(name);
             Class<?> clazz = null;
             try {
@@ -298,5 +299,12 @@ public final class Jndi extends WebVMPage {
         public boolean isLeaf() {
             return !isContext;
         }
+    }
+    static String jndiFix(String name) {
+        // workaround: Glassfish returns java:comp/env as a single child of java:comp. It should return just env instead. Fix that.
+        if (JeeServer.getRuntimeNull() == JeeServer.Glassfish && name.equals("java:comp/env")) {
+            return "env";
+        }
+        return name;
     }
 }
