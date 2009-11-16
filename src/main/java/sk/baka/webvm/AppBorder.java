@@ -79,18 +79,14 @@ public class AppBorder extends Border {
 
         public FormImpl(String id) {
             super(id);
-        }
-        private static final long serialVersionUID = 1L;
-        public String searchQuery = "";
-
-
-        {
             add(new FeedbackPanel("feedback"));
             add(new Button("submit"));
             final TextField<String> field = new TextField<String>("searchText", new PropertyModel<String>(this, "searchQuery"));
             field.add(new StringValidator.MinimumLengthValidator(3));
             add(field);
         }
+        private static final long serialVersionUID = 1L;
+        private String searchQuery = "";
 
         @Override
         protected void onSubmit() {
