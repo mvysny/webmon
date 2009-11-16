@@ -18,10 +18,13 @@
  */
 package sk.baka.webvm;
 
+import java.io.File;
 import java.lang.management.MemoryUsage;
+import java.net.URL;
 import java.util.List;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import sk.baka.tools.UrlUtils;
 import sk.baka.webvm.analyzer.HistorySample;
 import sk.baka.webvm.analyzer.HistorySampler;
 import sk.baka.webvm.misc.BluffGraph;
@@ -102,5 +105,10 @@ public class WebVMPage extends WebPage {
     public final void drawMemoryStatus(final MemoryUsage usage, final String wid, final int width) {
         final String bar = DivGraph.drawMemoryStatus(usage, width);
         unescaped(wid, bar);
+    }
+
+    public static File toFile(final URL url) {
+        final String file = UrlUtils.toLocalFile(url.toString());
+        return file == null ? null : new File(file);
     }
 }

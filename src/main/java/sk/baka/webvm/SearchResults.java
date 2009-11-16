@@ -24,7 +24,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.basic.Label;
@@ -67,7 +66,7 @@ public final class SearchResults extends WebVMPage {
             clIndex++;
             final URL[] urls = ClassLoaderUtils.getURLs(loader);
             for (final URL url : urls) {
-                final File file = FileUtils.toFile(url);
+                final File file = toFile(url);
                 if (file == null) {
                     continue;
                 }
