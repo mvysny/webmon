@@ -36,7 +36,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeModel;
-import org.apache.commons.io.FileUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -46,6 +45,7 @@ import org.apache.wicket.markup.html.tree.BaseTree.LinkType;
 import org.apache.wicket.markup.html.tree.ITreeStateListener;
 import org.apache.wicket.markup.html.tree.LabelTree;
 import org.apache.wicket.markup.html.tree.LinkTree;
+import sk.baka.tools.UrlUtils;
 import sk.baka.webvm.analyzer.classloader.CLEnum;
 import sk.baka.webvm.analyzer.classloader.ClassLoaderUtils;
 import sk.baka.webvm.analyzer.classloader.ResourceLink;
@@ -213,7 +213,7 @@ public final class Classloaders extends WebVMPage {
             return;
         }
         for (final URL url : clUrls) {
-            final File file = FileUtils.toFile(url);
+            final File file = toFile(url);
             final DefaultMutableTreeNode node = (file == null) ? new DefaultMutableTreeNode(url) : new TreeNode(ResourceLink.newFor(file));
             result.add(node);
         }

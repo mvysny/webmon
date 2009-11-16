@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.IOUtils;
+import sk.baka.tools.IOUtils;
 import sk.baka.webvm.analyzer.CpuUsage;
 import sk.baka.webvm.analyzer.ICpuUsageMeasure;
 

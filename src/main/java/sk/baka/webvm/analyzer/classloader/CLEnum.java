@@ -23,7 +23,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Enumeration;
-import org.apache.commons.io.IOUtils;
+import sk.baka.tools.IOUtils;
 
 /**
  * Auto-detection of the class loader type.

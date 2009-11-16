@@ -28,6 +28,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import sk.baka.tools.javaee.JeeServer;
 import sk.baka.webvm.misc.Producer;
 
 /**
@@ -46,6 +47,8 @@ public class HomePage extends WebVMPage {
         border.add(new Label("os", System.getProperty("os.name") + " " + System.getProperty("os.version")));
         border.add(new Label("hw", System.getProperty("os.arch") + "; CPU#: " + Runtime.getRuntime().availableProcessors()));
         border.add(new Label("java", System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + " by " + System.getProperty("java.vm.vendor")));
+        final JeeServer server = JeeServer.getRuntimeNull();
+        border.add(new Label("as", server == null ? "Unknown" : server.getServerName()));
         // java properties
         listMap(border, new SystemPropertiesProducer(), "systemProperties", "sysPropName", "sysPropValue");
         // environment properties

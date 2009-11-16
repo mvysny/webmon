@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.IOUtils;
+import sk.baka.tools.IOUtils;
 
 /**
  * Delivers information from a host operating system.
