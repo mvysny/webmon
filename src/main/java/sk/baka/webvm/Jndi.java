@@ -51,7 +51,7 @@ public final class Jndi extends WebVMPage {
      */
     public Jndi() {
         border.add(newJndiTree("jndiTree", null));
-        border.add(newJndiTree("jndiJavaTree", "java:"));
+        border.add(newJndiTree("jndiJavaTree", "java:comp"));
     }
 
     private static LabelTree newJndiTree(final String treeId, final String context) {
