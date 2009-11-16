@@ -18,11 +18,16 @@
  */
 package sk.baka.webvm;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -47,12 +52,56 @@ public class HomePage extends WebVMPage {
         border.add(new Label("os", System.getProperty("os.name") + " " + System.getProperty("os.version")));
         border.add(new Label("hw", System.getProperty("os.arch") + "; CPU#: " + Runtime.getRuntime().availableProcessors()));
         border.add(new Label("java", System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + " by " + System.getProperty("java.vm.vendor")));
+        border.add(new Label("netInterfaces", getAllInterfaces()));
         final JeeServer server = JeeServer.getRuntimeNull();
         border.add(new Label("as", server == null ? "Unknown" : server.getServerName()));
         // java properties
         listMap(border, new SystemPropertiesProducer(), "systemProperties", "sysPropName", "sysPropValue");
         // environment properties
         listMap(border, new EnvPropertiesProducer(), "env", "envName", "envValue");
+    }
+
+    private static String getAllInterfaces() {
+        try {
+            final StringBuilder sb = new StringBuilder();
+            boolean first = true;
+            for (final NetworkInterface iface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
+                if (first) {
+                    first = false;
+                } else {
+                    sb.append("; ");
+                }
+                sb.append(iface.getName()).append(": ");
+                for (final InetAddress ia : Collections.list(iface.getInetAddresses())) {
+                    if (ia instanceof Inet4Address) {
+                        sb.append(printIP(ia.getAddress()));
+                    }
+                }
+            }
+            return sb.toString();
+        } catch (Exception ex) {
+            LOG.log(Level.WARNING, "Failed to enumerate interfaces", ex);
+            return "Failed to enumerate interfaces: " + ex;
+        }
+    }
+    private final static Logger LOG = Logger.getLogger(HomePage.class.getName());
+
+    private static String printIP(byte[] ip) {
+        final StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (byte b : ip) {
+            if (first) {
+                first = false;
+            } else {
+                sb.append('.');
+            }
+            int num = b;
+            if (num < 0) {
+                num += 256;
+            }
+            sb.append(num);
+        }
+        return sb.toString();
     }
 
     /**
