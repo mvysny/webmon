@@ -122,6 +122,9 @@ public final class NotificationDelivery extends BackgroundService {
      * @throws org.jivesoftware.smack.XMPPException when send fails
      */
     public static void sendJabber(final Config config, final boolean testing, final List<ProblemReport> reports) throws XMPPException {
+        if (!isJabberEnabled(config)) {
+            return;
+        }
         XMPPConnection connection = new XMPPConnection(config.jabberServer);
         connection.connect();
         try {
