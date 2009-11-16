@@ -39,6 +39,13 @@ public class AppServer extends WebVMPage {
         super();
         border.add(new Label("appServerName", server.getServerName()));
         border.add(new Label("sampleCodeRemoteEjb", getSampleCodeRemoteEjb(server)));
+        border.add(new Label("userTransactionJndi", nullable(server.getUserTransactionJndi())));
+        border.add(new Label("transactionManagerJndi", nullable(server.getTransactionManagerJndi())));
+        border.add(new Label("managerLookupClass", nullable(server.getHibernateTransactionManagerFactory())));
+    }
+
+    private static String nullable(final String str) {
+        return str == null ? "unknown" : str;
     }
 
     private String getSampleCodeRemoteEjb(final JeeServer server) {

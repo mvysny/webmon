@@ -14,6 +14,21 @@
                 <div class="entry">
                     To connect to the server remotely just write:
                     <pre wicket:id="sampleCodeRemoteEjb"/>
+                    Interesting object JNDI locations (also see the <wicket:link><a href="Jndi.html">JNDI</a></wicket:link> page):
+                   <table id="table">
+                        <thead><tr><th>Object</th><th>Location</th></tr></thead>
+                        <tr>
+                            <td>UserTransaction</td>
+                            <td wicket:id="userTransactionJndi"/>
+                        </tr>
+                        <tr>
+                            <td>TransactionManager</td>
+                            <td wicket:id="transactionManagerJndi"/>
+                        </tr>
+                    </table>
+                    To use container-managed persistency with Hibernate just set the <code>hibernate.transaction.manager_lookup_class</code> property to
+                    <code wicket:id="managerLookupClass"/> (or use the <code>sk.baka.tools.javaee.UniversalTransactionManagerLookup</code> class which
+                    supports transaction manager auto-detection. <a href="http://baka.sk/bakatools/apidocs/index.html">Click here</a> for more info).
                 </div>
             </div>
         </div>
