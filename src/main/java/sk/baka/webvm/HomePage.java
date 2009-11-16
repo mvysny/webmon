@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
@@ -54,11 +55,21 @@ public class HomePage extends WebVMPage {
         border.add(new Label("java", System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + " by " + System.getProperty("java.vm.vendor")));
         border.add(new Label("netInterfaces", getAllInterfaces()));
         final JeeServer server = JeeServer.getRuntimeNull();
-        border.add(new Label("as", server == null ? "Unknown" : server.getServerName()));
         // java properties
         listMap(border, new SystemPropertiesProducer(), "systemProperties", "sysPropName", "sysPropValue");
         // environment properties
         listMap(border, new EnvPropertiesProducer(), "env", "envName", "envValue");
+        final Link<Void> link = new Link<Void>("asLink") {
+
+            @Override
+            public void onClick() {
+                if (JeeServer.getRuntimeNull() != null) {
+                    setResponsePage(new AppServer(JeeServer.getRuntimeNull()));
+                }
+            }
+        };
+        link.add(new Label("as", server == null ? "Unknown" : server.getServerName()));
+        border.add(link);
     }
 
     private static String getAllInterfaces() {
@@ -74,7 +85,7 @@ public class HomePage extends WebVMPage {
                 sb.append(iface.getName()).append(": ");
                 for (final InetAddress ia : Collections.list(iface.getInetAddresses())) {
                     if (ia instanceof Inet4Address) {
-                        sb.append(printIP(ia.getAddress()));
+                        sb.append(getIP(ia));
                     }
                 }
             }
@@ -86,10 +97,15 @@ public class HomePage extends WebVMPage {
     }
     private final static Logger LOG = Logger.getLogger(HomePage.class.getName());
 
-    private static String printIP(byte[] ip) {
+    /**
+     * Returns formatted IP address.
+     * @param adr the address object
+     * @return the formatted IP address.
+     */
+    public static String getIP(InetAddress adr) {
         final StringBuilder sb = new StringBuilder();
         boolean first = true;
-        for (byte b : ip) {
+        for (byte b : adr.getAddress()) {
             if (first) {
                 first = false;
             } else {
