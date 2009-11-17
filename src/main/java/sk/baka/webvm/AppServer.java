@@ -40,7 +40,13 @@ public class AppServer extends WebVMPage {
         border.add(new Label("appServerName", server.getServerName()));
         border.add(new Label("sampleCodeRemoteEjb", getSampleCodeRemoteEjb(server)));
         border.add(new Label("userTransactionJndi", nullable(server.getUserTransactionJndi())));
-        border.add(new Label("transactionManagerJndi", nullable(server.getTransactionManagerJndi())));
+        String tm = null;
+        try {
+            tm = nullable(server.getTransactionManagerJndi());
+        } catch (Exception e) {
+            tm = e.toString();
+        }
+        border.add(new Label("transactionManagerJndi", tm));
         border.add(new Label("managerLookupClass", nullable(server.getHibernateTransactionManagerFactory())));
     }
 
