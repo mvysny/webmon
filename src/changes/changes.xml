@@ -24,6 +24,21 @@
     </properties>
     <body>
         <release version="0.6" date="-">
+       		<action dev="vyzivus" type="add">
+       			 Added a new page which shows simple J2EE server information. The application server is now autodetected.
+        		</action>
+       		<action dev="vyzivus" type="add">
+       			HomePage now shows network interfaces with IP addresses
+        		</action>
+       		<action dev="vyzivus" type="update">
+       			Display the java:comp JNDI tree instead of java: tree
+        		</action>
+       		<action dev="vyzivus" type="fix">
+       			Fixed: Jabber is not send if the jabberserver is null or blank
+        		</action>
+       		<action dev="vyzivus" type="fix">
+       			Fixed test for Java 1.6; Deadlock tests are now skipped on Java 1.5.x
+        		</action>
        		<action dev="vyzivus" type="update">
                The Configure tab now mentions all possibilities of config file location
         		</action>
