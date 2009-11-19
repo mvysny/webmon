@@ -146,7 +146,7 @@
         <dependency>
             <groupId>sk.baka.tools</groupId>
             <artifactId>bakatools</artifactId>
-            <version>0.4-SNAPSHOT</version>
+            <version>0.4</version>
         </dependency>
     </dependencies>
     <repositories>
