@@ -124,11 +124,11 @@ public final class MgmtUtils {
      * Formats a memory usage instance to a compact string. Uses the following format: [used (committed) / max].
      * @param mu the memory usage object.
      * @param inMegs if true then given memory usage values are already megabytes. If false then the values are in bytes.
-     * @return [used (committed) / max], or [unknown] if null was given
+     * @return [used (committed) / max], or [not available] if null was given
      */
     public static String toString(final MemoryUsage mu, final boolean inMegs) {
         if (mu == null) {
-            return "[unknown]";
+            return "[not available]";
         }
         final StringBuilder sb = new StringBuilder();
         sb.append('[');
@@ -165,23 +165,29 @@ public final class MgmtUtils {
     /**
      * Returns memory usage in the following format: xx%
      * @param mu the memory usage object, may be null
-     * @return formatted percent value or "?" if the object is null or max is -1
+     * @return formatted percent value; "not available" if the object is null or max is -1; "none" if max is zero
      */
     public static String getUsagePerc(final MemoryUsage mu) {
         if (mu == null || mu.getMax() < 0) {
-            return "?";
+            return "not available";
+        }
+        if (mu.getMax() == 0) {
+            return "none";
         }
         return (mu.getUsed() * 100 / mu.getMax()) + "%";
     }
 
     /**
-     * Returns memory usage in the following format: xx%
+     * Returns amount of free memory in the following format: xx%
      * @param mu the memory usage object, may be null
-     * @return formatted percent value or "?" if the object is null or max is -1
+     * @return formatted percent value; "?" if the object is null or max is -1; "none" if max is zero
      */
     public static String getFreePerc(final MemoryUsage mu) {
         if (mu == null || mu.getMax() < 0) {
-            return "?";
+            return "not available";
+        }
+        if (mu.getMax() == 0) {
+            return "none";
         }
         return (100 - (mu.getUsed() * 100 / mu.getMax())) + "%";
     }
