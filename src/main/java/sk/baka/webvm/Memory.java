@@ -43,19 +43,20 @@ import sk.baka.webvm.misc.Producer;
 public final class Memory extends WebVMPage {
 
     private static final long serialVersionUID = 1L;
+    private static final int GRAPH_WIDTH_PIXELS = 300;
 
     /**
      * Creates new object instance
      */
     public Memory() {
         MemoryUsage usage = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
-        drawMemoryStatus(usage, "heapStatusBar", 300);
+        drawMemoryStatus(usage, "heapStatusBar", GRAPH_WIDTH_PIXELS);
         border.add(new Label("heapStatusText", MgmtUtils.toString(usage, true)));
         usage = MgmtUtils.getInMB(sk.baka.webvm.analyzer.hostos.Memory.getPhysicalMemory());
-        drawMemoryStatus(usage, "physicalMemoryStatusBar", 300);
+        drawMemoryStatus(usage, "physicalMemoryStatusBar", GRAPH_WIDTH_PIXELS);
         border.add(new Label("physicalMemoryStatusText", MgmtUtils.toString(usage, true)));
         usage = MgmtUtils.getInMB(sk.baka.webvm.analyzer.hostos.Memory.getSwap());
-        drawMemoryStatus(usage, "swapStatusBar", 300);
+        drawMemoryStatus(usage, "swapStatusBar", GRAPH_WIDTH_PIXELS);
         border.add(new Label("swapStatusText", MgmtUtils.toString(usage, true)));
         addMemoryPoolInfo(border, new MemoryBeansProducer(false), "memoryManagers", "memManName", "memManValid", "memManProperties");
         addMemoryPoolInfo(border, new MemoryBeansProducer(true), "gc", "gcName", "gcValid", "gcProperties");

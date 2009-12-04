@@ -20,6 +20,7 @@ package sk.baka.webvm.misc;
 
 import java.lang.management.MemoryUsage;
 import sk.baka.webvm.Graphs;
+import static sk.baka.webvm.misc.Constants.*;
 
 /**
  * Draws stacked bars.
@@ -67,7 +68,7 @@ public final class DivGraph {
                 if (max <= 0) {
                     sb.append('?');
                 } else {
-                    sb.append(values[i] * 100 / max);
+                    sb.append(values[i] * HUNDRED_PERCENT / max);
                 }
                 sb.append('%');
                 if (style.showValues) {

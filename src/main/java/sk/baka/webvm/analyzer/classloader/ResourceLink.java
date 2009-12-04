@@ -34,6 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import static sk.baka.webvm.misc.Constants.*;
 
 /**
  * Represents an on-disk package or a package item.
@@ -406,7 +407,7 @@ final class JarResourceLink extends ResourceLink {
     @Override
     public String toString() {
         if (isRoot()) {
-            return getName() + " [" + (jarFile.length() / 1024) + "K]";
+            return getName() + " [" + (jarFile.length() / KIBIBYTES) + "K]";
         }
         return super.toString();
     }

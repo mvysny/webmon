@@ -39,6 +39,7 @@ import sk.baka.webvm.analyzer.HistorySample;
 public final class Threads extends WebVMPage {
 
     private static final long serialVersionUID = 1L;
+    private static final int MAX_THREAD_NAME_LENGTH = 30;
 
     /**
      * Constructor.
@@ -151,8 +152,8 @@ public final class Threads extends WebVMPage {
             final ThreadInfo last = infos.get(infos.size() - 1);
             String name = ti.getThreadName();
             String title = name;
-            if (name.length() > 30) {
-                name = name.substring(0, 30) + "...";
+            if (name.length() > MAX_THREAD_NAME_LENGTH) {
+                name = name.substring(0, MAX_THREAD_NAME_LENGTH) + "...";
             }
             final Label l = new Label("threadName", name);
             item.add(l);
