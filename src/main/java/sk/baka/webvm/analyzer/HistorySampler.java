@@ -30,6 +30,7 @@ import sk.baka.webvm.config.Config;
 import sk.baka.webvm.misc.BackgroundService;
 import sk.baka.webvm.misc.NotificationDelivery;
 import sk.baka.webvm.misc.SimpleFixedSizeFIFO;
+import static sk.baka.webvm.misc.Constants.*;
 
 /**
  * Samples the VM history regularly. You need to invoke {@link #start()} to start the sampler, {@link #stop()} to stop it. Thread-safe.
@@ -171,7 +172,7 @@ public final class HistorySampler extends BackgroundService {
             if (gcSampleTakenDelta == 0) {
                 return 0;
             }
-            return (int) (gcTimeDelta * 100 / gcSampleTakenDelta);
+            return (int) (gcTimeDelta * HUNDRED_PERCENT / gcSampleTakenDelta);
         }
     }
 
