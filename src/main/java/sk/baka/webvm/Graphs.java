@@ -122,16 +122,20 @@ public final class Graphs extends WebVMPage {
             }
             dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength(), false);
             unescaped("cpuUsageGraph", dg.draw());
-            final HistorySample last = history.isEmpty() ? null : history.get(history.size() - 1);
-            border.add(new Label("cpuUsagePerc", last == null || !hostCpu ? "?" : Integer.toString(last.cpuUsage)));
-            border.add(new Label("javaCpuUsagePerc", last == null || !javaCpu ? "?" : Integer.toString(last.cpuJavaUsage)));
-            border.add(new Label("iowait", last == null || !hostIOCpu ? "?" : Integer.toString(last.cpuIOUsage)));
+            final HistorySample last = history.isEmpty() ? new HistorySample(0, 0, 0, 0) : history.get(history.size() - 1);
+            border.add(new Label("cpuUsagePerc", printValue(hostCpu, last.cpuUsage)));
+            border.add(new Label("javaCpuUsagePerc", printValue(javaCpu, last.cpuJavaUsage)));
+            border.add(new Label("iowait", printValue(hostIOCpu, last.cpuIOUsage)));
         } else {
             add(new Label("cpuUsageGraph", "Both HostOS CPU measurement and Java CPU usage measurement are unsupported on this OS/JavaVM"));
             add(new Label("cpuUsagePerc", "-"));
             add(new Label("javaCpuUsagePerc", "-"));
             add(new Label("iowait", "-"));
         }
+    }
+
+    private static String printValue(final boolean enabled, final int value) {
+        return enabled ? Integer.toString(value) : "?";
     }
 
     private void drawGcCpuUsage(final List<HistorySample> history) {
