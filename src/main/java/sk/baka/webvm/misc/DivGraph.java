@@ -49,16 +49,16 @@ public final class DivGraph {
         }
         final boolean isLastValue = i == pixels.length - 1;
         drawDivOpening(sb, isLastValue, style, i, pixels[i]);
-        drawDivContents(isLastValue, style, sb, values[i], max);
+        drawDivContents(isLastValue, style, sb, values, i, max);
         sb.append("</div>");
         return sb.toString();
     }
 
-    private static void drawDivContents(final boolean isLastValue, final GraphStyle style, final StringBuilder sb, final int value, final int max) {
+    private static void drawDivContents(final boolean isLastValue, final GraphStyle style, final StringBuilder sb, final int[] values, final int i, final int max) {
         // here a value in percents should be drawn (if desired)
         if (!isLastValue) {
             if (style.showValues) {
-                sb.append(value);
+                sb.append(values[i]);
                 if (style.showPercentage) {
                     sb.append(" (");
                 }
@@ -67,7 +67,7 @@ public final class DivGraph {
                 if (max <= 0) {
                     sb.append('?');
                 } else {
-                    sb.append(value * 100 / max);
+                    sb.append(values[i] * 100 / max);
                 }
                 sb.append('%');
                 if (style.showValues) {
