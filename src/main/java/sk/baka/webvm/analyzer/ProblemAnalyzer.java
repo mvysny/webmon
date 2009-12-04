@@ -33,6 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
+import sk.baka.tools.JavaUtils;
 import sk.baka.webvm.ThreadDump;
 import sk.baka.webvm.config.Config;
 import sk.baka.webvm.misc.MgmtUtils;
@@ -112,18 +113,18 @@ public final class ProblemAnalyzer {
      * The "Deadlocked threads" problem class.
      */
     public static final String CLASS_DEADLOCKED_THREADS = "Deadlocked threads";
-    private static final String CLASS_DEADLOCKED_THREADS_DESC = "Triggered when there are some deadlocked threads. Finds cycles of threads that are in " +
-            "deadlock waiting to acquire object monitors (also " +
-            "<a href=\"http://java.sun.com/javase/6/docs/api/java/lang/management/LockInfo.html#OwnableSynchronizer\">ownable synchronizers" +
-            "</a> when running on Java 6).";
+    private static final String CLASS_DEADLOCKED_THREADS_DESC = "Triggered when there are some deadlocked threads. Finds cycles of threads that are in "
+            + "deadlock waiting to acquire object monitors (also "
+            + "<a href=\"http://java.sun.com/javase/6/docs/api/java/lang/management/LockInfo.html#OwnableSynchronizer\">ownable synchronizers"
+            + "</a> when running on Java 6).";
     /**
      * The "GC CPU Usage" problem class.
      */
     public static final String CLASS_GC_CPU_USAGE = "GC CPU Usage";
 
     private String getGcCpuUsageDesc() {
-        return "Triggered when GC uses " + config.gcCpuTreshold + "% or more of CPU continuously for " +
-                (config.gcCpuTresholdSamples * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds";
+        return "Triggered when GC uses " + config.gcCpuTreshold + "% or more of CPU continuously for "
+                + (config.gcCpuTresholdSamples * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds";
     }
     /**
      * The "GC Memory cleanup" problem class.
@@ -131,8 +132,8 @@ public final class ProblemAnalyzer {
     public static final String CLASS_GC_MEMORY_CLEANUP = "GC Memory cleanup";
 
     private String getGcMemoryCleanupDesc() {
-        return "Triggered when GC cannot make available more than " +
-                (100 - config.memAfterGcUsageTreshold) + "% of memory";
+        return "Triggered when GC cannot make available more than "
+                + (100 - config.memAfterGcUsageTreshold) + "% of memory";
     }
     /**
      * The "Memory status" problem class.
@@ -227,12 +228,12 @@ public final class ProblemAnalyzer {
         maxAvgTresholdViolation = maxTresholdViolationCount == 0 ? 0 : maxAvgTresholdViolation / maxTresholdViolationCount;
         totalAvgTreshold = history.size() == 0 ? 0 : totalAvgTreshold / history.size();
         if (maxTresholdViolationCount >= config.gcCpuTresholdSamples) {
-            return new ProblemReport(true, CLASS_GC_CPU_USAGE, "GC spent more than " + config.gcCpuTreshold + "% (avg. " +
-                    maxAvgTresholdViolation + "%) of CPU for " + (maxTresholdViolationCount * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds",
+            return new ProblemReport(true, CLASS_GC_CPU_USAGE, "GC spent more than " + config.gcCpuTreshold + "% (avg. "
+                    + maxAvgTresholdViolation + "%) of CPU for " + (maxTresholdViolationCount * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds",
                     getGcCpuUsageDesc());
         }
-        return new ProblemReport(false, CLASS_GC_CPU_USAGE, "Avg. GC CPU usage last " +
-                (history.size() * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds: " + totalAvgTreshold + "%",
+        return new ProblemReport(false, CLASS_GC_CPU_USAGE, "Avg. GC CPU usage last "
+                + (history.size() * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds: " + totalAvgTreshold + "%",
                 getGcCpuUsageDesc());
     }
 
@@ -242,7 +243,7 @@ public final class ProblemAnalyzer {
      */
     public ProblemReport getMemStatReport() {
         final List<MemoryPoolMXBean> beans = ManagementFactory.getMemoryPoolMXBeans();
-        if (beans == null || beans.isEmpty()) {
+        if (JavaUtils.isBlank(beans)) {
             return new ProblemReport(false, CLASS_MEMORY_USAGE, "INFO: No memory pool information", getMemUsageDesc());
         }
         final StringBuilder sb = new StringBuilder();
@@ -273,7 +274,7 @@ public final class ProblemAnalyzer {
      */
     public ProblemReport getGCMemUsageReport() {
         final List<MemoryPoolMXBean> beans = ManagementFactory.getMemoryPoolMXBeans();
-        if (beans == null || beans.isEmpty()) {
+        if (JavaUtils.isBlank(beans)) {
             return new ProblemReport(false, CLASS_GC_MEMORY_CLEANUP, "INFO: No memory pool information", getGcMemoryCleanupDesc());
         }
         final StringBuilder sb = new StringBuilder();
@@ -282,7 +283,7 @@ public final class ProblemAnalyzer {
             if (usage == null || !bean.isCollectionUsageThresholdSupported() || !bean.isUsageThresholdSupported()) {
                 continue;
             }
-            if (usage.getMax() < 1) {
+            if (usage.getMax() <= 0) {
                 continue;
             }
             final long used = usage.getUsed() * 100 / usage.getMax();
@@ -312,7 +313,7 @@ public final class ProblemAnalyzer {
             return new ProblemReport(false, CLASS_DEADLOCKED_THREADS, "INFO: Report Unavailable - ThreadMXBean null", CLASS_DEADLOCKED_THREADS_DESC);
         }
         final long[] dt = findDeadlockedThreads(bean);
-        if ((dt == null) || (dt.length == 0)) {
+        if (JavaUtils.isEmpty(dt)) {
             return new ProblemReport(false, CLASS_DEADLOCKED_THREADS, "None", CLASS_DEADLOCKED_THREADS_DESC);
         }
         for (final long thread : dt) {
@@ -321,19 +322,23 @@ public final class ProblemAnalyzer {
             sb.append(ThreadDump.getThreadMetadata(info));
             sb.append('\n');
             sb.append("Stacktrace:");
-            final StackTraceElement[] trace = info.getStackTrace();
-            if (trace == null || trace.length == 0) {
-                sb.append("unknown\n");
-            } else {
-                sb.append('\n');
-                for (int i = 0; i < trace.length; i++) {
-                    sb.append("\tat ");
-                    sb.append(trace[i]);
-                    sb.append('\n');
-                }
-            }
+            sb.append(printStackTrace(info.getStackTrace()));
         }
         return new ProblemReport(true, CLASS_DEADLOCKED_THREADS, sb.toString(), CLASS_DEADLOCKED_THREADS_DESC);
+    }
+
+    private static String printStackTrace(final StackTraceElement[] stacktrace) {
+        if (JavaUtils.isEmpty(stacktrace)) {
+            return "unknown\n";
+        }
+        final StringBuilder sb = new StringBuilder();
+        sb.append('\n');
+        for (int i = 0; i < stacktrace.length; i++) {
+            sb.append("\tat ");
+            sb.append(stacktrace[i]);
+            sb.append('\n');
+        }
+        return sb.toString();
     }
 
     /**
