@@ -146,7 +146,7 @@ public final class ProblemReport implements Serializable {
         if (this.isProblem != other.isProblem) {
             return false;
         }
-        if ((this.pclass == null) ? (other.pclass != null) : !this.pclass.equals(other.pclass)) {
+        if (!this.pclass.equals(other.pclass)) {
             return false;
         }
         if ((this.diagnosis == null) ? (other.diagnosis != null) : !this.diagnosis.equals(other.diagnosis)) {
@@ -159,7 +159,7 @@ public final class ProblemReport implements Serializable {
     public int hashCode() {
         int hash = 7;
         hash = 59 * hash + (this.isProblem ? 1 : 0);
-        hash = 59 * hash + (this.pclass != null ? this.pclass.hashCode() : 0);
+        hash = 59 * hash + this.pclass.hashCode();
         hash = 59 * hash + (this.diagnosis != null ? this.diagnosis.hashCode() : 0);
         return hash;
     }
