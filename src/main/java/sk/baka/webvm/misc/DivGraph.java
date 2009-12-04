@@ -47,9 +47,52 @@ public final class DivGraph {
         if (isEmpty) {
             return "";
         }
-        final boolean isMax = i == pixels.length - 1;
+        final boolean isLastValue = i == pixels.length - 1;
+        drawDivOpening(sb, isLastValue, style, i, pixels[i]);
+        drawDivContents(isLastValue, style, sb, values[i], max);
+        sb.append("</div>");
+        return sb.toString();
+    }
+
+    private static void drawDivContents(final boolean isLastValue, final GraphStyle style, final StringBuilder sb, final int value, final int max) {
+        // here a value in percents should be drawn (if desired)
+        if (!isLastValue) {
+            if (style.showValues) {
+                sb.append(value);
+                if (style.showPercentage) {
+                    sb.append(" (");
+                }
+            }
+            if (style.showPercentage) {
+                if (max <= 0) {
+                    sb.append('?');
+                } else {
+                    sb.append(value * 100 / max);
+                }
+                sb.append('%');
+                if (style.showValues) {
+                    sb.append(')');
+                }
+            }
+        }
+        if (isLastValue || (!style.showValues && !style.showPercentage)) {
+            // nothing should be shown in the div itself. Implement an IE hack
+            sb.append("<!-- -->");
+        }
+    }
+
+    /**
+     * Draws an opening div element for given value.
+     * @param sb add the element to this builder
+     * @param isLastValue if true then this value is the last one shown in the graph. Last value is always drawn with transparent background. Use a custom background color only for non-last value.
+     * @param style the style to use
+     * @param i the value index
+     * @param pixel the desired pixel width/heigth.
+     */
+    private static void drawDivOpening(final StringBuilder sb, final boolean isLastValue, final GraphStyle style, int i, final int pixel) {
         sb.append("<div style=\"");
-        if (!isMax) {
+        // last value is always drawn with transparent background. Use a custom background color only for non-last value.
+        if (!isLastValue) {
             sb.append("background-color: ");
             sb.append(style.colors[i]);
             sb.append("; ");
@@ -62,37 +105,12 @@ public final class DivGraph {
                 }
             }
         }
-        if (!isMax && !style.vertical) {
+        if (!isLastValue && !style.vertical) {
             sb.append("float: left; ");
         }
         sb.append(style.vertical ? "height: " : "width: ");
-        sb.append(pixels[i]);
+        sb.append(pixel);
         sb.append("px;\">");
-        if (!isMax) {
-            if (style.showValues) {
-                sb.append(values[i]);
-                if (style.showPercentage) {
-                    sb.append(" (");
-                }
-            }
-            if (style.showPercentage) {
-                if (max <= 0) {
-                    sb.append('?');
-                } else {
-                    sb.append(values[i] * 100 / max);
-                }
-                sb.append('%');
-                if (style.showValues) {
-                    sb.append(')');
-                }
-            }
-        }
-        if (isMax || (!style.showValues && !style.showPercentage)) {
-            // IE hack
-            sb.append("<!-- -->");
-        }
-        sb.append("</div>");
-        return sb.toString();
     }
 
     /**
