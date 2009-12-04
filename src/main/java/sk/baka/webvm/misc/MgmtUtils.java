@@ -28,6 +28,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static sk.baka.webvm.misc.Constants.*;
 
 /**
  * Provides utilities for the java.util.management package.
@@ -117,7 +118,7 @@ public final class MgmtUtils {
         if (mu == null) {
             return null;
         }
-        return new MemoryUsage(mu.getInit() == -1 ? -1 : mu.getInit() / 1024 / 1024, mu.getUsed() / 1024 / 1024, mu.getCommitted() / 1024 / 1024, mu.getMax() == -1 ? -1 : mu.getMax() / 1024 / 1024);
+        return new MemoryUsage(mu.getInit() == -1 ? -1 : mu.getInit() / MEBIBYTES, mu.getUsed() / MEBIBYTES, mu.getCommitted() / MEBIBYTES, mu.getMax() == -1 ? -1 : mu.getMax() / MEBIBYTES);
     }
 
     /**
@@ -150,7 +151,7 @@ public final class MgmtUtils {
             }
             sb.append(" - ");
             if (mu.getMax() > 0) {
-                sb.append(mu.getUsed() * 100 / mu.getMax());
+                sb.append(mu.getUsed() * HUNDRED_PERCENT / mu.getMax());
             } else {
                 sb.append('0');
             }
@@ -174,7 +175,7 @@ public final class MgmtUtils {
         if (mu.getMax() == 0) {
             return "none";
         }
-        return (mu.getUsed() * 100 / mu.getMax()) + "%";
+        return (mu.getUsed() * HUNDRED_PERCENT / mu.getMax()) + "%";
     }
 
     /**
@@ -189,7 +190,7 @@ public final class MgmtUtils {
         if (mu.getMax() == 0) {
             return "none";
         }
-        return (100 - (mu.getUsed() * 100 / mu.getMax())) + "%";
+        return (HUNDRED_PERCENT - (mu.getUsed() * HUNDRED_PERCENT / mu.getMax())) + "%";
     }
     private static final SortedMap<String, MemoryPoolMXBean> MEMORY_POOLS;
 

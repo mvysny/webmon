@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.baka.tools.IOUtils;
+import static sk.baka.webvm.misc.Constants.*;
 
 /**
  * Delivers information from a host operating system.
@@ -82,7 +83,7 @@ public final class Memory {
                     final String key = line.substring(0, colon);
                     String value = line.substring(colon + 1, line.length()).trim();
                     if (value.endsWith(" kB")) {
-                        value = value.substring(0, value.length() - 3);
+                        value = value.substring(0, value.length() - " kB".length());
                     }
                     try {
                         final long val = Long.parseLong(value);
@@ -140,7 +141,7 @@ public final class Memory {
             }
             final long committed = total - free;
             final long used = committed - buffers - cache;
-            return new MemoryUsage(-1, used * 1024, committed * 1024, total * 1024);
+            return new MemoryUsage(-1, used * KIBIBYTES, committed * KIBIBYTES, total * KIBIBYTES);
         }
 
         /**
@@ -163,7 +164,7 @@ public final class Memory {
                 return null;
             }
             final long used = total - free;
-            return new MemoryUsage(-1, used * 1024, used * 1024, total * 1024);
+            return new MemoryUsage(-1, used * KIBIBYTES, used * KIBIBYTES, total * KIBIBYTES);
         }
 
         private MemoryLinuxStrategy() {

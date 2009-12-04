@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 import sk.baka.tools.IOUtils;
 import sk.baka.webvm.analyzer.CpuUsage;
 import sk.baka.webvm.analyzer.ICpuUsageMeasure;
+import static sk.baka.webvm.misc.Constants.*;
 
 /**
  * Provides a CPU measurement support.
@@ -103,7 +104,7 @@ public final class Cpu {
         public Object measure() throws Exception {
             // the object is really an array of longs: [user, nice, system, idle].
             // To compute the CPU usage, we have to perform:
-            // (idle2-idle1)*100/(user2+nice2+system2+idle2-user1-nice1-system1-idle1)
+            // (idle2-idle1)*HUNDRED_PERCENT/(user2+nice2+system2+idle2-user1-nice1-system1-idle1)
             final BufferedReader in = new BufferedReader(new FileReader(PROC_STAT));
             try {
                 for (String line = in.readLine(); line != null; line = in.readLine()) {
@@ -135,8 +136,8 @@ public final class Cpu {
             if (sampleTimeDelta <= 0) {
                 return 0;
             }
-            final long cpuIdle = (me2[MEASURE_IDLE] - me1[MEASURE_IDLE]) * 100 / sampleTimeDelta;
-            return 100 - ((int) cpuIdle);
+            final long cpuIdle = (me2[MEASURE_IDLE] - me1[MEASURE_IDLE]) * HUNDRED_PERCENT / sampleTimeDelta;
+            return HUNDRED_PERCENT - ((int) cpuIdle);
         }
     }
 
@@ -187,7 +188,7 @@ public final class Cpu {
             if (sampleTimeDelta <= 0) {
                 return 0;
             }
-            long cpuSpentIO = (me2[MEASURE_MILLIS_SPENT_IO] - me1[MEASURE_MILLIS_SPENT_IO]) * 100 / sampleTimeDelta / NUMBER_OF_PROCESSORS;
+            long cpuSpentIO = (me2[MEASURE_MILLIS_SPENT_IO] - me1[MEASURE_MILLIS_SPENT_IO]) * HUNDRED_PERCENT / sampleTimeDelta / NUMBER_OF_PROCESSORS;
             return (int) cpuSpentIO;
         }
     }
@@ -236,7 +237,7 @@ public final class Cpu {
             if (sampleTimeDelta <= 0) {
                 return 0;
             }
-            return (int) ((me2[PROCESS_CPU_TIME] - me1[PROCESS_CPU_TIME]) * 100 / sampleTimeDelta);
+            return (int) ((me2[PROCESS_CPU_TIME] - me1[PROCESS_CPU_TIME]) * HUNDRED_PERCENT / sampleTimeDelta);
         }
     }
 
