@@ -37,6 +37,7 @@ import sk.baka.tools.JavaUtils;
 import sk.baka.webvm.ThreadDump;
 import sk.baka.webvm.config.Config;
 import sk.baka.webvm.misc.MgmtUtils;
+import static sk.baka.webvm.misc.Constants.*;
 
 /**
  * Analyzes VM problems.
@@ -124,7 +125,7 @@ public final class ProblemAnalyzer {
 
     private String getGcCpuUsageDesc() {
         return "Triggered when GC uses " + config.gcCpuTreshold + "% or more of CPU continuously for "
-                + (config.gcCpuTresholdSamples * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds";
+                + (config.gcCpuTresholdSamples * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / MILLIS_IN_SECOND) + " seconds";
     }
     /**
      * The "GC Memory cleanup" problem class.
@@ -133,7 +134,7 @@ public final class ProblemAnalyzer {
 
     private String getGcMemoryCleanupDesc() {
         return "Triggered when GC cannot make available more than "
-                + (100 - config.memAfterGcUsageTreshold) + "% of memory";
+                + (HUNDRED_PERCENT - config.memAfterGcUsageTreshold) + "% of memory";
     }
     /**
      * The "Memory status" problem class.
@@ -185,14 +186,14 @@ public final class ProblemAnalyzer {
         }
         final MemoryUsage swap = Memory.getSwap();
         sb.append("Physical memory used: ");
-        sb.append(phys.getCommitted() * 100 / phys.getMax());
+        sb.append(phys.getCommitted() * HUNDRED_PERCENT / phys.getMax());
         sb.append("%, minus buffers/cache: ");
-        sb.append(phys.getUsed() * 100 / phys.getMax());
+        sb.append(phys.getUsed() * HUNDRED_PERCENT / phys.getMax());
         sb.append("%\nSwap used: ").append(MgmtUtils.getUsagePerc(swap));
         sb.append('\n');
         final long total = phys.getMax() + (swap == null ? 0 : swap.getMax());
         final long used = phys.getUsed() + (swap == null ? 0 : swap.getUsed());
-        final long usedPerc = used * 100 / total;
+        final long usedPerc = used * HUNDRED_PERCENT / total;
         sb.append("Total virtual memory usage: ");
         sb.append(usedPerc);
         sb.append('%');
@@ -229,11 +230,11 @@ public final class ProblemAnalyzer {
         totalAvgTreshold = history.size() == 0 ? 0 : totalAvgTreshold / history.size();
         if (maxTresholdViolationCount >= config.gcCpuTresholdSamples) {
             return new ProblemReport(true, CLASS_GC_CPU_USAGE, "GC spent more than " + config.gcCpuTreshold + "% (avg. "
-                    + maxAvgTresholdViolation + "%) of CPU for " + (maxTresholdViolationCount * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds",
+                    + maxAvgTresholdViolation + "%) of CPU for " + (maxTresholdViolationCount * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / MILLIS_IN_SECOND) + " seconds",
                     getGcCpuUsageDesc());
         }
         return new ProblemReport(false, CLASS_GC_CPU_USAGE, "Avg. GC CPU usage last "
-                + (history.size() * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / 1000) + " seconds: " + totalAvgTreshold + "%",
+                + (history.size() * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / MILLIS_IN_SECOND) + " seconds: " + totalAvgTreshold + "%",
                 getGcCpuUsageDesc());
     }
 
@@ -252,7 +253,7 @@ public final class ProblemAnalyzer {
             if (usage == null || !bean.isCollectionUsageThresholdSupported() || !bean.isUsageThresholdSupported()) {
                 continue;
             }
-            final long used = usage.getUsed() * 100 / usage.getMax();
+            final long used = usage.getUsed() * HUNDRED_PERCENT / usage.getMax();
             if (used >= config.memUsageTreshold) {
                 sb.append("INFO: Pool [");
                 sb.append(bean.getName());
@@ -286,7 +287,7 @@ public final class ProblemAnalyzer {
             if (usage.getMax() <= 0) {
                 continue;
             }
-            final long used = usage.getUsed() * 100 / usage.getMax();
+            final long used = usage.getUsed() * HUNDRED_PERCENT / usage.getMax();
             if (used >= config.memAfterGcUsageTreshold) {
                 sb.append("Pool [");
                 sb.append(bean.getName());
@@ -351,14 +352,14 @@ public final class ProblemAnalyzer {
         for (final File root : File.listRoots()) {
             try {
                 final long freeSpaceKb = FileSystemUtils.freeSpaceKb(root.getAbsolutePath());
-                final long freeSpaceMb = freeSpaceKb / 1024;
+                final long freeSpaceMb = freeSpaceKb / KIBIBYTES;
                 if (freeSpaceMb < config.minFreeDiskSpaceMb) {
                     problem = true;
                     sb.append("Low disk space: ");
                 }
                 sb.append(root.getAbsolutePath());
                 sb.append("  ");
-                sb.append(FileUtils.byteCountToDisplaySize(freeSpaceKb * 1024));
+                sb.append(FileUtils.byteCountToDisplaySize(freeSpaceKb * KIBIBYTES));
                 sb.append(" free\n");
             } catch (Exception ex) {
                 LOG.log(Level.INFO, "Failed to get free space on " + root.getAbsolutePath(), ex);
