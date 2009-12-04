@@ -72,7 +72,7 @@ public abstract class ResourceLink implements Serializable {
      * @param links a list of links, must not be null
      * @param name the name of the resource.
      * @return the link with given name, never null
-     * @throws RuntimeException if no such link exists
+     * @throws IllegalArgumentException if no such link exists
      */
     public static ResourceLink findFirstByName(final List<ResourceLink> links, final String name) {
         for (final ResourceLink link : links) {
@@ -80,7 +80,7 @@ public abstract class ResourceLink implements Serializable {
                 return link;
             }
         }
-        throw new RuntimeException("No such link: " + name);
+        throw new IllegalArgumentException("No such link: " + name);
     }
 
     /**
