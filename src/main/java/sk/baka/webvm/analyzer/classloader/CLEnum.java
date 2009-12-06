@@ -40,9 +40,6 @@ public enum CLEnum {
         protected boolean matches(final ClassLoader cl) {
             try {
                 final Enumeration<URL> e = cl.getResources("WEB-INF/web.xml");
-                if (e == null) {
-                    return false;
-                }
                 for (final URL url : Collections.list(e)) {
                     final InputStream in = url.openStream();
                     try {
