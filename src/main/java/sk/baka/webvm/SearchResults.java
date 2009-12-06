@@ -149,6 +149,21 @@ public final class SearchResults extends WebVMPage {
         public String toString() {
             return res != null ? "[" + clIndex + "] " + res.getFullName() : error;
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof CLResult)) {
+                return false;
+            }
+            final String s1 = toString();
+            final String s2 = obj.toString();
+            return s1.equals(s2);
+        }
+
+        @Override
+        public int hashCode() {
+            return toString().hashCode();
+        }
     }
 
     /**
