@@ -1,20 +1,20 @@
 /**
  * Copyright 2009 Martin Vysny.
  *
- * This file is part of WebVM.
+ * This file is part of WebMon.
  *
- * WebVM is free software: you can redistribute it and/or modify
+ * WebMon is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * WebVM is distributed in the hope that it will be useful,
+ * WebMon is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with WebVM.  If not, see <http://www.gnu.org/licenses/>.
+ * along with WebMon.  If not, see <http://www.gnu.org/licenses/>.
  */
 package sk.baka.webvm;
 
@@ -128,9 +128,9 @@ public final class WicketApplication extends WebApplication {
     private Config loadConfig() {
         String configUrl = getInitParameter("configFile");
         if (configUrl != null) {
-            LOG.info("Configuration file specified in the webvm.war/WEB-INF/web.xml descriptor: " + configUrl);
+            LOG.info("Configuration file specified in the webmon.war/WEB-INF/web.xml descriptor: " + configUrl);
         } else {
-            configUrl = "/etc/webvm.properties";
+            configUrl = "/etc/webmon.properties";
             final File f = new File(configUrl);
             if (!f.exists() || !f.isFile()) {
                 configUrl = null;
@@ -141,7 +141,7 @@ public final class WicketApplication extends WebApplication {
         }
         if (configUrl == null) {
             configUrl = "classpath:config.properties";
-            LOG.info("Loading default configuration file from webvm.war/WEB-INF/classes/config.properties");
+            LOG.info("Loading default configuration file from webmon.war/WEB-INF/classes/config.properties");
         }
         try {
             final InputStream in;
