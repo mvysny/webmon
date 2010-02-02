@@ -18,6 +18,8 @@
  */
 package sk.baka.webvm.analyzer;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import sk.baka.webvm.analyzer.hostos.Memory;
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -43,7 +45,8 @@ import static sk.baka.webvm.misc.Constants.*;
  * Analyzes VM problems.
  * @author Martin Vysny
  */
-public final class ProblemAnalyzer {
+@Singleton
+public class ProblemAnalyzer {
 
     private static final Logger LOG = Logger.getLogger(ProblemAnalyzer.class.getName());
 
@@ -74,13 +77,16 @@ public final class ProblemAnalyzer {
     }
 
     /**
-     * Parses init values from given application.
-     * @param config
+     * Notifies the component that the config file has been changed.
      */
-    public void configure(final Config config) {
-        this.config = new Config(config);
+    public synchronized void configChanged() {
+        // you're probably wondering what the hell does this mean. Please see
+        // NotificationDelivery#configChanged() for details
+        final Config cfg = config;
+        config = cfg;
     }
-    private Config config = null;
+    @Inject
+    private volatile Config config;
 
     /**
      * Parses given property and returns it as an integer. Allows default value to be returned in case of null.

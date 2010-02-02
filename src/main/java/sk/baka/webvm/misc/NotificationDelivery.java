@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm.misc;
 
+import com.google.inject.Inject;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
@@ -163,14 +164,24 @@ public final class NotificationDelivery extends BackgroundService {
     protected void started(ScheduledExecutorService executor) {
         executor.execute(new Notificator());
     }
+    @Inject
     private volatile Config config;
 
     /**
-     * Sets the new configuration file.
-     * @param config the new config file.
+     * Notifies the deliverer that the config has been changed.
      */
-    public void configure(final Config config) {
-        this.config = new Config(config);
+    public void configChanged() {
+        // you're probably wondering what the hell does this mean.
+        // This method is invoked when a property of a config has been changed. This change was performed in thread A
+        // (a thread which invokes this method), however the fields are read in thread B. To force the thread B to see changes
+        // done by thread A we have to form a happens-before relationship. Actions preceding a write to a volatile field happens-before
+        // subsequent read of the same field. Therefore, if we write something to the "config" field, other threads
+        // reading the "config" field will see the changes. Therefore, we will just write the same value.
+        // This is actually not completely thread-safe as the thread B actually MAY see changes made by thread B. Well,
+        // nothing's perfect :-) And we actually don't mind - all values in the Config class are independent from each other
+        // (so there is nothing to break if we see incomplete changes), and the objects themselves are thread-safe.
+        final Config cfg = config;
+        config = cfg;
     }
 
     @Override

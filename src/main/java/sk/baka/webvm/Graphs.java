@@ -62,7 +62,7 @@ public final class Graphs extends WebVMPage {
      * Creates the page instance.
      */
     public Graphs() {
-        final List<HistorySample> history = WicketApplication.getHistory().getVmstatHistory();
+        final List<HistorySample> history = WicketApplication.getInjector().getInstance(HistorySampler.class).getVmstatHistory();
         drawGcCpuUsage(history);
         drawHeap(history);
         drawNonHeap(history);

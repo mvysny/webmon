@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm;
 
+import com.google.inject.Inject;
 import sk.baka.webvm.analyzer.ProblemReport;
 import java.util.List;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
@@ -26,6 +27,8 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import sk.baka.webvm.analyzer.HistorySampler;
+import sk.baka.webvm.analyzer.ProblemAnalyzer;
 
 /**
  * Shows the "Problems" page and provides the problems analysis.
@@ -44,16 +47,21 @@ public final class Problems extends WebVMPage {
         border.add(list);
     }
 
+    @Inject
+    private ProblemAnalyzer analyzer;
+    @Inject
+    private HistorySampler history;
+
     /**
      * Provides a list of model. Stateless.
      */
-    private static class ProblemsModel extends LoadableDetachableModel<List<ProblemReport>> {
+    private class ProblemsModel extends LoadableDetachableModel<List<ProblemReport>> {
 
         private static final long serialVersionUID = 1L;
 
         @Override
         protected List<ProblemReport> load() {
-            return WicketApplication.getAnalyzer().getProblems(WicketApplication.getHistory().getVmstatHistory());
+            return analyzer.getProblems(history.getVmstatHistory());
         }
     }
     public static final String DARK_GREEN = "#28cb17";
