@@ -1,20 +1,20 @@
 /**
  * Copyright 2009 Martin Vysny.
  *
- * This file is part of WebVM.
+ * This file is part of WebMon.
  *
- * WebVM is free software: you can redistribute it and/or modify
+ * WebMon is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * WebVM is distributed in the hope that it will be useful,
+ * WebMon is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with WebVM.  If not, see <http://www.gnu.org/licenses/>.
+ * along with WebMon.  If not, see <http://www.gnu.org/licenses/>.
  */
 package sk.baka.webvm.rss;
 
@@ -57,14 +57,14 @@ public final class RssFeed extends HttpServlet {
         PrintWriter out = response.getWriter();
         try {
             out.println("<?xml version=\"1.0\"?>\n<rss version=\"2.0\">");
-            out.println("  <channel>\n    <title>WebVM feeds</title>\n    <link>");
+            out.println("  <channel>\n    <title>WebMon feeds</title>\n    <link>");
             out.println(link);
-            out.println("</link>\n    <description>WebVM: Remote server problems</description>");
+            out.println("</link>\n    <description>WebMon: Remote server problems</description>");
             out.println("    <language>en-us</language>\n    <ttl>1</ttl>\n");
             final List<List<ProblemReport>> ph = WicketApplication.getHistory().getProblemHistory();
             for (final List<ProblemReport> problems : ph) {
                 final Date snapshotTaken = new Date(problems.get(0).created);
-                out.print("    <item>\n      <title>WebVM: Problems report for ");
+                out.print("    <item>\n      <title>WebMon: Problems report for ");
                 out.print(snapshotTaken);
                 out.print("</title>\n      <link>");
                 out.print(link);

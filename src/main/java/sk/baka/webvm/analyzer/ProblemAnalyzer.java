@@ -1,20 +1,20 @@
 /**
  * Copyright 2009 Martin Vysny.
  *
- * This file is part of WebVM.
+ * This file is part of WebMon.
  *
- * WebVM is free software: you can redistribute it and/or modify
+ * WebMon is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * WebVM is distributed in the hope that it will be useful,
+ * WebMon is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with WebVM.  If not, see <http://www.gnu.org/licenses/>.
+ * along with WebMon.  If not, see <http://www.gnu.org/licenses/>.
  */
 package sk.baka.webvm.analyzer;
 
@@ -314,7 +314,7 @@ public final class ProblemAnalyzer {
             return new ProblemReport(false, CLASS_DEADLOCKED_THREADS, "INFO: Report Unavailable - ThreadMXBean null", CLASS_DEADLOCKED_THREADS_DESC);
         }
         final long[] dt = findDeadlockedThreads(bean);
-        if (JavaUtils.isEmpty(dt)) {
+        if (JavaUtils.isEmptyArray(dt)) {
             return new ProblemReport(false, CLASS_DEADLOCKED_THREADS, "None", CLASS_DEADLOCKED_THREADS_DESC);
         }
         for (final long thread : dt) {
@@ -329,7 +329,7 @@ public final class ProblemAnalyzer {
     }
 
     private static String printStackTrace(final StackTraceElement[] stacktrace) {
-        if (JavaUtils.isEmpty(stacktrace)) {
+        if (JavaUtils.isEmptyArray(stacktrace)) {
             return "unknown\n";
         }
         final StringBuilder sb = new StringBuilder();

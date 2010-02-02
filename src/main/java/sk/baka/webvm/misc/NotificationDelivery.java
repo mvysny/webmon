@@ -1,20 +1,20 @@
 /**
  * Copyright 2009 Martin Vysny.
  *
- * This file is part of WebVM.
+ * This file is part of WebMon.
  *
- * WebVM is free software: you can redistribute it and/or modify
+ * WebMon is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * WebVM is distributed in the hope that it will be useful,
+ * WebMon is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with WebVM.  If not, see <http://www.gnu.org/licenses/>.
+ * along with WebMon.  If not, see <http://www.gnu.org/licenses/>.
  */
 package sk.baka.webvm.misc;
 
@@ -84,7 +84,7 @@ public final class NotificationDelivery extends BackgroundService {
         }
         final HtmlEmail mail = new HtmlEmail();
         configure(mail, config);
-        mail.setSubject("WebVM: Problems notification" + (testing ? " (testing mail)" : ""));
+        mail.setSubject("WebMon: Problems notification" + (testing ? " (testing mail)" : ""));
         mail.setMsg(ProblemReport.toString(reports, "\n"));
         mail.setHtmlMsg("<html><body>\n" + ProblemReport.toHtml(reports) + "\n</body></html>");
         mail.send();
@@ -132,13 +132,13 @@ public final class NotificationDelivery extends BackgroundService {
             final StringTokenizer t = new StringTokenizer(config.jabberRecipients, ",");
             for (; t.hasMoreTokens();) {
                 final String recipient = t.nextToken().trim();
-                final Chat chat = connection.getChatManager().createChat(recipient, "WebVM", new MessageListener() {
+                final Chat chat = connection.getChatManager().createChat(recipient, "WebMon", new MessageListener() {
 
                     public void processMessage(Chat chat, Message message) {
                         // do nothing
                     }
                 });
-                chat.sendMessage("WebVM Problems report: " + (testing ? "(testing)" : "") + "\n" + ProblemReport.toString(reports, "\n"));
+                chat.sendMessage("WebMon Problems report: " + (testing ? "(testing)" : "") + "\n" + ProblemReport.toString(reports, "\n"));
             }
         } finally {
             connection.disconnect();
