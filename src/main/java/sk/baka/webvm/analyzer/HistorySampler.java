@@ -18,6 +18,8 @@
  */
 package sk.baka.webvm.analyzer;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.List;
@@ -26,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.hostos.Cpu;
-import sk.baka.webvm.config.Config;
 import sk.baka.webvm.misc.BackgroundService;
 import sk.baka.webvm.misc.NotificationDelivery;
 import sk.baka.webvm.misc.SimpleFixedSizeFIFO;
@@ -36,17 +37,19 @@ import static sk.baka.webvm.misc.Constants.*;
  * Samples the VM history regularly. You need to invoke {@link #start()} to start the sampler, {@link #stop()} to stop it. Thread-safe.
  * @author Martin Vysny
  */
-public final class HistorySampler extends BackgroundService {
+@Singleton
+public class HistorySampler extends BackgroundService {
 
     private static final Logger LOG = Logger.getLogger(HistorySampler.class.getName());
-    private final ProblemAnalyzer analyzer;
+    @Inject
+    private ProblemAnalyzer analyzer;
 
     /**
      * Creates new sampler instance with default values.
      * @param analyzer a configured instance of the analyzer
      */
-    public HistorySampler(final ProblemAnalyzer analyzer) {
-        this(HISTORY_VMSTAT, HISTORY_PROBLEMS, analyzer);
+    public HistorySampler() {
+        this(HISTORY_VMSTAT, HISTORY_PROBLEMS);
     }
 
     /**
@@ -55,13 +58,12 @@ public final class HistorySampler extends BackgroundService {
      * @param problemConfig the problem sampler config
      * @param analyzer a configured instance of the analyzer
      */
-    public HistorySampler(final SamplerConfig vmstatConfig, final SamplerConfig problemConfig, final ProblemAnalyzer analyzer) {
+    public HistorySampler(final SamplerConfig vmstatConfig, final SamplerConfig problemConfig) {
         super("Sampler", 1);
         this.vmstatConfig = vmstatConfig;
         this.problemConfig = problemConfig;
         vmstatHistory = new SimpleFixedSizeFIFO<HistorySample>(vmstatConfig.getHistoryLength());
         problemHistory = new SimpleFixedSizeFIFO<List<ProblemReport>>(problemConfig.getHistoryLength());
-        this.analyzer = analyzer;
     }
     private final SamplerConfig problemConfig;
     /**
@@ -78,8 +80,8 @@ public final class HistorySampler extends BackgroundService {
      * Sets the new configuration file.
      * @param config the new config file.
      */
-    public void configure(final Config config) {
-        notificator.configure(config);
+    public void configChanged() {
+        notificator.configChanged();
     }
 
     @Override

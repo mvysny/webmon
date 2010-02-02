@@ -18,10 +18,10 @@
  */
 package sk.baka.webvm;
 
+import com.google.inject.Inject;
 import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
@@ -31,6 +31,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import sk.baka.webvm.analyzer.HistorySample;
+import sk.baka.webvm.analyzer.HistorySampler;
 
 /**
  * Shows the thread history.
@@ -48,8 +49,11 @@ public final class Threads extends WebVMPage {
         border.add(new ThreadListView("threads", new ThreadListModel()));
     }
 
-    private static SortedMap<Long, List<ThreadInfo>> analyzeThreads() {
-        final List<HistorySample> samples = WicketApplication.getHistory().getVmstatHistory();
+    @Inject
+    private HistorySampler historySampler;
+
+    private SortedMap<Long, List<ThreadInfo>> analyzeThreads() {
+        final List<HistorySample> samples = historySampler.getVmstatHistory();
         final SortedMap<Long, List<ThreadInfo>> history = new TreeMap<Long, List<ThreadInfo>>();
         // compute the map
         int i = 0;
@@ -100,17 +104,13 @@ public final class Threads extends WebVMPage {
         throw new AssertionError();
     }
 
-    private static class ThreadListModel extends LoadableDetachableModel<List<List<ThreadInfo>>> {
+    private class ThreadListModel extends LoadableDetachableModel<List<List<ThreadInfo>>> {
 
         private static final long serialVersionUID = 1L;
-        private transient Map<Long, List<ThreadInfo>> map;
 
         @Override
         protected List<List<ThreadInfo>> load() {
-            if (map == null) {
-                map = analyzeThreads();
-            }
-            final List<List<ThreadInfo>> result = new ArrayList<List<ThreadInfo>>(map.values());
+            final List<List<ThreadInfo>> result = new ArrayList<List<ThreadInfo>>(analyzeThreads().values());
             return result;
         }
     }

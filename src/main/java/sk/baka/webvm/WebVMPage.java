@@ -48,6 +48,7 @@ public class WebVMPage extends WebPage {
      */
     public WebVMPage() {
         super();
+        WicketApplication.getInjector().injectMembers(this);
         border = new AppBorder("appBorder");
         add(border);
     }

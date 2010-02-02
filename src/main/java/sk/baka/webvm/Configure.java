@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm;
 
+import com.google.inject.Inject;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -32,6 +33,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.validator.RangeValidator;
+import sk.baka.webvm.analyzer.HistorySampler;
 import sk.baka.webvm.misc.NotificationDelivery;
 import sk.baka.webvm.analyzer.ProblemAnalyzer;
 import sk.baka.webvm.config.Bind;
@@ -94,7 +96,8 @@ public final class Configure extends WebVMPage {
         /**
          * The configuration object.
          */
-        protected final Config config = new Config(WicketApplication.getConfig());
+        @Inject
+        private Config config;
 
         /**
          * Creates new form.
@@ -110,7 +113,7 @@ public final class Configure extends WebVMPage {
 
         @Override
         public final void onSubmit() {
-            WicketApplication.setConfig(config);
+            WicketApplication.configChanged();
         }
     }
 
@@ -119,14 +122,19 @@ public final class Configure extends WebVMPage {
      */
     private static class MailForm extends ConfigForm {
 
+        private static final long serialVersionUID = 1L;
+
         public MailForm(String componentName) {
             super(componentName, Config.GROUP_MAIL);
-        }
-        private static final long serialVersionUID = 1L;
-        {
             add(new Button("sendTestMail") {
 
                 private static final long serialVersionUID = 1L;
+                @Inject
+                private ProblemAnalyzer pa;
+                @Inject
+                private HistorySampler hs;
+                @Inject
+                private Config config;
 
                 @Override
                 public void onSubmit() {
@@ -134,10 +142,8 @@ public final class Configure extends WebVMPage {
                         error("No SMTP host name is entered, mail notification is disabled");
                         return;
                     }
-                    final ProblemAnalyzer pa = new ProblemAnalyzer();
-                    pa.configure(config);
                     try {
-                        NotificationDelivery.sendEmail(config, true, pa.getProblems(WicketApplication.getHistory().getVmstatHistory()));
+                        NotificationDelivery.sendEmail(config, true, pa.getProblems(hs.getVmstatHistory()));
                     } catch (Exception ex) {
                         error("Failed to send a message: " + ex.toString());
                     }
@@ -151,14 +157,19 @@ public final class Configure extends WebVMPage {
      */
     private static class JabberForm extends ConfigForm {
 
+        private static final long serialVersionUID = 1L;
+
         public JabberForm(String componentName) {
             super(componentName, Config.GROUP_JABBER);
-        }
-        private static final long serialVersionUID = 1L;
-        {
             add(new Button("sendTestJabber") {
 
                 private static final long serialVersionUID = 1L;
+                @Inject
+                private ProblemAnalyzer pa;
+                @Inject
+                private Config config;
+                @Inject
+                private HistorySampler hs;
 
                 @Override
                 public void onSubmit() {
@@ -166,10 +177,8 @@ public final class Configure extends WebVMPage {
                         error("No Jabber server is entered, jabber notification is disabled");
                         return;
                     }
-                    final ProblemAnalyzer pa = new ProblemAnalyzer();
-                    pa.configure(config);
                     try {
-                        NotificationDelivery.sendJabber(config, true, pa.getProblems(WicketApplication.getHistory().getVmstatHistory()));
+                        NotificationDelivery.sendJabber(config, true, pa.getProblems(hs.getVmstatHistory()));
                     } catch (Exception ex) {
                         error("Failed to send a message: " + ex.toString());
                     }
