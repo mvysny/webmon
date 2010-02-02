@@ -9,11 +9,11 @@ Configuration
 
   The configuration file is loaded as follows:
 
-  * From URL in the webvm.war/WEB-INF/web.xml parameter configFile (if it exists)
+  * From URL in the webmon.war/WEB-INF/web.xml parameter configFile (if it exists)
 
-  * From /etc/webvm.properties (if it exists)
+  * From /etc/webmon.properties (if it exists)
 
-  * From webvm.war/WEB-INF/classes/config.properties
+  * From webmon.war/WEB-INF/classes/config.properties
 
   []
 
