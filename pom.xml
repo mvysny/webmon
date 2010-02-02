@@ -2,32 +2,32 @@
 <!--
  * Copyright 2009 Martin Vysny.
  *
- * This file is part of WebVM.
+ * This file is part of WebMon.
  *
- * WebVM is free software: you can redistribute it and/or modify
+ * WebMon is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * WebVM is distributed in the hope that it will be useful,
+ * WebMon is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with WebVM.  If not, see <http://www.gnu.org/licenses />.
+ * along with WebMon.  If not, see <http://www.gnu.org/licenses />.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>sk.baka.webvm</groupId>
-    <artifactId>webvm</artifactId>
+    <groupId>sk.baka.webmon</groupId>
+    <artifactId>webmon</artifactId>
     <packaging>war</packaging>
     <version>0.6-SNAPSHOT</version>
-    <name>WebVM</name>
-    <description>WebVM: A Java Virtual Machine analyzer with Web interface. Ideal for watching out for your
+    <name>WebMon</name>
+    <description>WebMon: A Java Virtual Machine analyzer with Web interface. Ideal for watching out for your
         Tomcat or J2EE server installations. You can even embed it into your EAR.
     </description>
-    <url>http://baka.sk/webvm</url>
+    <url>http://baka.sk/webmon</url>
     <organization>
         <name>Baka</name>
         <url>http://www.baka.sk/</url>
@@ -40,41 +40,20 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:hg:https://kenai.com/hg/webvm~sources</connection>
-        <url>http://kenai.com/projects/webvm/sources/sources/show</url>
+        <connection>scm:hg:scm:hg:https://webmon.googlecode.com/hg/</connection>
+        <url>https://webmon.googlecode.com/hg/</url>
     </scm>
     <issueManagement>
-        <system>JIRA</system>
-        <url>http://kenai.com/jira/browse/WEBVM</url>
+		<system>Google Code Tracker</system>
+		<url>http://code.google.com/p/webmon/issues/list</url>
     </issueManagement>
     <mailingLists>
         <mailingList>
-            <name>Commits</name>
-            <subscribe>sympa@webvm.kenai.com?subject=subscribe%20commits</subscribe>
-            <unsubscribe>sympa@webvm.kenai.com?subject=unsubscribe%20commits</unsubscribe>
-            <post>commits@webvm.kenai.com</post>
-            <archive>http://kenai.com/projects/webvm/lists/commits/archive</archive>
-        </mailingList>
-        <mailingList>
-            <name>Dev</name>
-            <subscribe>sympa@webvm.kenai.com?subject=subscribe%20dev</subscribe>
-            <unsubscribe>sympa@webvm.kenai.com?subject=unsubscribe%20dev</unsubscribe>
-            <post>dev@webvm.kenai.com</post>
-            <archive>http://kenai.com/projects/webvm/lists/dev/archive</archive>
-        </mailingList>
-        <mailingList>
-            <name>Issues</name>
-            <subscribe>sympa@webvm.kenai.com?subject=subscribe%20issues</subscribe>
-            <unsubscribe>sympa@webvm.kenai.com?subject=unsubscribe%20issues</unsubscribe>
-            <post>issues@webvm.kenai.com</post>
-            <archive>http://kenai.com/projects/webvm/lists/issues/archive</archive>
-        </mailingList>
-        <mailingList>
-            <name>Users</name>
-            <subscribe>sympa@webvm.kenai.com?subject=subscribe%20users</subscribe>
-            <unsubscribe>sympa@webvm.kenai.com?subject=unsubscribe%20users</unsubscribe>
-            <post>users@webvm.kenai.com</post>
-            <archive>http://kenai.com/projects/webvm/lists/users/archive</archive>
+			<name>News (read-only)</name>
+			<subscribe>http://groups.google.com/group/webmon-news/subscribe</subscribe>
+			<unsubscribe>http://groups.google.com/group/webmon-news/subscribe</unsubscribe>
+			<post>webmon-news@googlegroups.com</post>
+			<archive>http://groups.google.com/group/webmon-news/topics</archive>
         </mailingList>
     </mailingLists>
     <developers>
@@ -91,7 +70,7 @@
     <distributionManagement>
         <site>
             <id>realtime</id>
-            <url>scp://rt.sk/home/moto/public_html/webvm/</url>
+            <url>scp://rt.sk/home/moto/public_html/webmon/</url>
         </site>
         <repository>
             <id>realtime</id>
@@ -201,8 +180,8 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <preparationGoals>clean install site changes:announcement-generate</preparationGoals>
                     <goals>clean deploy site-deploy changes:announcement-mail</goals>
-                    <username>${kenai.username}</username>
-                    <password>${kenai.password}</password>
+					<username>${google-code.hg.username}</username>
+					<password>${google-code.hg.password}</password>
                 </configuration>
             </plugin>
             <plugin>
@@ -212,15 +191,15 @@
                     <smtpHost>${smtp.host}</smtpHost>
                     <smtpPort>${smtp.port}</smtpPort>
                     <toAddresses>
-                        <toAddress>users@webvm.kenai.com</toAddress>
+                        <toAddress>webmon-news@googlegroups.com</toAddress>
                     </toAddresses>
                     <mailSender>
                         <name>Martin Vysny</name>
                         <email>vysny@baka.sk</email>
                     </mailSender>
-                    <urlDownload>http://kenai.com/projects/webvm/downloads</urlDownload>
+                    <urlDownload>http://code.google.com/p/webmon/downloads/list</urlDownload>
                     <url>${project.url}</url>
-                    <issueLinkTemplate>http://kenai.com/jira/browse/WEBVM-%ISSUE%</issueLinkTemplate>
+                    <issueLinkTemplate>http://code.google.com/p/webmon/issues/detail?id=%ISSUE%</issueLinkTemplate>
                 </configuration>
             </plugin>
             <plugin>
@@ -284,7 +263,7 @@
             <plugin>
                 <artifactId>maven-changes-plugin</artifactId>
                 <configuration>
-                    <issueLinkTemplate>http://kenai.com/jira/browse/WEBVM-%ISSUE%</issueLinkTemplate>
+                    <issueLinkTemplate>http://code.google.com/p/webmon/issues/detail?id=%ISSUE%</issueLinkTemplate>
                 </configuration>
             </plugin>
             <plugin>
