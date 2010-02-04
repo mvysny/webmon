@@ -24,6 +24,7 @@ import com.google.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.MemoryUsage;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
@@ -31,6 +32,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.baka.tools.IOUtils;
 import sk.baka.tools.JavaUtils;
+import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
+import sk.baka.webvm.analyzer.hostos.MemoryJMXStrategy;
+import sk.baka.webvm.analyzer.hostos.MemoryLinuxStrategy;
 import sk.baka.webvm.config.Binder;
 import sk.baka.webvm.config.Config;
 
@@ -97,5 +101,26 @@ public class WebmonModule extends AbstractModule {
             LOG.log(Level.WARNING, "Failed to load " + configUrl + ", keeping defaults", ex);
         }
         return new Config();
+    }
+
+    @Provides
+    @Singleton
+    protected IMemoryInfoProvider getMemoryInfoProvider() {
+        if (MemoryLinuxStrategy.available()) {
+            return new MemoryLinuxStrategy();
+        }
+        if (MemoryJMXStrategy.available()) {
+            return new MemoryJMXStrategy();
+        }
+        return new IMemoryInfoProvider() {
+
+            public MemoryUsage getSwap() {
+                return null;
+            }
+
+            public MemoryUsage getPhysicalMemory() {
+                return null;
+            }
+        };
     }
 }

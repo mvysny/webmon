@@ -16,20 +16,27 @@
  * You should have received a copy of the GNU General Public License
  * along with WebMon.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sk.baka.webvm.misc;
+package sk.baka.webvm.analyzer.hostos;
 
-import java.io.Serializable;
+import java.lang.management.MemoryUsage;
+import sk.baka.tools.concurrent.ThreadSafe;
 
 /**
- * Produces objects of required type.
- * @param <T> the type of objects to be produced.
+ * Provides memory information. Implementors must be thread-safe.
  * @author Martin Vysny
  */
-public interface Producer<T> extends Serializable {
+@ThreadSafe
+public interface IMemoryInfoProvider {
 
     /**
-     * Produce an item.
-     * @return the item.
+     * Returns swap memory information for host OS. The method should not throw an exception - null should be returned instead.
+     * @return memory usage or null if the information is unavailable.
      */
-    T produce();
+    MemoryUsage getSwap();
+
+    /**
+     * Returns physical memory information for host OS. The method should not throw an exception - null should be returned instead.
+     * @return memory usage or null if the information is unavailable.
+     */
+    MemoryUsage getPhysicalMemory();
 }

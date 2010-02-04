@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm;
 
+import com.google.inject.Provider;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryManagerMXBean;
@@ -32,9 +33,9 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.misc.DivGraph;
 import sk.baka.webvm.misc.MgmtUtils;
-import sk.baka.webvm.misc.Producer;
 
 /**
  * Shows detailed memory information.
@@ -52,10 +53,11 @@ public final class Memory extends WebVMPage {
         MemoryUsage usage = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
         drawMemoryStatus(usage, "heapStatusBar", GRAPH_WIDTH_PIXELS);
         border.add(new Label("heapStatusText", MgmtUtils.toString(usage, true)));
-        usage = MgmtUtils.getInMB(sk.baka.webvm.analyzer.hostos.Memory.getPhysicalMemory());
+        final IMemoryInfoProvider meminfo = WicketApplication.getInjector().getInstance(IMemoryInfoProvider.class);
+        usage = MgmtUtils.getInMB(meminfo.getPhysicalMemory());
         drawMemoryStatus(usage, "physicalMemoryStatusBar", GRAPH_WIDTH_PIXELS);
         border.add(new Label("physicalMemoryStatusText", MgmtUtils.toString(usage, true)));
-        usage = MgmtUtils.getInMB(sk.baka.webvm.analyzer.hostos.Memory.getSwap());
+        usage = MgmtUtils.getInMB(meminfo.getSwap());
         drawMemoryStatus(usage, "swapStatusBar", GRAPH_WIDTH_PIXELS);
         border.add(new Label("swapStatusText", MgmtUtils.toString(usage, true)));
         addMemoryPoolInfo(border, new MemoryBeansProducer(false), "memoryManagers", "memManName", "memManValid", "memManProperties");
@@ -101,14 +103,14 @@ public final class Memory extends WebVMPage {
         border.add(new MemoryPoolDetailListView("memoryPool", model));
     }
 
-    private static void addMemoryPoolInfo(final AppBorder border, final Producer<? extends List<? extends MemoryManagerMXBean>> memoryBeansProducer, final String listId, final String nameId, final String validId, final String propsId) {
+    private static void addMemoryPoolInfo(final AppBorder border, final Provider<? extends List<? extends MemoryManagerMXBean>> memoryBeansProducer, final String listId, final String nameId, final String validId, final String propsId) {
         final IModel<List<MemoryManagerMXBean>> model = new LoadableDetachableModel<List<MemoryManagerMXBean>>() {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected List<MemoryManagerMXBean> load() {
-                final List<? extends MemoryManagerMXBean> beans = memoryBeansProducer.produce();
+                final List<? extends MemoryManagerMXBean> beans = memoryBeansProducer.get();
                 return beans != null ? new ArrayList<MemoryManagerMXBean>(beans) : Collections.<MemoryManagerMXBean>emptyList();
             }
         };
@@ -159,7 +161,7 @@ public final class Memory extends WebVMPage {
         }
     }
 
-    private static class MemoryBeansProducer implements Producer<List<? extends MemoryManagerMXBean>> {
+    private static class MemoryBeansProducer implements Provider<List<? extends MemoryManagerMXBean>> {
 
         private final boolean isGcOnly;
 
@@ -168,7 +170,7 @@ public final class Memory extends WebVMPage {
         }
         private static final long serialVersionUID = 1L;
 
-        public List<? extends MemoryManagerMXBean> produce() {
+        public List<? extends MemoryManagerMXBean> get() {
             return isGcOnly ? ManagementFactory.getGarbageCollectorMXBeans() : ManagementFactory.getMemoryManagerMXBeans();
         }
     }

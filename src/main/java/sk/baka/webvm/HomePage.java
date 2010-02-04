@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm;
 
+import com.google.inject.Provider;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -35,7 +36,6 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import sk.baka.tools.javaee.JeeServer;
-import sk.baka.webvm.misc.Producer;
 
 /**
  * Homepage
@@ -128,14 +128,14 @@ public class HomePage extends WebVMPage {
      * @param keyId this wicket ID will display the map key
      * @param valueId this wicket ID will display the map value
      */
-    private static void listMap(final AppBorder border, final Producer<Map<String, String>> producer, final String listId, final String keyId, final String valueId) {
+    private static void listMap(final AppBorder border, final Provider<Map<String, String>> producer, final String listId, final String keyId, final String valueId) {
         final IModel<List<Map.Entry<String, String>>> model = new LoadableDetachableModel<List<Map.Entry<String, String>>>() {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected List<Map.Entry<String, String>> load() {
-                final Map<String, String> map = producer.produce();
+                final Map<String, String> map = producer.get();
                 final List<Map.Entry<String, String>> result = new ArrayList<Map.Entry<String, String>>(map.entrySet());
                 Collections.sort(result, new Comparator<Map.Entry<String, String>>() {
 
@@ -159,21 +159,21 @@ public class HomePage extends WebVMPage {
         });
     }
 
-    private static class SystemPropertiesProducer implements Producer<Map<String, String>> {
+    private static class SystemPropertiesProducer implements Provider<Map<String, String>> {
 
         private static final long serialVersionUID = 1L;
 
         @SuppressWarnings(value = "unchecked")
-        public Map<String, String> produce() {
+        public Map<String, String> get() {
             return (Map<String, String>) (Map) System.getProperties();
         }
     }
 
-    private static class EnvPropertiesProducer implements Producer<Map<String, String>> {
+    private static class EnvPropertiesProducer implements Provider<Map<String, String>> {
 
         private static final long serialVersionUID = 1L;
 
-        public Map<String, String> produce() {
+        public Map<String, String> get() {
             return System.getenv();
         }
     }

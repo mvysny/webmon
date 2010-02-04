@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.hostos.Cpu;
+import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.misc.BackgroundService;
 import sk.baka.webvm.misc.NotificationDelivery;
 import sk.baka.webvm.misc.SimpleFixedSizeFIFO;
@@ -116,6 +117,8 @@ public class HistorySampler extends BackgroundService {
      * Serves for Host OS CPU IO usage measurement.
      */
     private final CpuUsage cpuOSIO = Cpu.newHostIOCpu();
+    @Inject
+    private IMemoryInfoProvider meminfo;
 
     private final class Sampler implements Runnable {
 
@@ -128,7 +131,7 @@ public class HistorySampler extends BackgroundService {
                 javaUsage = javaUsage < 0 ? 0 : javaUsage;
                 int ioUsage = cpuOSIO.getCpuUsage();
                 ioUsage = ioUsage < 0 ? 0 : ioUsage;
-                vmstatHistory.add(new HistorySample(cpuUsageByGC, usage, javaUsage, ioUsage));
+                vmstatHistory.add(new HistorySample(cpuUsageByGC, usage, javaUsage, ioUsage, meminfo));
             } catch (Throwable e) {
                 // catch all throwables as the thread is going to terminate anyway
                 LOG.log(Level.SEVERE, "The Sampler thread failed", e);
