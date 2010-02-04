@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm;
 
+import com.google.inject.Inject;
 import java.lang.management.ClassLoadingMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
@@ -27,7 +28,7 @@ import java.util.List;
 import org.apache.wicket.markup.html.basic.Label;
 import sk.baka.webvm.analyzer.HistorySampler;
 import sk.baka.webvm.analyzer.hostos.Cpu;
-import sk.baka.webvm.analyzer.hostos.Memory;
+import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.misc.AbstractGraph;
 import sk.baka.webvm.misc.BluffGraph;
 import sk.baka.webvm.misc.GraphStyle;
@@ -107,6 +108,8 @@ public final class Graphs extends WebVMPage {
         border.add(new Label("classesLoadedTotal", Long.toString(bean.getTotalLoadedClassCount())));
         border.add(new Label("classesUnloadedTotal", Long.toString(bean.getUnloadedClassCount())));
     }
+    @Inject
+    private IMemoryInfoProvider meminfo;
 
     private void drawHostCpuUsage(List<HistorySample> history) {
         final boolean hostCpu = Cpu.isHostCpuSupported();
@@ -122,7 +125,7 @@ public final class Graphs extends WebVMPage {
             }
             dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength(), false);
             unescaped("cpuUsageGraph", dg.draw());
-            final HistorySample last = history.isEmpty() ? new HistorySample(0, 0, 0, 0) : history.get(history.size() - 1);
+            final HistorySample last = history.isEmpty() ? new HistorySample(0, 0, 0, 0, meminfo) : history.get(history.size() - 1);
             border.add(new Label("cpuUsagePerc", printValue(hostCpu, last.cpuUsage)));
             border.add(new Label("javaCpuUsagePerc", printValue(javaCpu, last.cpuJavaUsage)));
             border.add(new Label("iowait", printValue(hostIOCpu, last.cpuIOUsage)));
@@ -172,7 +175,7 @@ public final class Graphs extends WebVMPage {
     }
 
     private void drawPhysMem(final List<HistorySample> history) {
-        final MemoryUsage physMem = MgmtUtils.getInMB(Memory.getPhysicalMemory());
+        final MemoryUsage physMem = MgmtUtils.getInMB(meminfo.getPhysicalMemory());
         if (physMem != null) {
             drawMemoryUsageGraph(history, "physUsageGraph", HistorySample.POOL_PHYS_MEM);
             border.add(new Label("physCommitted", Long.toString(physMem.getCommitted())));
@@ -185,7 +188,7 @@ public final class Graphs extends WebVMPage {
     }
 
     private void drawSwap(final List<HistorySample> history) {
-        final MemoryUsage swap = MgmtUtils.getInMB(Memory.getSwap());
+        final MemoryUsage swap = MgmtUtils.getInMB(meminfo.getSwap());
         if (swap != null) {
             drawMemoryUsageGraph(history, "swapUsageGraph", HistorySample.POOL_SWAP);
             border.add(new Label("swapUsed", Long.toString(swap.getUsed())));

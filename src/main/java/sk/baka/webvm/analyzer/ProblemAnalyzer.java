@@ -20,7 +20,6 @@ package sk.baka.webvm.analyzer;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import sk.baka.webvm.analyzer.hostos.Memory;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
@@ -37,6 +36,7 @@ import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
 import sk.baka.tools.JavaUtils;
 import sk.baka.webvm.ThreadDump;
+import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.config.Config;
 import sk.baka.webvm.misc.MgmtUtils;
 import static sk.baka.webvm.misc.Constants.*;
@@ -175,12 +175,14 @@ public class ProblemAnalyzer {
         return result;
     }
 
+    @Inject
+    private IMemoryInfoProvider meminfo;
     /**
      * Prepares the {@link #CLASS_HOST_MEMORY_USAGE} report.
      * @return report
      */
     public ProblemReport getHostVirtMemReport() {
-        final MemoryUsage phys = Memory.getPhysicalMemory();
+        final MemoryUsage phys = meminfo.getPhysicalMemory();
         if (phys == null) {
             return new ProblemReport(false, CLASS_HOST_MEMORY_USAGE, "Host memory reporting unsupported on this platform", getHostMemoryUsageDesc());
         }
@@ -190,7 +192,7 @@ public class ProblemAnalyzer {
         if (cbAvailable) {
             sb.append("buffers/cache detection not supported, disabled\n");
         }
-        final MemoryUsage swap = Memory.getSwap();
+        final MemoryUsage swap = meminfo.getSwap();
         sb.append("Physical memory used: ");
         sb.append(phys.getCommitted() * HUNDRED_PERCENT / phys.getMax());
         sb.append("%, minus buffers/cache: ");

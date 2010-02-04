@@ -18,11 +18,12 @@
  */
 package sk.baka.webvm.analyzer;
 
-import sk.baka.webvm.analyzer.hostos.Memory;
+import com.google.inject.Inject;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.misc.MgmtUtils;
 
 /**
@@ -97,7 +98,7 @@ public final class HistorySample {
      * @param cpuJavaUsage Shows the owner java process CPU usage. A value of 0..100, 0 when not supported.
      * @param cpuIOUsage Shows the host OS CPU IO usage. A value of 0..100, 0 when not supported.
      */
-    public HistorySample(final int gcCpuUsage, final int cpuOSUsage, final int cpuJavaUsage, final int cpuIOUsage) {
+    public HistorySample(final int gcCpuUsage, final int cpuOSUsage, final int cpuJavaUsage, final int cpuIOUsage, final IMemoryInfoProvider meminfo) {
         this.gcCpuUsage = gcCpuUsage;
         memPoolUsage[POOL_HEAP] = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
         memPoolUsage[POOL_NON_HEAP] = MgmtUtils.getInMB(MgmtUtils.getNonHeapSummary());
@@ -107,8 +108,8 @@ public final class HistorySample {
         threadCount = tbean.getThreadCount();
         daemonThreadCount = tbean.getDaemonThreadCount();
         classesLoaded = ManagementFactory.getClassLoadingMXBean().getLoadedClassCount();
-        memPoolUsage[POOL_PHYS_MEM] = MgmtUtils.getInMB(Memory.getPhysicalMemory());
-        memPoolUsage[POOL_SWAP] = MgmtUtils.getInMB(Memory.getSwap());
+        memPoolUsage[POOL_PHYS_MEM] = MgmtUtils.getInMB(meminfo.getPhysicalMemory());
+        memPoolUsage[POOL_SWAP] = MgmtUtils.getInMB(meminfo.getSwap());
         cpuUsage = cpuOSUsage;
         this.cpuJavaUsage = cpuJavaUsage;
         this.cpuIOUsage = cpuIOUsage;
