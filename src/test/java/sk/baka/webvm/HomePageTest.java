@@ -18,26 +18,16 @@
  */
 package sk.baka.webvm;
 
-import org.apache.wicket.util.tester.WicketTester;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
  * Simple test using the WicketTester
  * @author Martin Vysny
  */
-public class TestHomePage {
-
-    private WicketTester tester;
-
-    @BeforeMethod
-    public void setUp() {
-        tester = new WicketTester(new WicketApplication());
-    }
+public class HomePageTest extends AbstractWicket{
 
     @Test
-    public void testRenderMyPage() {
-        tester.startPage(HomePage.class);
-        tester.assertRenderedPage(HomePage.class);
+    public void testRenderPage() {
+        startPage(HomePage.class);
     }
 }
