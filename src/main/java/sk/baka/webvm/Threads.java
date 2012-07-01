@@ -19,6 +19,7 @@
 package sk.baka.webvm;
 
 import com.google.inject.Inject;
+import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
 import java.util.List;
@@ -164,6 +165,8 @@ public final class Threads extends WebVMPage {
             for (final ThreadInfo info : infos) {
                 sb.append(getStateChar(info));
             }
+            final long threadCPUTimeNanos = ti.getThreadId() < 0 ? -1 : ManagementFactory.getThreadMXBean().getThreadCpuTime(ti.getThreadId());
+            sb.append("  Total CPU: ").append(threadCPUTimeNanos / 1000000).append(" ms");
             item.add(new Label("threadHistory", sb.toString()));
         }
     }
