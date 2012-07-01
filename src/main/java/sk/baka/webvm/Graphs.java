@@ -311,7 +311,7 @@ public class Graphs extends WebVMPage {
 
             @Override
             protected String load() {
-                return physMem.getObject() == null ? "-" : "" + physMem.getObject().getCommitted();
+                return physMem.getObject() == null ? "-" : "" + physMem.getObject().getUsed();
             }
         }));
     }
