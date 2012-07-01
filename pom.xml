@@ -22,7 +22,7 @@
     <groupId>sk.baka.webmon</groupId>
     <artifactId>webmon</artifactId>
     <packaging>war</packaging>
-    <version>0.6</version>
+    <version>0.6-SNAPSHOT</version>
     <name>WebMon</name>
     <description>WebMon: A Java Virtual Machine analyzer with Web interface. Ideal for watching out for your
         Tomcat or J2EE server installations. You can even embed it into your EAR.
@@ -40,7 +40,7 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:hg:scm:hg:https://webmon.googlecode.com/hg/</connection>
+        <connection>scm:hg:https://webmon.googlecode.com/hg/</connection>
         <url>https://webmon.googlecode.com/hg/</url>
     </scm>
     <issueManagement>
