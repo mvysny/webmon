@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 /**
  * Retrieves host OS memory info using com.sun.management.OperatingSystemMXBean
  */
-public final class MemoryJMXStrategy implements IMemoryInfoProvider, Serializable {
+public final class MemoryJMXStrategy implements IMemoryInfoProvider {
 
     private static final OperatingSystemMXBean BEAN;
     private static final Class<?> BEAN_CLASS;

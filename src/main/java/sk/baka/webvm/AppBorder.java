@@ -3,18 +3,17 @@
  *
  * This file is part of WebMon.
  *
- * WebMon is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * WebMon is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  *
- * WebMon is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * WebMon is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with WebMon.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * WebMon. If not, see <http://www.gnu.org/licenses/>.
  */
 package sk.baka.webvm;
 
@@ -30,11 +29,13 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.validation.validator.StringValidator;
 
 /**
  * Defines a border for the entire application.
+ *
  * @author Martin Vysny
  */
 public class AppBorder extends Border {
@@ -43,12 +44,19 @@ public class AppBorder extends Border {
 
     /**
      * Creates new application border.
+     *
      * @param componentName the component id
      */
     public AppBorder(final String componentName) {
         super(componentName);
         final DateFormat formatter = DateFormat.getTimeInstance(DateFormat.MEDIUM);
-        addToBorder(new Label("currentTime", formatter.format(new Date())));
+        addToBorder(new Label("currentTime", new LoadableDetachableModel<String>() {
+
+            @Override
+            protected String load() {
+                return formatter.format(new Date());
+            }
+        }));
         addToBorder(new PerformGC("performGCLink"));
         addToBorder(new FormImpl("searchForm"));
         addToBorder(new BookmarkablePageLink("threadDump", ThreadDump.class));

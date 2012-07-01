@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm.analyzer.hostos;
 
+import java.io.Serializable;
 import java.lang.management.MemoryUsage;
 import sk.baka.tools.concurrent.ThreadSafe;
 
@@ -26,7 +27,7 @@ import sk.baka.tools.concurrent.ThreadSafe;
  * @author Martin Vysny
  */
 @ThreadSafe
-public interface IMemoryInfoProvider {
+public interface IMemoryInfoProvider extends Serializable {
 
     /**
      * Returns swap memory information for host OS. The method should not throw an exception - null should be returned instead.

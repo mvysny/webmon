@@ -3,18 +3,17 @@
  *
  * This file is part of WebMon.
  *
- * WebMon is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * WebMon is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  *
- * WebMon is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * WebMon is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with WebMon.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * WebMon. If not, see <http://www.gnu.org/licenses/>.
  */
 package sk.baka.webvm;
 
@@ -40,6 +39,7 @@ import sk.baka.webvm.misc.MgmtUtils;
 
 /**
  * Shows detailed memory information.
+ *
  * @author Martin Vysny
  */
 public final class Memory extends WebVMPage {
@@ -51,20 +51,49 @@ public final class Memory extends WebVMPage {
      * Creates new object instance
      */
     public Memory() {
-        MemoryUsage usage = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
-        drawMemoryStatus(usage, "heapStatusBar", GRAPH_WIDTH_PIXELS);
-        border.add(new Label("heapStatusText", MgmtUtils.toString(usage, true)));
+        final IModel<MemoryUsage> heap = new LoadableDetachableModel<MemoryUsage>() {
+
+            @Override
+            protected MemoryUsage load() {
+                return MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
+            }
+        };
+        drawMemoryStatus(heap, "heapStatusBar", GRAPH_WIDTH_PIXELS);
+        addStatusBar("heapStatusText", heap);
         final IMemoryInfoProvider meminfo = WicketApplication.getInjector().getInstance(IMemoryInfoProvider.class);
-        usage = MgmtUtils.getInMB(meminfo.getPhysicalMemory());
-        drawMemoryStatus(usage, "physicalMemoryStatusBar", GRAPH_WIDTH_PIXELS);
-        border.add(new Label("physicalMemoryStatusText", MgmtUtils.toString(usage, true)));
-        usage = MgmtUtils.getInMB(meminfo.getSwap());
-        drawMemoryStatus(usage, "swapStatusBar", GRAPH_WIDTH_PIXELS);
-        border.add(new Label("swapStatusText", MgmtUtils.toString(usage, true)));
+        final IModel<MemoryUsage> physical = new LoadableDetachableModel<MemoryUsage>() {
+
+            @Override
+            protected MemoryUsage load() {
+                return MgmtUtils.getInMB(meminfo.getPhysicalMemory());
+            }
+        };
+        drawMemoryStatus(physical, "physicalMemoryStatusBar", GRAPH_WIDTH_PIXELS);
+        addStatusBar("physicalMemoryStatusText", physical);
+        final IModel<MemoryUsage> swap = new LoadableDetachableModel<MemoryUsage>() {
+
+            @Override
+            protected MemoryUsage load() {
+                return MgmtUtils.getInMB(meminfo.getSwap());
+            }
+        };
+        drawMemoryStatus(swap, "swapStatusBar", GRAPH_WIDTH_PIXELS);
+        addStatusBar("swapStatusText", swap);
         addMemoryPoolInfo(border, new MemoryBeansProducer(false), "memoryManagers", "memManName", "memManValid", "memManProperties");
         addMemoryPoolInfo(border, new MemoryBeansProducer(true), "gc", "gcName", "gcValid", "gcProperties");
         addDetailedMemoryPoolInfo(border);
         addGCStats();
+    }
+
+    private void addStatusBar(String id, final IModel<MemoryUsage> model) {
+        register(model);
+        border.add(new Label(id, new LoadableDetachableModel<String>() {
+
+            @Override
+            protected String load() {
+                return MgmtUtils.toString(model.getObject(), true);
+            }
+        }));
     }
 
     private void addGCStats() {
@@ -212,5 +241,23 @@ public final class Memory extends WebVMPage {
             item.add(new Label(propsId, sb.toString()));
         }
     }
-}
 
+    /**
+     * Draws a memory usage status for given memory usage object
+     *
+     * @param usage the memory usage object, must be in megabytes as int
+     * arithmetics is used.
+     * @param wid the wicket component
+     * @param width the width of the bar in pixels.
+     */
+    public final void drawMemoryStatus(final IModel<MemoryUsage> usage, final String wid, final int width) {
+        register(usage);
+        unescaped(wid, new LoadableDetachableModel<String>() {
+
+            @Override
+            protected String load() {
+                return DivGraph.drawMemoryStatus(usage.getObject(), width);
+            }
+        });
+    }
+}
