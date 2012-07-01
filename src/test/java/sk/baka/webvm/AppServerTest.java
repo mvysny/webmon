@@ -18,8 +18,6 @@
  */
 package sk.baka.webvm;
 
-import org.apache.wicket.util.tester.WicketTester;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sk.baka.tools.javaee.JeeServer;
 

@@ -27,8 +27,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
+import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.resource.FileResourceStream;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
@@ -52,8 +53,7 @@ public final class WicketUtils {
         if (resLink.isRoot()) {
             final File container = resLink.getContainer();
             if (container.isFile()) {
-                rc.setRequestTarget(new ResourceStreamRequestTarget(new FileResourceStream(container), container.getName()));
-                rc.setRedirect(true);
+                RequestCycle.get().scheduleRequestHandlerAfterCurrent(new ResourceStreamRequestHandler(new FileResourceStream(container), container.getName()));
                 return true;
             }
             return false;
@@ -61,8 +61,7 @@ public final class WicketUtils {
         if (resLink.isPackage()) {
             return false;
         }
-        rc.setRequestTarget(new ResourceStreamRequestTarget(toStream(resLink), resLink.getName()));
-        rc.setRedirect(true);
+        RequestCycle.get().scheduleRequestHandlerAfterCurrent(new ResourceStreamRequestHandler(toStream(resLink), resLink.getName()));
         return true;
     }
 
@@ -99,12 +98,12 @@ public final class WicketUtils {
             return URLConnection.getFileNameMap().getContentTypeFor(link.getName());
         }
 
-        public long length() {
+        public Bytes length() {
             try {
-                return link.getLength();
+                return Bytes.bytes(link.getLength());
             } catch (IOException ex) {
                 LOG.log(Level.WARNING, null, ex);
-                return -1;
+                return null;
             }
         }
 
@@ -137,7 +136,27 @@ public final class WicketUtils {
         }
 
         public Time lastModifiedTime() {
-            return Time.milliseconds(1);
+            return Time.millis(1);
+        }
+
+        private String style;
+        
+        public String getStyle() {
+            return style;
+        }
+
+        public void setStyle(String string) {
+            style = string;
+        }
+
+        private String variation;
+        
+        public String getVariation() {
+            return variation;
+        }
+
+        public void setVariation(String string) {
+            variation = string;
         }
     }
 }
