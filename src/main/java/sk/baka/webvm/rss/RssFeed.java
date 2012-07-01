@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm.rss;
 
+import com.google.inject.Inject;
 import sk.baka.webvm.analyzer.ProblemReport;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,6 +29,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import sk.baka.webvm.WicketApplication;
+import sk.baka.webvm.analyzer.IHistorySampler;
 
 /**
  * Provides a RSS feed with the "Problems" report.
@@ -35,6 +37,13 @@ import sk.baka.webvm.WicketApplication;
  */
 public final class RssFeed extends HttpServlet {
 
+    @Inject
+    private IHistorySampler historySampler;
+
+    public RssFeed() {
+        WicketApplication.getInjector().injectMembers(this);
+    }
+    
     private static final long serialVersionUID = 1L;
 
     /** 
@@ -61,7 +70,7 @@ public final class RssFeed extends HttpServlet {
             out.println(link);
             out.println("</link>\n    <description>WebMon: Remote server problems</description>");
             out.println("    <language>en-us</language>\n    <ttl>1</ttl>\n");
-            final List<List<ProblemReport>> ph = WicketApplication.getHistory().getProblemHistory();
+            final List<List<ProblemReport>> ph = historySampler.getProblemHistory();
             for (final List<ProblemReport> problems : ph) {
                 final Date snapshotTaken = new Date(problems.get(0).created);
                 out.print("    <item>\n      <title>WebMon: Problems report for ");

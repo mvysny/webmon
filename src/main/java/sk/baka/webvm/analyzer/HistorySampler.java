@@ -67,14 +67,6 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
         problemHistory = new SimpleFixedSizeFIFO<List<ProblemReport>>(problemConfig.getHistoryLength());
     }
     private final SamplerConfig problemConfig;
-    /**
-     * Default VMStat history.
-     */
-    public static final SamplerConfig HISTORY_VMSTAT = new SamplerConfig(150, 1000, 0);
-    /**
-     * Default Problems history.
-     */
-    public static final SamplerConfig HISTORY_PROBLEMS = new SamplerConfig(20, 10 * 1000, 500);
     private final NotificationDelivery notificator = new NotificationDelivery();
 
     /**
