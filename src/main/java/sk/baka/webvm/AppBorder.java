@@ -27,6 +27,7 @@ import org.apache.wicket.markup.html.border.Border;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.PropertyModel;
@@ -50,6 +51,7 @@ public class AppBorder extends Border {
         addToBorder(new Label("currentTime", formatter.format(new Date())));
         addToBorder(new PerformGC("performGCLink"));
         addToBorder(new FormImpl("searchForm"));
+        addToBorder(new BookmarkablePageLink("threadDump", ThreadDump.class));
     }
 
     /**
