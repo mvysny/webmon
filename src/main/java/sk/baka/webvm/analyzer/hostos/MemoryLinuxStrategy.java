@@ -21,7 +21,6 @@ package sk.baka.webvm.analyzer.hostos;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.management.MemoryUsage;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +32,7 @@ import sk.baka.webvm.misc.Constants;
 /**
  * Retrieves host OS memory info using /proc/meminfo (Linux only)
  */
-public final class MemoryLinuxStrategy implements IMemoryInfoProvider, Serializable {
+public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
 
     private static final boolean AVAIL;
     private static final String MEMINFO = "/proc/meminfo";
