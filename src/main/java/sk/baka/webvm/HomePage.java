@@ -19,6 +19,7 @@
 package sk.baka.webvm;
 
 import com.google.inject.Provider;
+import java.io.Serializable;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -159,7 +160,7 @@ public class HomePage extends WebVMPage {
         });
     }
 
-    private static class SystemPropertiesProducer implements Provider<Map<String, String>> {
+    private static class SystemPropertiesProducer implements Provider<Map<String, String>>, Serializable {
 
         private static final long serialVersionUID = 1L;
 
@@ -169,7 +170,7 @@ public class HomePage extends WebVMPage {
         }
     }
 
-    private static class EnvPropertiesProducer implements Provider<Map<String, String>> {
+    private static class EnvPropertiesProducer implements Provider<Map<String, String>>, Serializable {
 
         private static final long serialVersionUID = 1L;
 
