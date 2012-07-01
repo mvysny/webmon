@@ -19,6 +19,7 @@
 package sk.baka.webvm;
 
 import com.google.inject.Provider;
+import java.io.Serializable;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryManagerMXBean;
@@ -161,7 +162,7 @@ public final class Memory extends WebVMPage {
         }
     }
 
-    private static class MemoryBeansProducer implements Provider<List<? extends MemoryManagerMXBean>> {
+    private static class MemoryBeansProducer implements Provider<List<? extends MemoryManagerMXBean>>, Serializable {
 
         private final boolean isGcOnly;
 

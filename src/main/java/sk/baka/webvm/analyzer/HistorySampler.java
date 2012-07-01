@@ -39,11 +39,11 @@ import static sk.baka.webvm.misc.Constants.*;
  * @author Martin Vysny
  */
 @Singleton
-public class HistorySampler extends BackgroundService {
+public class HistorySampler extends BackgroundService implements IHistorySampler {
 
     private static final Logger LOG = Logger.getLogger(HistorySampler.class.getName());
     @Inject
-    private ProblemAnalyzer analyzer;
+    private IProblemAnalyzer analyzer;
 
     /**
      * Creates new sampler instance with default values.

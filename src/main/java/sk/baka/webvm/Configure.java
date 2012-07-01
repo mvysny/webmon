@@ -34,8 +34,8 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.validator.RangeValidator;
 import sk.baka.webvm.analyzer.HistorySampler;
+import sk.baka.webvm.analyzer.IProblemAnalyzer;
 import sk.baka.webvm.misc.NotificationDelivery;
-import sk.baka.webvm.analyzer.ProblemAnalyzer;
 import sk.baka.webvm.config.Bind;
 import sk.baka.webvm.config.Config;
 
@@ -130,7 +130,7 @@ public final class Configure extends WebVMPage {
 
                 private static final long serialVersionUID = 1L;
                 @Inject
-                private ProblemAnalyzer pa;
+                private IProblemAnalyzer pa;
                 @Inject
                 private HistorySampler hs;
                 @Inject
@@ -165,7 +165,7 @@ public final class Configure extends WebVMPage {
 
                 private static final long serialVersionUID = 1L;
                 @Inject
-                private ProblemAnalyzer pa;
+                private IProblemAnalyzer pa;
                 @Inject
                 private Config config;
                 @Inject
