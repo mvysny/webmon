@@ -33,11 +33,6 @@ import sk.baka.webvm.analyzer.IProblemAnalyzer;
  */
 public final class WicketApplication extends WebApplication {
 
-    @Deprecated
-    public static HistorySampler getHistory() {
-        return getInjector().getInstance(HistorySampler.class);
-    }
-
     @Override
     public Class<HomePage> getHomePage() {
         return HomePage.class;
@@ -55,7 +50,7 @@ public final class WicketApplication extends WebApplication {
     }
     private static Injector injector;
 
-    static Injector getInjector() {
+    public static Injector getInjector() {
         if (injector == null) {
             throw new RuntimeException("Injector is null");
         }

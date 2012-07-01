@@ -31,7 +31,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import sk.baka.webvm.analyzer.HistorySample;
-import sk.baka.webvm.analyzer.HistorySampler;
+import sk.baka.webvm.analyzer.IHistorySampler;
 
 /**
  * Shows the thread history.
@@ -50,7 +50,7 @@ public final class Threads extends WebVMPage {
     }
 
     @Inject
-    private HistorySampler historySampler;
+    private IHistorySampler historySampler;
 
     private SortedMap<Long, List<ThreadInfo>> analyzeThreads() {
         final List<HistorySample> samples = historySampler.getVmstatHistory();

@@ -33,7 +33,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.validator.RangeValidator;
-import sk.baka.webvm.analyzer.HistorySampler;
+import sk.baka.webvm.analyzer.IHistorySampler;
 import sk.baka.webvm.analyzer.IProblemAnalyzer;
 import sk.baka.webvm.misc.NotificationDelivery;
 import sk.baka.webvm.config.Bind;
@@ -132,7 +132,7 @@ public final class Configure extends WebVMPage {
                 @Inject
                 private IProblemAnalyzer pa;
                 @Inject
-                private HistorySampler hs;
+                private IHistorySampler hs;
                 @Inject
                 private Config config;
 
@@ -169,7 +169,7 @@ public final class Configure extends WebVMPage {
                 @Inject
                 private Config config;
                 @Inject
-                private HistorySampler hs;
+                private IHistorySampler hs;
 
                 @Override
                 public void onSubmit() {
