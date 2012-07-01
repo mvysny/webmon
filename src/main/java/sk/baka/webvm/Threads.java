@@ -38,7 +38,7 @@ import sk.baka.webvm.analyzer.IHistorySampler;
  * Shows the thread history.
  * @author vyzivus
  */
-public final class Threads extends WebVMPage {
+public class Threads extends WebVMPage {
 
     private static final long serialVersionUID = 1L;
     private static final int MAX_THREAD_NAME_LENGTH = 30;
