@@ -193,7 +193,7 @@ public final class SearchResults extends WebVMPage {
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected void onComponentTagBody(final MarkupStream markupStream, final ComponentTag openTag) {
+            public void onComponentTagBody(final MarkupStream markupStream, final ComponentTag openTag) {
                 final CLResult model = getModelObject();
                 final String caption = model.toString();
                 replaceComponentTagBody(markupStream, openTag, caption);

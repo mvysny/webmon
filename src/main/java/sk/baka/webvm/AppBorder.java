@@ -47,9 +47,9 @@ public class AppBorder extends Border {
     public AppBorder(final String componentName) {
         super(componentName);
         final DateFormat formatter = DateFormat.getTimeInstance(DateFormat.MEDIUM);
-        add(new Label("currentTime", formatter.format(new Date())));
-        add(new PerformGC("performGCLink"));
-        add(new FormImpl("searchForm"));
+        addToBorder(new Label("currentTime", formatter.format(new Date())));
+        addToBorder(new PerformGC("performGCLink"));
+        addToBorder(new FormImpl("searchForm"));
     }
 
     /**
