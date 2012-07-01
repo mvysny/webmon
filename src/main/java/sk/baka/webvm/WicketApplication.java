@@ -61,7 +61,7 @@ public final class WicketApplication extends WebApplication {
     protected void init() {
         super.init();
         injector = Guice.createInjector(new WebmonModule(getInitParameter("configFile")));
-        injector.getInstance(HistorySampler.class).start();
+        injector.getInstance(IHistorySampler.class).start();
         addComponentInstantiationListener(new GuiceComponentInjector(this, injector));
         mount("a", PackageName.forClass(getClass()));
         getMarkupSettings().setDefaultBeforeDisabledLink("<a href=\"#\" class=\"current_page_item\">");
