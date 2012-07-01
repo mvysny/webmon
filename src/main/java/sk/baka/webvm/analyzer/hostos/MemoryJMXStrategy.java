@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm.analyzer.hostos;
 
+import java.io.Serializable;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.lang.management.OperatingSystemMXBean;
@@ -27,7 +28,7 @@ import java.util.logging.Logger;
 /**
  * Retrieves host OS memory info using com.sun.management.OperatingSystemMXBean
  */
-public final class MemoryJMXStrategy implements IMemoryInfoProvider {
+public final class MemoryJMXStrategy implements IMemoryInfoProvider, Serializable {
 
     private static final OperatingSystemMXBean BEAN;
     private static final Class<?> BEAN_CLASS;

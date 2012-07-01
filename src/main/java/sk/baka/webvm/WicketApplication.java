@@ -24,7 +24,8 @@ import org.apache.wicket.guice.GuiceComponentInjector;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.util.lang.PackageName;
 import sk.baka.webvm.analyzer.HistorySampler;
-import sk.baka.webvm.analyzer.ProblemAnalyzer;
+import sk.baka.webvm.analyzer.IHistorySampler;
+import sk.baka.webvm.analyzer.IProblemAnalyzer;
 
 /**
  * The main Wicket application class.
@@ -47,10 +48,10 @@ public final class WicketApplication extends WebApplication {
      * @param config the new config, must not be null.
      */
     public static synchronized void configChanged() {
-        injector.getInstance(HistorySampler.class).stop();
-        injector.getInstance(HistorySampler.class).configChanged();
-        injector.getInstance(ProblemAnalyzer.class).configChanged();
-        injector.getInstance(HistorySampler.class).start();
+        injector.getInstance(IHistorySampler.class).stop();
+        injector.getInstance(IHistorySampler.class).configChanged();
+        injector.getInstance(IProblemAnalyzer.class).configChanged();
+        injector.getInstance(IHistorySampler.class).start();
     }
     private static Injector injector;
 

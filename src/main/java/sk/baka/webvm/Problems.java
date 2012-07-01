@@ -27,8 +27,8 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import sk.baka.webvm.analyzer.HistorySampler;
-import sk.baka.webvm.analyzer.ProblemAnalyzer;
+import sk.baka.webvm.analyzer.IHistorySampler;
+import sk.baka.webvm.analyzer.IProblemAnalyzer;
 
 /**
  * Shows the "Problems" page and provides the problems analysis.
@@ -48,9 +48,9 @@ public final class Problems extends WebVMPage {
     }
 
     @Inject
-    private ProblemAnalyzer analyzer;
+    private IProblemAnalyzer analyzer;
     @Inject
-    private HistorySampler history;
+    private IHistorySampler history;
 
     /**
      * Provides a list of model. Stateless.

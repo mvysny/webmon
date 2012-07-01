@@ -81,12 +81,12 @@
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket</artifactId>
-            <version>1.4.6</version>
+            <version>1.4.20</version>
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-guice</artifactId>
-            <version>1.4.6</version>
+            <version>1.4.20</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -130,7 +130,7 @@
         <dependency>
             <groupId>sk.baka.tools</groupId>
             <artifactId>bakatools</artifactId>
-            <version>0.5-SNAPSHOT</version>
+            <version>0.5</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>

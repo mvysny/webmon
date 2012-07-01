@@ -46,7 +46,7 @@ import static sk.baka.webvm.misc.Constants.*;
  * @author Martin Vysny
  */
 @Singleton
-public class ProblemAnalyzer {
+public class ProblemAnalyzer implements IProblemAnalyzer {
 
     private static final Logger LOG = Logger.getLogger(ProblemAnalyzer.class.getName());
 
