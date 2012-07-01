@@ -34,7 +34,7 @@ import sk.baka.webvm.analyzer.IProblemAnalyzer;
  * Shows the "Problems" page and provides the problems analysis.
  * @author Martin Vysny
  */
-public final class Problems extends WebVMPage {
+public class Problems extends WebVMPage {
 
     private static final long serialVersionUID = 1L;
 
