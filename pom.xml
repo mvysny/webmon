@@ -44,16 +44,16 @@
         <url>https://webmon.googlecode.com/hg/</url>
     </scm>
     <issueManagement>
-		<system>Google Code Tracker</system>
-		<url>http://code.google.com/p/webmon/issues/list</url>
+        <system>Google Code Tracker</system>
+        <url>http://code.google.com/p/webmon/issues/list</url>
     </issueManagement>
     <mailingLists>
         <mailingList>
-			<name>News (read-only)</name>
-			<subscribe>http://groups.google.com/group/webmon-news/subscribe</subscribe>
-			<unsubscribe>http://groups.google.com/group/webmon-news/subscribe</unsubscribe>
-			<post>webmon-news@googlegroups.com</post>
-			<archive>http://groups.google.com/group/webmon-news/topics</archive>
+            <name>News (read-only)</name>
+            <subscribe>http://groups.google.com/group/webmon-news/subscribe</subscribe>
+            <unsubscribe>http://groups.google.com/group/webmon-news/subscribe</unsubscribe>
+            <post>webmon-news@googlegroups.com</post>
+            <archive>http://groups.google.com/group/webmon-news/topics</archive>
         </mailingList>
     </mailingLists>
     <developers>
@@ -190,8 +190,8 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <preparationGoals>clean install site changes:announcement-generate</preparationGoals>
                     <goals>clean deploy site-deploy changes:announcement-mail</goals>
-					<username>${google-code.hg.username}</username>
-					<password>${google-code.hg.password}</password>
+                    <username>${google-code.hg.username}</username>
+                    <password>${google-code.hg.password}</password>
                 </configuration>
             </plugin>
             <plugin>
