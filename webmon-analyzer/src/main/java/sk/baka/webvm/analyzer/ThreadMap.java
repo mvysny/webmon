@@ -91,6 +91,9 @@ public final class ThreadMap {
         daemonThreadCount = BEAN.getDaemonThreadCount();
         final List<Item> items = new ArrayList<Item>(threadInfos.length);
         for (ThreadInfo info : threadInfos) {
+            if (info == null) {
+                continue;
+            }
             final long threadId = info.getThreadId();
             items.add(new Item(threadId, info, BEAN.getThreadCpuTime(threadId), null));
         }
