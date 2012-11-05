@@ -55,7 +55,7 @@ public final class HistorySample {
      */
     public static final int POOL_SWAP = 3;
     /**
-     * The memory usage list, indexed according to the value of the <code>POOL_*</code> constants.
+     * The memory usage list, indexed according to the value of the <code>POOL_*</code> constants. The values are in MB.
      */
     public final MemoryUsage[] memPoolUsage = new MemoryUsage[4];
     /**

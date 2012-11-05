@@ -89,6 +89,11 @@ public class TCPIPServer {
         server.start();
         System.out.println("Listening on port " + port + ", press Enter to stop");
         System.in.read();
+//        long hu=System.currentTimeMillis();
+//        while(System.currentTimeMillis()-hu < 10000) {
+//            byte[] huhu = new byte[6000];
+//        }
+//        System.in.read();
         server.stop();
         sampler.stop();
     }
