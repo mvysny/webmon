@@ -17,6 +17,7 @@
  */
 package sk.baka.webvm;
 
+import com.google.inject.Inject;
 import java.lang.reflect.Constructor;
 import java.text.DateFormat;
 import java.util.Date;
@@ -31,7 +32,13 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
+import org.apache.wicket.request.http.WebResponse;
+import org.apache.wicket.util.resource.StringResourceStream;
 import org.apache.wicket.validation.validator.StringValidator;
+import sk.baka.webvm.analyzer.IHistorySampler;
+import sk.baka.webvm.analyzer.TextDump;
 
 /**
  * Defines a border for the entire application.
@@ -51,6 +58,7 @@ public class AppBorder extends Border {
         super(componentName);
         final DateFormat formatter = DateFormat.getTimeInstance(DateFormat.MEDIUM);
         addToBorder(new Label("currentTime", new LoadableDetachableModel<String>() {
+            private static final long serialVersionUID = 1L;
 
             @Override
             protected String load() {
@@ -59,7 +67,18 @@ public class AppBorder extends Border {
         }));
         addToBorder(new PerformGC("performGCLink"));
         addToBorder(new FormImpl("searchForm"));
-        addToBorder(new BookmarkablePageLink("threadDump", ThreadDump.class));
+        addToBorder(new BookmarkablePageLink<ThreadDump>("threadDump", ThreadDump.class));
+        addToBorder(new Link<Void>("vmDump") {
+            private static final long serialVersionUID = 1L;
+            @Inject
+            private IHistorySampler history;
+
+            @Override
+            public void onClick() {
+                final String vmdump = TextDump.dump(history.getVmstatHistory());
+                RequestCycle.get().scheduleRequestHandlerAfterCurrent(new ResourceStreamRequestHandler(new StringResourceStream(vmdump, "text/plain"), "vmdump.txt"));
+            }
+        });
     }
 
     /**
