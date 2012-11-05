@@ -43,8 +43,6 @@ public class WebVMPage extends WebPage {
      * Creates new WebMon page.
      */
     public WebVMPage() {
-        super();
-        WicketApplication.getInjector().injectMembers(this);
         border = new AppBorder("appBorder");
         add(border);
     }

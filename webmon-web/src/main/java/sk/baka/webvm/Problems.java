@@ -19,6 +19,7 @@
 package sk.baka.webvm;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.List;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
