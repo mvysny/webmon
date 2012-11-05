@@ -20,27 +20,26 @@ package sk.baka.webvm;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.google.inject.Scope;
-import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.management.MemoryUsage;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import sk.baka.tools.IOUtils;
-import sk.baka.tools.JavaUtils;
 import sk.baka.webvm.analyzer.HistorySampler;
 import sk.baka.webvm.analyzer.IHistorySampler;
+import sk.baka.webvm.analyzer.IProblemAnalyzer;
+import sk.baka.webvm.analyzer.ProblemAnalyzer;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
-import sk.baka.webvm.analyzer.hostos.MemoryJMXStrategy;
-import sk.baka.webvm.analyzer.hostos.MemoryLinuxStrategy;
 import sk.baka.webvm.analyzer.config.Binder;
 import sk.baka.webvm.analyzer.config.Config;
+import sk.baka.webvm.analyzer.utils.INotificationDelivery;
+import sk.baka.webvm.analyzer.utils.MgmtUtils;
+import sk.baka.webvm.analyzer.utils.MiscUtils;
+import sk.baka.webvm.analyzer.utils.NotificationDelivery;
 
 /**
  * The Guice module.
@@ -60,7 +59,6 @@ public class WebmonModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(IHistorySampler.class).to(HistorySampler.class).in(Scopes.SINGLETON);
     }
     private static final Logger LOG = Logger.getLogger(WebmonModule.class.getName());
 
@@ -88,7 +86,7 @@ public class WebmonModule extends AbstractModule {
             final InputStream in;
             if (configUrl.startsWith("classpath:")) {
                 final String resource = configUrl.substring("classpath:".length());
-                in = JavaUtils.getResource(resource);
+                in = MiscUtils.getResource(resource);
             } else {
                 in = new URL(configUrl).openStream();
             }
@@ -100,7 +98,7 @@ public class WebmonModule extends AbstractModule {
                 Binder.log(LOG, warnings);
                 return result;
             } finally {
-                IOUtils.closeQuietly(in);
+                MiscUtils.closeQuietly(in);
             }
         } catch (IOException ex) {
             LOG.log(Level.WARNING, "Failed to load " + configUrl + ", keeping defaults", ex);
@@ -110,7 +108,16 @@ public class WebmonModule extends AbstractModule {
 
     @Provides
     @Singleton
-    protected IMemoryInfoProvider getMemoryInfoProvider() {
-        return MgmtUtils.getMemoryInfoProvider();
+    public IHistorySampler newHistorySampler(Config cfg) {
+        final IMemoryInfoProvider meminfo = MgmtUtils.getMemoryInfoProvider();
+        final IProblemAnalyzer a = new ProblemAnalyzer(cfg, meminfo);
+        final INotificationDelivery d = new NotificationDelivery(cfg);
+        return new HistorySampler(meminfo, a, d);
     }
+    
+//    @Provides
+//    @Singleton
+//    protected IMemoryInfoProvider getMemoryInfoProvider() {
+//        return MgmtUtils.getMemoryInfoProvider();
+//    }
 }

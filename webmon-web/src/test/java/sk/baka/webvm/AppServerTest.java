@@ -18,7 +18,7 @@
  */
 package sk.baka.webvm;
 
-import org.testng.annotations.Test;
+import org.junit.Test;
 import sk.baka.tools.javaee.JeeServer;
 
 /**

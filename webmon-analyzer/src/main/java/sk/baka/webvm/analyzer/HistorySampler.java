@@ -81,6 +81,9 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
         if (notificator != null) {
             notificator.configChanged(cfg);
         }
+        if (analyzer != null) {
+            analyzer.configChanged(cfg);
+        }
     }
 
     @Override

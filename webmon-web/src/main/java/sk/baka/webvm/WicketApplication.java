@@ -22,10 +22,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.apache.wicket.guice.GuiceComponentInjector;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.util.lang.PackageName;
 import sk.baka.webvm.analyzer.HistorySampler;
 import sk.baka.webvm.analyzer.IHistorySampler;
-import sk.baka.webvm.analyzer.IProblemAnalyzer;
+import sk.baka.webvm.analyzer.config.Config;
 
 /**
  * The main Wicket application class.
@@ -44,8 +43,7 @@ public final class WicketApplication extends WebApplication {
      */
     public static synchronized void configChanged() {
         injector.getInstance(IHistorySampler.class).stop();
-        injector.getInstance(IHistorySampler.class).configChanged();
-        injector.getInstance(IProblemAnalyzer.class).configChanged();
+        injector.getInstance(IHistorySampler.class).configChanged(injector.getInstance(Config.class));
         injector.getInstance(IHistorySampler.class).start();
     }
     private static Injector injector;

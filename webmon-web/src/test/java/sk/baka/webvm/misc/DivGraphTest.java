@@ -19,8 +19,8 @@
 package sk.baka.webvm.misc;
 
 import java.util.Arrays;
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
+import static org.junit.Assert.*;
+import org.junit.Test;
 /**
  * Tests the {@link DivGraph} class.
  * @author Martin Vysny

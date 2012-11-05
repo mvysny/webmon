@@ -16,15 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with WebMon.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sk.baka.webvm.config;
+package sk.baka.webvm.analyzer.config;
 
 import sk.baka.webvm.analyzer.config.EncryptionEnum;
 import sk.baka.webvm.analyzer.config.Config;
 import sk.baka.webvm.analyzer.config.Binder;
 import java.util.Map;
 import java.util.Properties;
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  * Tests the {@link Binder} class.
