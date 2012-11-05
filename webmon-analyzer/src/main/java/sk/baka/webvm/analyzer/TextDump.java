@@ -1,14 +1,21 @@
 package sk.baka.webvm.analyzer;
 
+import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import sk.baka.webvm.analyzer.ThreadMap.Item;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.MgmtUtils;
+import sk.baka.webvm.analyzer.utils.MiscUtils;
 
 /**
  * Dumps a VM state.
@@ -107,7 +114,46 @@ public class TextDump {
         printMemoryUsageHistory(sb, history);
         sb.append('\n');
         printThreadCPUUsage(sb, history);
+        sb.append('\n');
+        printThreadStacktraceDump(sb);
+        sb.append('\n');
+        printHeader(sb, "Environment dump");
+        sb.append("Java System Properties\n");
+        printProperties(sb, System.getProperties());
+        sb.append("\nEnvironment Variables\n");
+        printProperties(sb, System.getenv());
         return sb.toString();
+    }
+
+    private static void printProperties(StringBuilder sb, Map<?, ?> env) {
+        final List<String> names = new ArrayList<String>(env.size());
+        for (Object name : env.keySet()) {
+            names.add(name.toString());
+        }
+        Collections.sort(names, new Comparator<String>() {
+            public int compare(String o1, String o2) {
+                return o1.compareToIgnoreCase(o2);
+            }
+        });
+        for (String name : names) {
+            sb.append(name).append('=').append(env.get(name)).append('\n');
+        }
+    }
+
+    private static void printThreadStacktraceDump(StringBuilder sb) {
+        printHeader(sb, "Thread Stacktrace Dump");
+        final ThreadInfo[] info = ThreadMap.BEAN.getThreadInfo(ThreadMap.BEAN.getAllThreadIds(), Integer.MAX_VALUE);
+        for (final ThreadInfo i : info) {
+            if (i != null) {
+                sb.append(MiscUtils.getThreadMetadata(i));
+                sb.append('\n');
+                sb.append(MiscUtils.getThreadStacktrace(i));
+                sb.append('\n');
+            }
+        }
+        sb.append("\nThead Deadlock Analysis Result:\n");
+        sb.append(ProblemAnalyzer.getDeadlockReport().toString());
+        sb.append("\n\n");
     }
 
     private static void printMemoryUsageHistory(StringBuilder sb, List<HistorySample> history) {
@@ -166,14 +212,14 @@ public class TextDump {
     private static String getThreadName(Collection<Item> items) {
         for (Item item : items) {
             if (item != null) {
-                String threadName = item.info.getThreadName();
-                if (threadName.length() > 32) {
-                    threadName = threadName.substring(0, 32);
-                }
-                return threadName;
+                return truncate(item.info.getThreadName(), 32);
             }
         }
         return null;
+    }
+
+    private static String truncate(String str, int maxlen) {
+        return str.length() > maxlen ? str.substring(0, maxlen) : str;
     }
 
     private static void printThreadCPUUsage(StringBuilder sb, List<HistorySample> history) {
