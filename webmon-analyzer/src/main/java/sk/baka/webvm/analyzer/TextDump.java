@@ -1,8 +1,14 @@
 package sk.baka.webvm.analyzer;
 
+import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.SortedMap;
+import sk.baka.webvm.analyzer.ThreadMap.Item;
+import sk.baka.webvm.analyzer.utils.Constants;
+import sk.baka.webvm.analyzer.utils.MgmtUtils;
 
 /**
  * Dumps a VM state.
@@ -15,8 +21,8 @@ public class TextDump {
 
         public boolean horizontalHeaderSeparator = true;
         public boolean verticalHeaderSeparator = true;
-        public boolean horizontalContentsSeparator = true;
-        public boolean verticalContentsSeparator = false;
+        public boolean horizontalContentsSeparator = false;
+        public boolean verticalContentsSeparator = true;
 
         public TextTable(int columnCount) {
             columnSizes = new int[columnCount];
@@ -97,15 +103,119 @@ public class TextDump {
     public static String dump(List<HistorySample> history) {
         final StringBuilder sb = new StringBuilder();
         printVMHistoryOverview(sb, history);
+        sb.append('\n');
+        printMemoryUsageHistory(sb, history);
+        sb.append('\n');
+        printThreadCPUUsage(sb, history);
         return sb.toString();
     }
 
-    private static void printVMHistoryOverview(StringBuilder sb, List<HistorySample> history) {
+    private static void printMemoryUsageHistory(StringBuilder sb, List<HistorySample> history) {
+        final List<String> header = new ArrayList<String>(Collections.nCopies(history.size() + 1, ""));
+        header.set(0, "Memory Used %");
+        header.set(1, "old");
+        header.set(header.size() - 1, "new");
+        final TextTable table = new TextTable(history.size() + 1);
+        table.verticalContentsSeparator = false;
+        final List<Boolean> rightAlign = new ArrayList<Boolean>(Collections.nCopies(history.size() + 1, Boolean.TRUE));
+        table.add(header, rightAlign);
+        final List<List<String>> content = new ArrayList<List<String>>(4);
+        content.add(new ArrayList<String>(Collections.singletonList("Java Heap")));
+        content.add(new ArrayList<String>(Collections.singletonList("Java Non-Heap")));
+        content.add(new ArrayList<String>(Collections.singletonList("OS Memory")));
+        content.add(new ArrayList<String>(Collections.singletonList("OS Swap")));
+        final HistorySample last = history.isEmpty() ? null : history.get(history.size() - 1);
+        if (last != null) {
+            for (int i = 0; i < 4; i++) {
+                if (i != 0) {
+                    sb.append(" / ");
+                }
+                sb.append(content.get(i).get(0)).append(": ");
+                sb.append(MgmtUtils.toString(last.memPoolUsage[i], true));
+            }
+            sb.append("\n");
+        }
+        for (int i = 0; i < history.size(); i++) {
+            for (int j = 0; j < 4; j++) {
+                content.get(j).add(getUsagePerc(history.get(i).memPoolUsage[j]));
+            }
+        }
+        for (int i = 0; i < 4; i++) {
+            table.add(content.get(i), rightAlign);
+        }
+        sb.append(table.toString());
+    }
+
+    /**
+     * Returns memory usage in the following format: xx%
+     *
+     * @param mu the memory usage object, may be null
+     * @return formatted percent value; "not available" if the object is null or
+     * max is -1; "none" if max is zero
+     */
+    public static String getUsagePerc(final MemoryUsage mu) {
+        if (mu == null || mu.getMax() < 0) {
+            return "?";
+        }
+        if (mu.getMax() == 0) {
+            return "0";
+        }
+        return "" + (mu.getUsed() * Constants.HUNDRED_PERCENT / mu.getMax());
+    }
+
+    private static String getThreadName(Collection<Item> items) {
+        for (Item item : items) {
+            if (item != null) {
+                String threadName = item.info.getThreadName();
+                if (threadName.length() > 32) {
+                    threadName = threadName.substring(0, 32);
+                }
+                return threadName;
+            }
+        }
+        return null;
+    }
+
+    private static void printThreadCPUUsage(StringBuilder sb, List<HistorySample> history) {
+        printHeader(sb, "Per-Thread CPU Usage history");
         final List<String> header = new ArrayList<String>(Collections.nCopies(history.size() + 1, ""));
         header.set(1, "old");
         header.set(header.size() - 1, "new");
         final TextTable table = new TextTable(history.size() + 1);
-        table.horizontalContentsSeparator = false;
+        table.verticalContentsSeparator = false;
+        final List<Boolean> rightAlign = new ArrayList<Boolean>(Collections.nCopies(history.size() + 1, Boolean.TRUE));
+        table.add(header, rightAlign);
+        final SortedMap<Long, List<Item>> threadTable = ThreadMap.historyToTable(history);
+        for (List<Item> row : threadTable.values()) {
+            final List<String> contentRow = new ArrayList<String>();
+            final String threadName = getThreadName(row);
+            if (threadName == null) {
+                continue;
+            }
+            for (Item item : row) {
+                if (contentRow.isEmpty()) {
+                    contentRow.add(threadName);
+                }
+                contentRow.add(item == null ? "" : (item.lastCpuUsagePerc == null ? "?" : item.lastCpuUsagePerc.toString()));
+            }
+            table.add(contentRow, rightAlign);
+        }
+        sb.append(table.toString());
+    }
+
+    private static void printHeader(StringBuilder sb, String header) {
+        sb.append("======================== ");
+        sb.append(header);
+        sb.append(" ========================\n\n");
+    }
+
+    private static void printVMHistoryOverview(StringBuilder sb, List<HistorySample> history) {
+        printHeader(sb, "History of VM overview");
+        final List<String> header = new ArrayList<String>(Collections.nCopies(history.size() + 1, ""));
+        header.set(1, "old");
+        header.set(header.size() - 1, "new");
+        final TextTable table = new TextTable(history.size() + 1);
+        table.verticalContentsSeparator = false;
         final List<String> gccpuusage = new ArrayList<String>();
         gccpuusage.add("GC CPU Usage %");
         final List<String> threadcount = new ArrayList<String>();
