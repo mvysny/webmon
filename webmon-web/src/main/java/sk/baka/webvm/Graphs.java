@@ -348,14 +348,14 @@ public class Graphs extends WebVMPage {
                 gs.colors = new String[]{COLOR_BLUE, COLOR_BROWN};
                 int maxThreads = 0;
                 for (final HistorySample hs : history.getObject()) {
-                    if (maxThreads < hs.threadCount) {
-                        maxThreads = hs.threadCount;
+                    if (maxThreads < hs.threads.threadCount) {
+                        maxThreads = hs.threads.threadCount;
                     }
                 }
                 maxThreads = maxThreads * 5 / 4;
                 final AbstractGraph dg = new BluffGraph(maxThreads, gs);
                 for (final HistorySample hs : history.getObject()) {
-                    dg.add(new int[]{hs.daemonThreadCount, hs.threadCount});
+                    dg.add(new int[]{hs.threads.daemonThreadCount, hs.threads.threadCount});
                 }
                 dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength(), false);
                 return dg.draw();
