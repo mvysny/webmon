@@ -41,7 +41,7 @@ import sk.baka.webvm.analyzer.utils.SimpleFixedSizeFIFO;
 public class HistorySampler extends BackgroundService implements IHistorySampler {
 
     private static final Logger LOG = Logger.getLogger(HistorySampler.class.getName());
-    private final IProblemAnalyzer analyzer;
+    public final IProblemAnalyzer analyzer;
 
     /**
      * Creates new sampler instance with default values.
@@ -71,7 +71,7 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
         this.notificator = notificator;
     }
     private final SamplerConfig problemConfig;
-    private final INotificationDelivery notificator;
+    public final INotificationDelivery notificator;
 
     /**
      * Sets the new configuration file.

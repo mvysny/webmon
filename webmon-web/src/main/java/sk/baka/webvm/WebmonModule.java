@@ -108,16 +108,20 @@ public class WebmonModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public IHistorySampler newHistorySampler(Config cfg) {
-        final IMemoryInfoProvider meminfo = MgmtUtils.getMemoryInfoProvider();
-        final IProblemAnalyzer a = new ProblemAnalyzer(cfg, meminfo);
+    public IHistorySampler newHistorySampler(Config cfg, IMemoryInfoProvider meminfo, IProblemAnalyzer a) {
         final INotificationDelivery d = new NotificationDelivery(cfg);
         return new HistorySampler(meminfo, a, d);
     }
     
-//    @Provides
-//    @Singleton
-//    protected IMemoryInfoProvider getMemoryInfoProvider() {
-//        return MgmtUtils.getMemoryInfoProvider();
-//    }
+    @Provides
+    @Singleton
+    public IProblemAnalyzer newProblemAnalyzer(Config cfg, IMemoryInfoProvider meminfo) {
+        return new ProblemAnalyzer(cfg, meminfo);
+    }
+    
+    @Provides
+    @Singleton
+    protected IMemoryInfoProvider getMemoryInfoProvider() {
+        return MgmtUtils.getMemoryInfoProvider();
+    }
 }
