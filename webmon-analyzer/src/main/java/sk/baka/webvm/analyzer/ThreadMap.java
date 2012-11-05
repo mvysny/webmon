@@ -11,7 +11,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 /**
- *
+ * A snapshot of thread state. Immutable, thread-safe.
  * @author Martin Vysny
  */
 public final class ThreadMap {
