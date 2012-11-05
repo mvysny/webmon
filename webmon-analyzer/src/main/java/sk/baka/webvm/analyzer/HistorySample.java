@@ -21,8 +21,6 @@ package sk.baka.webvm.analyzer;
 import sk.baka.webvm.analyzer.utils.MgmtUtils;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 
 /**
@@ -63,20 +61,11 @@ public final class HistorySample {
     /**
      * A thread dump. Does not contain any stacktraces. Never null.
      */
-    public final ThreadInfo[] threads;
+    public final ThreadMap threads;
     /**
      * Count of classes currently loaded in the VM.
      */
     public final int classesLoaded;
-    /**
-     * Current count of daemon threads.
-     */
-    public final int daemonThreadCount;
-    /**
-     * Returns current count of all threads.
-     * @return current count of all threads.
-     */
-    public final int threadCount;
     /**
      * Shows the host OS CPU usage. A value of 0..100, 0 when not supported.
      */
@@ -102,10 +91,7 @@ public final class HistorySample {
         memPoolUsage[POOL_HEAP] = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
         memPoolUsage[POOL_NON_HEAP] = MgmtUtils.getInMB(MgmtUtils.getNonHeapSummary());
         this.sampleTime = System.currentTimeMillis();
-        final ThreadMXBean tbean = ManagementFactory.getThreadMXBean();
-        threads = tbean.getThreadInfo(tbean.getAllThreadIds());
-        threadCount = tbean.getThreadCount();
-        daemonThreadCount = tbean.getDaemonThreadCount();
+        threads = ThreadMap.takeSnapshot();
         classesLoaded = ManagementFactory.getClassLoadingMXBean().getLoadedClassCount();
         memPoolUsage[POOL_PHYS_MEM] = MgmtUtils.getInMB(meminfo.getPhysicalMemory());
         memPoolUsage[POOL_SWAP] = MgmtUtils.getInMB(meminfo.getSwap());

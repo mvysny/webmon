@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -33,6 +34,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import sk.baka.webvm.analyzer.HistorySample;
 import sk.baka.webvm.analyzer.IHistorySampler;
+import sk.baka.webvm.analyzer.ThreadMap;
 
 /**
  * Shows the thread history.
@@ -53,31 +55,8 @@ public class Threads extends WebVMPage {
     @Inject
     private IHistorySampler historySampler;
 
-    private SortedMap<Long, List<ThreadInfo>> analyzeThreads() {
-        final List<HistorySample> samples = historySampler.getVmstatHistory();
-        final SortedMap<Long, List<ThreadInfo>> history = new TreeMap<Long, List<ThreadInfo>>();
-        // compute the map
-        int i = 0;
-        for (final HistorySample sample : samples) {
-            for (final ThreadInfo info : sample.threads) {
-                if (info == null) {
-                    continue;
-                }
-                List<ThreadInfo> list = history.get(info.getThreadId());
-                if (list == null) {
-                    list = new ArrayList<ThreadInfo>(samples.size());
-                    history.put(info.getThreadId(), list);
-                }
-                ensureSize(list, i);
-                list.add(info);
-            }
-            i++;
-        }
-        // align dead threads' list for a proper length.
-        for (final List<ThreadInfo> infos : history.values()) {
-            ensureSize(infos, i);
-        }
-        return history;
+    private SortedMap<Long, List<ThreadMap.Item>> analyzeThreads() {
+        return ThreadMap.historyToTable(historySampler.getVmstatHistory());
     }
 
     /**
@@ -105,67 +84,54 @@ public class Threads extends WebVMPage {
         throw new AssertionError();
     }
 
-    private class ThreadListModel extends LoadableDetachableModel<List<List<ThreadInfo>>> {
+    private class ThreadListModel extends LoadableDetachableModel<List<List<ThreadMap.Item>>> {
 
         private static final long serialVersionUID = 1L;
 
         @Override
-        protected List<List<ThreadInfo>> load() {
-            final List<List<ThreadInfo>> result = new ArrayList<List<ThreadInfo>>(analyzeThreads().values());
+        protected List<List<ThreadMap.Item>> load() {
+            final List<List<ThreadMap.Item>> result = new ArrayList<List<ThreadMap.Item>>(analyzeThreads().values());
             return result;
         }
     }
 
     /**
-     * Ensures that the given list is of given size, appending nulls as necessary.
-     * @param list the list to enlarge. Will be modified.
-     * @param size the desired size
-     * @return the list itself.
-     */
-    private static List<ThreadInfo> ensureSize(List<ThreadInfo> list, final int size) {
-        while (list.size() < size) {
-            list.add(null);
-        }
-        return list;
-    }
-
-    /**
      * Wicket ListView showing thread names and thread states.
      */
-    private static class ThreadListView extends ListView<List<ThreadInfo>> {
+    private static class ThreadListView extends ListView<List<ThreadMap.Item>> {
 
         private static final long serialVersionUID = 1L;
 
-        public ThreadListView(String id, IModel<? extends List<? extends List<ThreadInfo>>> model) {
+        public ThreadListView(String id, IModel<? extends List<? extends List<ThreadMap.Item>>> model) {
             super(id, model);
         }
 
         @Override
-        protected void populateItem(ListItem<List<ThreadInfo>> item) {
-            final List<ThreadInfo> infos = item.getModelObject();
-            ThreadInfo ti = null;
-            for (final ThreadInfo info : infos) {
+        protected void populateItem(ListItem<List<ThreadMap.Item>> item) {
+            final List<ThreadMap.Item> infos = item.getModelObject();
+            ThreadMap.Item ti = null;
+            for (final ThreadMap.Item info : infos) {
                 if (info != null) {
                     ti = info;
                     break;
                 }
             }
-            final ThreadInfo last = infos.get(infos.size() - 1);
-            String name = ti.getThreadName();
+            final ThreadMap.Item last = infos.get(infos.size() - 1);
+            String name = ti.info.getThreadName();
             String title = name;
             if (name.length() > MAX_THREAD_NAME_LENGTH) {
                 name = name.substring(0, MAX_THREAD_NAME_LENGTH) + "...";
             }
             final Label l = new Label("threadName", name);
             item.add(l);
-            l.add(new SimpleAttributeModifier("title", title));
-            final String state = last == null ? "dead" : last.getThreadState().toString();
+            l.add(AttributeModifier.replace("title", title));
+            final String state = last == null ? "dead" : last.info.getThreadState().toString();
             item.add(new Label("threadState", state));
             final StringBuilder sb = new StringBuilder();
-            for (final ThreadInfo info : infos) {
-                sb.append(getStateChar(info));
+            for (final ThreadMap.Item info : infos) {
+                sb.append(getStateChar(info.info));
             }
-            final long threadCPUTimeNanos = ti.getThreadId() < 0 ? -1 : ManagementFactory.getThreadMXBean().getThreadCpuTime(ti.getThreadId());
+            final long threadCPUTimeNanos = ti.threadId < 0 ? -1 : ManagementFactory.getThreadMXBean().getThreadCpuTime(ti.threadId);
             sb.append("  Total CPU: ").append(threadCPUTimeNanos / 1000000).append(" ms");
             item.add(new Label("threadHistory", sb.toString()));
         }
