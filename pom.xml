@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>sk.baka.webmon</groupId>
     <artifactId>webmon</artifactId>
-    <packaging>war</packaging>
+    <packaging>pom</packaging>
     <version>0.7-SNAPSHOT</version>
     <name>WebMon</name>
     <description>WebMon: A Java Virtual Machine analyzer with Web interface. Ideal for watching out for your
@@ -77,67 +77,10 @@
             <url>scp://rt.sk/home/moto/public_html/maven2</url>
         </repository>
     </distributionManagement>
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-core</artifactId>
-            <version>1.5.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-guice</artifactId>
-            <version>1.5.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
-            <version>1.6.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>5.10</version>
-            <classifier>jdk15</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>1.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-email</artifactId>
-            <version>1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>jivesoftware</groupId>
-            <artifactId>smack</artifactId>
-            <version>3.0.4</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.4</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>sk.baka.tools</groupId>
-            <artifactId>bakatools</artifactId>
-            <version>0.5</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <version>3.0</version>
-        </dependency>
-    </dependencies>
+    <modules>
+<module>webmon-analyzer</module>
+<module>webmon-web</module>
+</modules>
     <repositories>
         <repository>
             <id>baka.sk</id>
@@ -146,31 +89,6 @@
         </repository>
     </repositories>
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-            <resource>
-                <directory>src/main/java</directory>
-                <includes>
-                    <include>**</include>
-                </includes>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
-            </resource>
-        </resources>
-        <testResources>
-            <testResource>
-                <directory>src/test/java</directory>
-                <includes>
-                    <include>**</include>
-                </includes>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
-            </testResource>
-        </testResources>
         <plugins>
             <plugin>
                 <inherited>true</inherited>
@@ -195,6 +113,7 @@
                 </configuration>
             </plugin>
             <plugin>
+                <inherited>true</inherited>
                 <artifactId>maven-source-plugin</artifactId>
                 <executions>
                     <execution>
