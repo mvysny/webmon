@@ -113,8 +113,8 @@ public final class ThreadMap {
                     history.put(info.threadId, list);
                 }
                 ensureSize(list, i);
-                if (!list.isEmpty()) {
-                    final Item last = list.get(list.size() - 1);
+                final Item last = list.isEmpty() ? null : list.get(list.size() - 1);
+                if (last != null) {
                     final long newLastMeasurementTimeMillis = sample.threads.takenAt;
                     final long lastMeasurementTimeMillis = samples.get(i - 1).threads.takenAt;
                     if (newLastMeasurementTimeMillis != lastMeasurementTimeMillis) {

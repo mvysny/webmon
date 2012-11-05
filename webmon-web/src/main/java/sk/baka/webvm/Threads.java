@@ -3,18 +3,17 @@
  *
  * This file is part of WebMon.
  *
- * WebMon is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * WebMon is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  *
- * WebMon is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * WebMon is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with WebMon.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * WebMon. If not, see <http://www.gnu.org/licenses/>.
  */
 package sk.baka.webvm;
 
@@ -38,6 +37,7 @@ import sk.baka.webvm.analyzer.ThreadMap;
 
 /**
  * Shows the thread history.
+ *
  * @author vyzivus
  */
 public class Threads extends WebVMPage {
@@ -51,7 +51,6 @@ public class Threads extends WebVMPage {
     public Threads() {
         border.add(new ThreadListView("threads", new ThreadListModel()));
     }
-
     @Inject
     private IHistorySampler historySampler;
 
@@ -61,6 +60,7 @@ public class Threads extends WebVMPage {
 
     /**
      * Returns an ASCII-graphic character representing the thread state.
+     *
      * @param info the thread.
      * @return the thread character.
      */
@@ -129,12 +129,26 @@ public class Threads extends WebVMPage {
             item.add(new Label("threadState", state));
             final StringBuilder sb = new StringBuilder();
             for (final ThreadMap.Item info : infos) {
-                sb.append(getStateChar(info.info));
+                sb.append(getStateChar(info == null ? null : info.info));
             }
             final long threadCPUTimeNanos = ti.threadId < 0 ? -1 : ManagementFactory.getThreadMXBean().getThreadCpuTime(ti.threadId);
             sb.append("  Total CPU: ").append(threadCPUTimeNanos / 1000000).append(" ms");
+            sb.append("\n");
+            for (final ThreadMap.Item info : infos) {
+                sb.append(getCPUChar(info));
+            }
             item.add(new Label("threadHistory", sb.toString()));
         }
     }
-}
 
+    private static char getCPUChar(ThreadMap.Item info) {
+        if (info == null || info.lastCpuUsagePerc == null) {
+            return ' ';
+        }
+        int cpuusage = info.lastCpuUsagePerc;
+        if (cpuusage > 99) {
+            cpuusage = 99;
+        }
+        return (char) ('0' + (cpuusage / 10));
+    }
+}
