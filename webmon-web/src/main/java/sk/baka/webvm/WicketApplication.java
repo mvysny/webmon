@@ -22,7 +22,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.apache.wicket.guice.GuiceComponentInjector;
 import org.apache.wicket.protocol.http.WebApplication;
-import sk.baka.webvm.analyzer.HistorySampler;
 import sk.baka.webvm.analyzer.IHistorySampler;
 import sk.baka.webvm.analyzer.config.Config;
 
@@ -67,7 +66,7 @@ public final class WicketApplication extends WebApplication {
 
     @Override
     protected void onDestroy() {
-        injector.getInstance(HistorySampler.class).stop();
+        injector.getInstance(IHistorySampler.class).stop();
         super.onDestroy();
     }
 }
