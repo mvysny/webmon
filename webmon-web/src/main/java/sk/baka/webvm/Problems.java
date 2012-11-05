@@ -19,10 +19,8 @@
 package sk.baka.webvm;
 
 import com.google.inject.Inject;
-import java.util.Collection;
-import sk.baka.webvm.analyzer.ProblemReport;
 import java.util.List;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -30,6 +28,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import sk.baka.webvm.analyzer.IHistorySampler;
 import sk.baka.webvm.analyzer.IProblemAnalyzer;
+import sk.baka.webvm.analyzer.ProblemReport;
 
 /**
  * Shows the "Problems" page and provides the problems analysis.
@@ -81,7 +80,7 @@ public class Problems extends WebVMPage {
             final ProblemReport pr = item.getModelObject();
             item.add(new Label("problemClass", pr.pclass));
             final Label l = new Label("problemSeverity", pr.isProblem ? "WARN" : "OK");
-            l.add(new SimpleAttributeModifier("bgcolor", pr.isProblem ? LIGHT_RED : DARK_GREEN));
+            l.add(AttributeModifier.replace("bgcolor", pr.isProblem ? ProblemReport.LIGHT_RED : ProblemReport.DARK_GREEN));
             item.add(l);
             final Label desc = new Label("problemDesc", pr.desc);
             desc.setEscapeModelStrings(false);

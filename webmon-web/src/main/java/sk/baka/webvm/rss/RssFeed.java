@@ -79,7 +79,7 @@ public final class RssFeed extends HttpServlet {
                 out.print("</title>\n      <link>");
                 out.print(link);
                 out.print("</link>\n      <description>Problems report:&lt;br/&gt;");
-                out.print(ProblemReport.escape(Problems.toHtml(problems)));
+                out.print(ProblemReport.escape(ProblemReport.toHtml(problems)));
                 out.print("</description>\n      <pubDate>");
                 out.print(snapshotTaken);
                 out.print("</pubDate>\n      <guid>");

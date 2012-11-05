@@ -1,7 +1,9 @@
 package sk.baka.webvm.analyzer.utils;
 
 import java.io.Closeable;
+import java.io.InputStream;
 import java.lang.management.ThreadInfo;
+import java.net.URL;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -89,5 +91,13 @@ public class MiscUtils {
             sb.append("]");
         }
         return sb.toString();
+    }
+    
+    public static InputStream getResource(String resource) {
+        final InputStream result = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
+        if (result == null) {
+            throw new IllegalArgumentException("Parameter result: invalid value " + result + ": no such resource");
+        }
+        return result;
     }
 }

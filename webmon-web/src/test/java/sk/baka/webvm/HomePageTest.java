@@ -18,7 +18,7 @@
  */
 package sk.baka.webvm;
 
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 /**
  * Simple test using the WicketTester

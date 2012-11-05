@@ -20,7 +20,7 @@ package sk.baka.webvm;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.util.tester.WicketTester;
-import org.testng.annotations.BeforeMethod;
+import org.junit.Before;
 
 /**
  * Simple test using the WicketTester
@@ -30,7 +30,7 @@ public abstract class AbstractWicket {
 
     protected WicketTester tester;
 
-    @BeforeMethod
+    @Before
     public void setUp() {
         tester = new WicketTester(new WicketApplication());
     }

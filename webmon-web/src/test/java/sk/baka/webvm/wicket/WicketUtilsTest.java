@@ -18,7 +18,7 @@
  */
 package sk.baka.webvm.wicket;
 
-import org.testng.annotations.Test;
+import org.junit.Test;
 import static sk.baka.tools.test.Assert.*;
 
 /**

@@ -28,6 +28,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import sk.baka.webvm.analyzer.utils.MiscUtils;
 
 /**
  * Performs and displays a full thread dump.
@@ -78,8 +79,8 @@ public final class ThreadDump extends WebVMPage {
         @Override
         protected void populateItem(final ListItem<ThreadInfo> item) {
             final ThreadInfo info = item.getModelObject();
-            item.add(new Label("threadName", getThreadMetadata(info)));
-            item.add(new Label("threadStacktrace", getThreadStacktrace(info)));
+            item.add(new Label("threadName", MiscUtils.getThreadMetadata(info)));
+            item.add(new Label("threadStacktrace", MiscUtils.getThreadStacktrace(info)));
         }
     }
 }
