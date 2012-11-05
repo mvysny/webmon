@@ -23,15 +23,12 @@ import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
-import java.util.TreeMap;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import sk.baka.webvm.analyzer.HistorySample;
 import sk.baka.webvm.analyzer.IHistorySampler;
 import sk.baka.webvm.analyzer.ThreadMap;
 
