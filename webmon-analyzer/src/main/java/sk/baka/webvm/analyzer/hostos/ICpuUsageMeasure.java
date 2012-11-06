@@ -16,19 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with WebMon.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sk.baka.webvm.analyzer;
+package sk.baka.webvm.analyzer.hostos;
 
 /**
  * Interface for measuring CPU usage.
  * @author mvy
  */
 public interface ICpuUsageMeasure {
-
-    /**
-     * Checks if this particular implementation is supported on given host OS.
-     * @return true if it is supported, false otherwise.
-     */
-    boolean supported();
 
     /**
      * Measures an implementation-dependent CPU usage statistics. Used in {@link #getAvgCpuUsage(java.lang.Object, java.lang.Object)} to compute the real CPU usage.

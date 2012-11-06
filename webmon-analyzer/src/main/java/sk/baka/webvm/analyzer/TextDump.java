@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import sk.baka.webvm.analyzer.ThreadMap.Item;
+import sk.baka.webvm.analyzer.hostos.Architecture;
+import sk.baka.webvm.analyzer.hostos.OS;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.MgmtUtils;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
@@ -109,6 +111,9 @@ public class TextDump {
 
     public static String dump(List<HistorySample> history) {
         final StringBuilder sb = new StringBuilder();
+        printHeader(sb, "VM Dump Report");
+        sb.append("OS: ").append(OS.get());
+        sb.append("  Architecture: ").append(Architecture.getFullName()).append("\n\n");
         printVMHistoryOverview(sb, history);
         sb.append('\n');
         printMemoryUsageHistory(sb, history);
