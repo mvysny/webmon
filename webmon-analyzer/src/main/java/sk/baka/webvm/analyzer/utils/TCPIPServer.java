@@ -17,9 +17,10 @@ import sk.baka.webvm.analyzer.TextDump;
 public class TCPIPServer {
 
     public final int port;
-    private final HistorySampler sampler;
+    private final IHistorySampler sampler;
 
-    public TCPIPServer(int port, HistorySampler sampler) {
+    public TCPIPServer(int port, IHistorySampler sampler) {
+        Checks.checkNotNull("sampler", sampler);
         this.port = port;
         this.sampler = sampler;
     }
