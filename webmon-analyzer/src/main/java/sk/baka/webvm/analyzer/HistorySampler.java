@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm.analyzer;
 
+import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasure;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.List;

@@ -18,9 +18,11 @@
  */
 package sk.baka.webvm.analyzer;
 
+import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasure;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.hostos.Cpu;
+import sk.baka.webvm.analyzer.utils.Checks;
 
 /**
  * Provides a CPU measurement support.
@@ -32,33 +34,22 @@ public final class CpuUsage {
     /**
      * The CPU usage measurer.
      */
-    private final ICpuUsageMeasure cpuUsage;
+    public final ICpuUsageMeasure cpuUsage;
 
     /**
      * Creates a new CPU usage measurer.
      * @param usage retrieve usage data from this object.
      */
     public CpuUsage(final ICpuUsageMeasure usage) {
-        if (usage.supported()) {
-            cpuUsage = usage;
-        } else {
-            cpuUsage = null;
-        }
-    }
-
-    /**
-     * Checks if this measurement is supported.
-     * @return true if supported, false if {@link #getCpuUsage()} will always return -1.
-     */
-    public boolean supported() {
-        return cpuUsage != null;
+        Checks.checkNotNull("usage", usage);
+        cpuUsage = usage;
     }
 
     /**
      * Returns an average CPU usage in a time slice starting at the previous call of this method.
      * @return average overall CPU usage or -1 if CPU sampling is unsupported or error occurred.
      */
-    public int getCpuUsage() {
+    public synchronized int getCpuUsage() {
         if (cpuUsage == null) {
             return -1;
         }

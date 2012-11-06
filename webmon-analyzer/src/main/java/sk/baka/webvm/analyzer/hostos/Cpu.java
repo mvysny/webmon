@@ -29,7 +29,6 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.CpuUsage;
-import sk.baka.webvm.analyzer.ICpuUsageMeasure;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
 
@@ -44,7 +43,13 @@ public final class Cpu {
      * @return the CPU measurer, never null.
      */
     public static CpuUsage newHostCpu() {
-        return new CpuUsage(new CpuUsageLinuxStrategy());
+        final ICpuUsageMeasure cpuusage;
+        switch (OS.get()) {
+            case Linux:
+            case Android: cpuusage = new CpuUsageLinuxStrategy(); break;
+            default: cpuusage = new DummyCpuUsageStrategy(); break;
+        }
+        return new CpuUsage(cpuusage);
     }
     private static final CpuUsage HOST_CPU = newHostCpu();
 
@@ -53,15 +58,32 @@ public final class Cpu {
      * @return true if supported.
      */
     public static boolean isHostCpuSupported() {
-        return HOST_CPU.supported();
+        return HOST_CPU.cpuUsage instanceof DummyCpuUsageStrategy;
     }
 
+    private static class DummyCpuUsageStrategy implements ICpuUsageMeasure {
+
+        public Object measure() throws Exception {
+            return null;
+        }
+
+        public int getAvgCpuUsage(Object m1, Object m2) {
+            return 0;
+        }
+    }
+    
     /**
      * Creates a new measurer for Host OS CPU IO usage (% of time spent waiting for IO).
      * @return the CPU measurer, never null.
      */
     public static CpuUsage newHostIOCpu() {
-        return new CpuUsage(new IOCpuUsageLinuxStrategy());
+        final ICpuUsageMeasure io;
+        switch (OS.get()) {
+            case Linux:
+            case Android: io = new IOCpuUsageLinuxStrategy(); break;
+            default: io = new DummyCpuUsageStrategy();
+        }
+        return new CpuUsage(io);
     }
     private static final CpuUsage HOST_IO_CPU = newHostIOCpu();
 
@@ -70,7 +92,7 @@ public final class Cpu {
      * @return true if supported.
      */
     public static boolean isHostIOCpuSupported() {
-        return HOST_IO_CPU.supported();
+        return HOST_IO_CPU.cpuUsage instanceof DummyCpuUsageStrategy;
     }
 
     /**
@@ -80,14 +102,13 @@ public final class Cpu {
     public static CpuUsage newJavaCpu() {
         return new CpuUsage(new JavaCpuUsageStrategy());
     }
-    private static final CpuUsage JAVA_CPU = newJavaCpu();
 
     /**
      * Checks if measurer for CPU used by the owner java process is supported.
      * @return true if supported.
      */
     public static boolean isJavaCpuSupported() {
-        return JAVA_CPU.supported();
+        return JavaCpuUsageStrategy.supported();
     }
 
     /**
@@ -96,10 +117,6 @@ public final class Cpu {
     private static class CpuUsageLinuxStrategy implements ICpuUsageMeasure {
 
         private static final File PROC_STAT = new File("/proc/stat");
-
-        public boolean supported() {
-            return PROC_STAT.exists();
-        }
 
         public Object measure() throws Exception {
             // the object is really an array of longs: [user, nice, system, idle].
@@ -147,10 +164,6 @@ public final class Cpu {
     private static class IOCpuUsageLinuxStrategy implements ICpuUsageMeasure {
 
         private final static File DISKSTATS = new File("/proc/diskstats");
-
-        public boolean supported() {
-            return DISKSTATS.exists();
-        }
 
         public Object measure() throws Exception {
             // the object is really an array of longs: [weightedMillisSpentIO, currentTimeMillis].
@@ -217,7 +230,7 @@ public final class Cpu {
             BEAN_CLASS = clazz;
         }
 
-        public boolean supported() {
+        public static boolean supported() {
             return BEAN != null;
         }
 
