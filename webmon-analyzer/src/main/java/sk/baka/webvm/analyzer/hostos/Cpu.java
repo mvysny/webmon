@@ -100,7 +100,7 @@ public final class Cpu {
      * @return the CPU measurer, never null.
      */
     public static CpuUsage newJavaCpu() {
-        return new CpuUsage(new JavaCpuUsageStrategy());
+        return new CpuUsage(JavaCpuUsageStrategy.supported() ? new JavaCpuUsageStrategy() : new DummyCpuUsageStrategy());
     }
 
     /**
