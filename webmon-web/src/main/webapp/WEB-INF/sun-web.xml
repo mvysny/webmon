@@ -19,7 +19,7 @@
  * along with WebMon.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <sun-web-app error-url="">
-  <context-root>/webmon-0.6-SNAPSHOT</context-root>
+  <context-root>/webmon</context-root>
   <class-loader delegate="true"/>
   <jsp-config>
     <property name="keepgenerated" value="true">
