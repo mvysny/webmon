@@ -156,6 +156,7 @@ public class Graphs extends WebVMPage {
         final boolean hostIOCpu = Cpu.isHostIOCpuSupported();
         if (hostCpu || javaCpu || hostIOCpu) {
             unescaped("cpuUsageGraph", new LoadableDetachableModel<String>() {
+                private static final long serialVersionUID = 1L;
 
                 @Override
                 protected String load() {
@@ -192,10 +193,10 @@ public class Graphs extends WebVMPage {
                 }
             }));
         } else {
-            add(new Label("cpuUsageGraph", "Both HostOS CPU measurement and Java CPU usage measurement are unsupported on this OS/JavaVM"));
-            add(new Label("cpuUsagePerc", "-"));
-            add(new Label("javaCpuUsagePerc", "-"));
-            add(new Label("iowait", "-"));
+            border.add(new Label("cpuUsageGraph", "Both HostOS CPU measurement and Java CPU usage measurement are unsupported on this OS/JavaVM"));
+            border.add(new Label("cpuUsagePerc", "-"));
+            border.add(new Label("javaCpuUsagePerc", "-"));
+            border.add(new Label("iowait", "-"));
         }
     }
 
