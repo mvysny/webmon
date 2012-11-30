@@ -58,7 +58,7 @@ public final class Cpu {
      * @return true if supported.
      */
     public static boolean isHostCpuSupported() {
-        return HOST_CPU.cpuUsage instanceof DummyCpuUsageStrategy;
+        return !(HOST_CPU.cpuUsage instanceof DummyCpuUsageStrategy);
     }
 
     private static class DummyCpuUsageStrategy implements ICpuUsageMeasure {
@@ -92,7 +92,7 @@ public final class Cpu {
      * @return true if supported.
      */
     public static boolean isHostIOCpuSupported() {
-        return HOST_IO_CPU.cpuUsage instanceof DummyCpuUsageStrategy;
+        return !(HOST_IO_CPU.cpuUsage instanceof DummyCpuUsageStrategy);
     }
 
     /**
