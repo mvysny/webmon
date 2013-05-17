@@ -160,7 +160,7 @@ public class HomePage extends WebVMPage {
         });
     }
 
-    private static class SystemPropertiesProducer implements Provider<Map<String, String>>, Serializable {
+    public static class SystemPropertiesProducer implements Provider<Map<String, String>>, Serializable {
 
         private static final long serialVersionUID = 1L;
 
@@ -170,7 +170,7 @@ public class HomePage extends WebVMPage {
         }
     }
 
-    private static class EnvPropertiesProducer implements Provider<Map<String, String>>, Serializable {
+    public static class EnvPropertiesProducer implements Provider<Map<String, String>>, Serializable {
 
         private static final long serialVersionUID = 1L;
 
