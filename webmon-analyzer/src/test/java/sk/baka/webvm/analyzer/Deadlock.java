@@ -19,6 +19,7 @@
 package sk.baka.webvm.analyzer;
 
 import java.lang.management.ManagementFactory;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -134,8 +135,8 @@ public final class Deadlock {
     @Test
     public void checkThreads() {
         assertNull("An exception was thrown while forming a deadlock: " + t, t);
-        assertTrue(t1.isAlive());
-        assertTrue(t2.isAlive());
+        assertTrue("Both threads must be alive as they are deadlocked", t1.isAlive());
+        assertTrue("Both threads must be alive as they are deadlocked", t2.isAlive());
         // sanity-check for JVM to report correct values
         final long ids[] = ProblemAnalyzer.findDeadlockedThreads(ManagementFactory.getThreadMXBean());
         // this assumption fails on 1.5 as it does not support finding deadlocks in a ReentrantLock.
@@ -143,7 +144,7 @@ public final class Deadlock {
         // wait in the synchronized block thus the threads will never end - this will interfere with other tests.
         // Just skip the tests on 1.5.
         if (SystemUtils.isJavaVersionAtLeast(160)) {
-            assertTrue(ids != null && ids.length == 2);
+            assertTrue("Two threads are expected to be deadlocked, but the following was found: " + (ids == null ? "null" : Arrays.toString(ids)),  ids != null && ids.length == 2);
         }
     }
 }
