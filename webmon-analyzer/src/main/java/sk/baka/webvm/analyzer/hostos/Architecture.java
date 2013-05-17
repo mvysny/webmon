@@ -8,13 +8,16 @@ import java.util.logging.Logger;
  */
 public enum Architecture {
 
-    X86("x86", new String[]{"x86", "i386"}),
+    X86("x86", new String[]{"x86", "i386", "amd64"}),
     Sparc("sparc", new String[]{"sparc"}),
     PowerPC("ppc", new String[]{"ppc", "PowerPC"}),
     ARM("arm", new String[]{"arm"}),
     MIPS("mips", new String[]{"mips"}),
     Alpha("alpha", new String[]{"alpha"});
     private final String[] osarch;
+    /**
+     * A Java resource friendly architecture name, one of x86, sparc, ppc, arm, mips, alpha.
+     */
     public final String resourceFriendlyName;
 
     private Architecture(String resourceFriendlyName, String[] osarch) {
@@ -42,6 +45,11 @@ public enum Architecture {
     }
     private static String FULL_ARCH_NAME;
 
+    /**
+     * Returns the full architecture name, for example arm_32.
+     * @return architecture name in the form of {@link #resourceFriendlyName}_32 or {@link #resourceFriendlyName}_64, depending on whether the
+     * JVM is 32-bit or 64-bit. Never null.
+     */
     public static String getFullName() {
         if (FULL_ARCH_NAME == null) {
             FULL_ARCH_NAME = get().resourceFriendlyName + "_" + (is64Bit() ? "64" : "32");
