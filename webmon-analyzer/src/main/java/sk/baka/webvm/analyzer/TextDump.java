@@ -214,10 +214,12 @@ public class TextDump {
         return "" + (mu.getUsed() * Constants.HUNDRED_PERCENT / mu.getMax());
     }
 
+    private static final int MAX_THREAD_NAME_LENGTH = 48;
+    
     private static String getThreadName(Collection<Item> items) {
         for (Item item : items) {
             if (item != null) {
-                return truncate(item.info.getThreadName(), 32);
+                return truncate("0x" + item.info.getThreadId() + " " + item.info.getThreadName(), MAX_THREAD_NAME_LENGTH);
             }
         }
         return null;
