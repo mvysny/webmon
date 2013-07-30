@@ -24,7 +24,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * A simple object that holds a fixed-size history. A fixed-size FIFO implementation.
+ * A simple object that holds a fixed-size history. A fixed-size FIFO implementation. The object is generally thread-unsafe,
+ * with the exception of the {@link #toList()} method which can safely be invoked from any thread.
  * @param <T> type of items contained in this history object.
  * @author Martin Vysny
  */
@@ -70,6 +71,7 @@ public final class SimpleFixedSizeFIFO<T> {
      */
     public void clear() {
         history.clear();
+        historyLength =0;
         newest = null;
     }
     private T newest = null;
