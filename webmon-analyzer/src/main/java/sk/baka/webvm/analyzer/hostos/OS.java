@@ -12,6 +12,10 @@ public enum OS {
     MacOS;
     private static OS os;
 
+    /**
+     * Returns the operating system that we are running currently on.
+     * @return OS, may be null on unsupported OSes.
+     */
     public static OS get() {
         if (os == null) {
             final String osname = System.getProperty("os.name");
@@ -24,7 +28,7 @@ public enum OS {
             } else if (osname.startsWith("Mac OS")) {
                 os = MacOS;
             } else {
-                throw new RuntimeException("Unsupported/unknown OS: " + os);
+                return null;
             }
         }
         return os;
@@ -44,6 +48,22 @@ public enum OS {
         return IS_WINDOWS;
     }
 
+    /**
+     * True if we are running on Mac.
+     * @return true if running on Mac.
+     */
+    public static boolean isMac() {
+        return get() == OS.MacOS;
+    }
+    
+    /**
+     * True if we are running on Linux. Returns false if we are running on Android.
+     * @return true if this system is a full-blown Linux, false if it is Android or some other OS.
+     */
+    public static boolean isLinux() {
+        return get() == OS.Linux;
+    }
+    
     private static final Logger log = Logger.getLogger(OS.class.getName());
     
     private static final boolean IS_ANDROID;
@@ -51,7 +71,7 @@ public enum OS {
     static {
         boolean isAndroid = true;
         try {
-            Architecture.class.getClassLoader().loadClass("android.app.Activity");
+            OS.class.getClassLoader().loadClass("android.app.Activity");
         } catch (ClassNotFoundException ex) {
             isAndroid = false;
         }
