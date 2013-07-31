@@ -409,7 +409,7 @@ public class Graphs extends WebVMPage {
             protected String load() {
                 final GraphStyle gs = Graphs.newDefaultStyle();
                 gs.colors = new String[]{Graphs.COLOR_BLUE, Graphs.COLOR_BROWN};
-                long maxMem = history.getObject().get(0).memPoolUsage[index].getMax();
+                long maxMem = history.getObject().isEmpty() ? -1 : history.getObject().get(0).memPoolUsage[index].getMax();
                 if (maxMem == -1) {
                     maxMem = 0;
                     for (final HistorySample hs : history.getObject()) {
