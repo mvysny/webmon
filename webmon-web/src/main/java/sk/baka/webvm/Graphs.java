@@ -201,7 +201,7 @@ public class Graphs extends WebVMPage {
     }
 
     private HistorySample getNonEmptyLastSample() {
-        return history.getObject().isEmpty() ? new HistorySample(0, 0, 0, 0, meminfo) : history.getObject().get(history.getObject().size() - 1);
+        return history.getObject().isEmpty() ? new HistorySample.Builder().autodetectMemClassesThreads(meminfo).build() : history.getObject().get(history.getObject().size() - 1);
     }
 
     private static String printValue(final boolean enabled, final int value) {
@@ -391,7 +391,6 @@ public class Graphs extends WebVMPage {
     /**
      * Draws details for given memory usage object line.
      *
-     * @param history the history to draw
      * @param wid chain result with this wicket id
      * @param index the memory usage index to the {@link HistorySample#memUsage}
      * array.

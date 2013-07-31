@@ -138,7 +138,14 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
                 javaUsage = javaUsage < 0 ? 0 : javaUsage;
                 int ioUsage = cpuOSIO.getCpuUsage();
                 ioUsage = ioUsage < 0 ? 0 : ioUsage;
-                vmstatHistory.add(new HistorySample(cpuUsageByGC, usage, javaUsage, ioUsage, meminfo));
+                final HistorySample hs = new HistorySample.Builder().
+                        setGcCpuUsage(cpuUsageByGC)
+                        .setCpuUsage(usage)
+                        .setCpuIOUsage(ioUsage)
+                        .setCpuJavaUsage(javaUsage)
+                        .autodetectMemClassesThreads(meminfo)
+                        .build();
+                vmstatHistory.add(hs);
             } catch (Throwable e) {
                 // catch all throwables as the thread is going to terminate anyway
                 LOG.log(Level.SEVERE, "The Sampler thread failed", e);
