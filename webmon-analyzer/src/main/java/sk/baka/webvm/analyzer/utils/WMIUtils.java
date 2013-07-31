@@ -3,18 +3,17 @@
  *
  * This file is part of WebMon.
  *
- * WebMon is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * WebMon is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  *
- * WebMon is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * WebMon is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with WebMon.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * WebMon. If not, see <http://www.gnu.org/licenses/>.
  */
 package sk.baka.webvm.analyzer.utils;
 
@@ -48,11 +47,13 @@ public class WMIUtils {
     private WMIUtils() {
         throw new AssertionError();
     }
-
     private static final Logger log = Logger.getLogger(WMIUtils.class.getName());
     private static final boolean JACOB_AVAILABLE;
+    private static final ActiveXComponent axWMI;
+
     static {
         boolean available = false;
+        ActiveXComponent wmi = null;
         // initialize Jacob
         if (OS.isWindows()) {
             try {
@@ -69,13 +70,14 @@ public class WMIUtils {
                     MiscUtils.closeQuietly(in);
                 }
                 System.setProperty(LibraryLoader.JACOB_DLL_PATH, tmp.getAbsolutePath());
-                ActiveXComponent.class.getName(); // force JACOB initialization
+                wmi = new ActiveXComponent("winmgmts://");
                 log.log(Level.INFO, "JACOB WMI API initialized successfully");
                 available = true;
             } catch (Throwable ex) {
                 log.log(Level.WARNING, "Cannot initialize JACOB WMI bindings", ex);
             }
         }
+        axWMI = wmi;
         JACOB_AVAILABLE = available;
     }
 
@@ -83,13 +85,16 @@ public class WMIUtils {
 
         int getNativeValue();
     }
+
     /**
      * Checks if methods provided by this class are available.
+     *
      * @return true if the methods are available, false otherwise.
      */
     public static boolean isAvailable() {
         return JACOB_AVAILABLE;
     }
+
     private static void checkAvailable() {
         if (!isAvailable()) {
             throw new IllegalStateException("Invalid state: couldn't load JACOB WMI bindings");
@@ -129,12 +134,14 @@ public class WMIUtils {
      * The drive information.
      */
     public static final class Drive {
+
         /**
          * File system on the logical disk. Example: NTFS. null if not known.
          */
         public final String fileSystem;
         /**
-         * Value that corresponds to the type of disk drive this logical disk represents.
+         * Value that corresponds to the type of disk drive this logical disk
+         * represents.
          */
         public final DriveTypeEnum driveType;
         /**
@@ -155,73 +162,74 @@ public class WMIUtils {
     }
 
     /**
-     * Lists all available Windows drives without actually touching them. This call should not block on cd-roms, floppies, network drives etc.
+     * Lists all available Windows drives without actually touching them. This
+     * call should not block on cd-roms, floppies, network drives etc.
+     *
      * @return a list of drives, never null, may be empty.
      */
     public static List<Drive> getDrives() {
         checkAvailable();
         final List<Drive> result = new ArrayList<Drive>();
-        final ActiveXComponent axWMI = new ActiveXComponent("winmgmts://");
-        try {
-            final Variant devices = axWMI.invoke("ExecQuery", new Variant("Select DeviceID,DriveType,FileSystem from Win32_LogicalDisk"));
-            final EnumVariant deviceList = new EnumVariant(devices.toDispatch());
-            while (deviceList.hasMoreElements()) {
-                final Dispatch item = deviceList.nextElement().toDispatch();
-                final String drive = Dispatch.call(item, "DeviceID").toString().toUpperCase();
-                final File file = new File(drive + "/");
-                final DriveTypeEnum driveType = fromNative(DriveTypeEnum.class, Dispatch.call(item, "DriveType").getInt());
-                final String fileSystem = Dispatch.call(item, "FileSystem").toString();
-                result.add(new Drive(fileSystem, driveType, file));
-            }
-            return result;
-        } finally {
-            closeQuietly(axWMI);
+        final Variant devices = axWMI.invoke("ExecQuery", new Variant("Select DeviceID,DriveType,FileSystem from Win32_LogicalDisk"));
+        final EnumVariant deviceList = new EnumVariant(devices.toDispatch());
+        while (deviceList.hasMoreElements()) {
+            final Dispatch item = deviceList.nextElement().toDispatch();
+            final String drive = Dispatch.call(item, "DeviceID").toString().toUpperCase();
+            final File file = new File(drive + "/");
+            final DriveTypeEnum driveType = fromNative(DriveTypeEnum.class, Dispatch.call(item, "DriveType").getInt());
+            final String fileSystem = Dispatch.call(item, "FileSystem").toString();
+            result.add(new Drive(fileSystem, driveType, file));
         }
+        return result;
     }
-    
-    public static void main(String[] args) {
-        System.out.println("Drives=" + getDrives());
-        System.out.println("Swap=" + getSwapUsage());
+
+    public static int getCPUUsage() {
+        checkAvailable();
+        final Variant cpu = axWMI.invoke("ExecQuery", new Variant("Select PercentProcessorTime from Win32_PerfFormattedData_PerfOS_Processor where Name=\"_Total\""));
+        final EnumVariant cpuList = new EnumVariant(cpu.toDispatch());
+        while (cpuList.hasMoreElements()) {
+            final Dispatch item = cpuList.nextElement().toDispatch();
+            final String cpuUsagePerc = Dispatch.call(item, "PercentProcessorTime").getString();
+            return Integer.parseInt(cpuUsagePerc);
+        }
+        return 0;
     }
+
     /**
      * Detects Windows swap usage, in bytes.
+     *
      * @return swap usage.
      */
     public static MemoryUsage getSwapUsage() {
         checkAvailable();
-        final ActiveXComponent axWMI = new ActiveXComponent("winmgmts://");
-        try {
-            final Variant currentSwap = axWMI.invoke("ExecQuery", new Variant("Select AllocatedBaseSize,CurrentUsage from Win32_PageFileUsage"));
-            long used = 0;
-            long comitted = 0;
-            final EnumVariant currentSwapList = new EnumVariant(currentSwap.toDispatch());
-            while (currentSwapList.hasMoreElements()) {
-                final Dispatch item = currentSwapList.nextElement().toDispatch();
-                used += (long) Dispatch.call(item, "CurrentUsage").getInt() * 1024 * 1024;
-                comitted += (long) Dispatch.call(item, "AllocatedBaseSize").getInt() * 1024 * 1024;
-            }
-            final Variant maxSwap = axWMI.invoke("ExecQuery", new Variant("Select InitialSize,MaximumSize from Win32_PageFileSetting"));
-            long initial = 0;
-            long max = 0;
-            final EnumVariant maxSwapList = new EnumVariant(maxSwap.toDispatch());
-            while (maxSwapList.hasMoreElements()) {
-                final Dispatch item = currentSwapList.nextElement().toDispatch();
-                initial += (long) Dispatch.call(item, "InitialSize").getInt() * 1024 * 1024;
-                max += (long) Dispatch.call(item, "MaximumSize").getInt() * 1024 * 1024;
-            }
-            if (max < comitted) {
-                // incorrect maximum? Ask JMX
-                final MemoryUsage swap = new MemoryJMXStrategy().getSwap();
-                if (swap != null) {
-                    max = swap.getMax();
-                }
-            }
-            return max < comitted ? new MemoryUsage(initial, used, used, comitted) : new MemoryUsage(initial, used, comitted, max);
-        } finally {
-            closeQuietly(axWMI);
+        final Variant currentSwap = axWMI.invoke("ExecQuery", new Variant("Select AllocatedBaseSize,CurrentUsage from Win32_PageFileUsage"));
+        long used = 0;
+        long comitted = 0;
+        final EnumVariant currentSwapList = new EnumVariant(currentSwap.toDispatch());
+        while (currentSwapList.hasMoreElements()) {
+            final Dispatch item = currentSwapList.nextElement().toDispatch();
+            used += (long) Dispatch.call(item, "CurrentUsage").getInt() * 1024 * 1024;
+            comitted += (long) Dispatch.call(item, "AllocatedBaseSize").getInt() * 1024 * 1024;
         }
+        final Variant maxSwap = axWMI.invoke("ExecQuery", new Variant("Select InitialSize,MaximumSize from Win32_PageFileSetting"));
+        long initial = 0;
+        long max = 0;
+        final EnumVariant maxSwapList = new EnumVariant(maxSwap.toDispatch());
+        while (maxSwapList.hasMoreElements()) {
+            final Dispatch item = currentSwapList.nextElement().toDispatch();
+            initial += (long) Dispatch.call(item, "InitialSize").getInt() * 1024 * 1024;
+            max += (long) Dispatch.call(item, "MaximumSize").getInt() * 1024 * 1024;
+        }
+        if (max < comitted) {
+            // incorrect maximum? Ask JMX
+            final MemoryUsage swap = new MemoryJMXStrategy().getSwap();
+            if (swap != null) {
+                max = swap.getMax();
+            }
+        }
+        return max < comitted ? new MemoryUsage(initial, used, used, comitted) : new MemoryUsage(initial, used, comitted, max);
     }
-    
+
     private static void closeQuietly(JacobObject obj) {
         try {
             obj.safeRelease();
