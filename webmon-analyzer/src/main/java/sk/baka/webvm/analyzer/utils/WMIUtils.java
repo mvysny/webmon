@@ -196,6 +196,18 @@ public class WMIUtils {
         return 0;
     }
 
+    public static int getIOCPUUsage() {
+        checkAvailable();
+        final Variant cpu = axWMI.invoke("ExecQuery", new Variant("Select PercentDiskTime from Win32_PerfFormattedData_PerfDisk_PhysicalDisk where Name=\"_Total\""));
+        final EnumVariant cpuList = new EnumVariant(cpu.toDispatch());
+        while (cpuList.hasMoreElements()) {
+            final Dispatch item = cpuList.nextElement().toDispatch();
+            final String cpuUsagePerc = Dispatch.call(item, "PercentDiskTime").getString();
+            return Integer.parseInt(cpuUsagePerc);
+        }
+        return 0;
+    }
+
     /**
      * Detects Windows swap usage, in bytes.
      *

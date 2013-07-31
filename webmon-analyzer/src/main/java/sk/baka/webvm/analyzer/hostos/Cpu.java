@@ -45,11 +45,12 @@ public final class Cpu {
      */
     public static CpuUsage newHostCpu() {
         final ICpuUsageMeasure cpuusage;
-        switch (OS.get()) {
-            case Linux:
-            case Android: cpuusage = new CpuUsageLinuxStrategy(); break;
-            case Windows: cpuusage = new CpuUsageWindowsStrategy(); break;
-            default: cpuusage = new DummyCpuUsageStrategy(); break;
+        if (OS.isWindows() && WMIUtils.isAvailable()) {
+            cpuusage = new CpuUsageWindowsStrategy();
+        } else if (OS.isLinux() || OS.isAndroid()) {
+            cpuusage = new CpuUsageLinuxStrategy();
+        } else {
+            cpuusage = new DummyCpuUsageStrategy();
         }
         return new CpuUsage(cpuusage);
     }
@@ -80,10 +81,12 @@ public final class Cpu {
      */
     public static CpuUsage newHostIOCpu() {
         final ICpuUsageMeasure io;
-        switch (OS.get()) {
-            case Linux:
-            case Android: io = new IOCpuUsageLinuxStrategy(); break;
-            default: io = new DummyCpuUsageStrategy();
+        if (OS.isWindows() && WMIUtils.isAvailable()) {
+            io = new IOCpuUsageWindowsStrategy();
+        } else if (OS.isLinux() || OS.isAndroid()) {
+            io = new IOCpuUsageLinuxStrategy();
+        } else {
+            io = new DummyCpuUsageStrategy();
         }
         return new CpuUsage(io);
     }
@@ -164,6 +167,17 @@ public final class Cpu {
 
         public Object measure() throws Exception {
             return WMIUtils.getCPUUsage();
+        }
+
+        public int getAvgCpuUsage(Object m1, Object m2) {
+            return (Integer) m2;
+        }
+    }
+    
+    private static class IOCpuUsageWindowsStrategy implements ICpuUsageMeasure {
+
+        public Object measure() throws Exception {
+            return WMIUtils.getIOCPUUsage();
         }
 
         public int getAvgCpuUsage(Object m1, Object m2) {
