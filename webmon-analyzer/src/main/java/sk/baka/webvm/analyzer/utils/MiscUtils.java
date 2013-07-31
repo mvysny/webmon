@@ -1,12 +1,16 @@
 package sk.baka.webvm.analyzer.utils;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.InputStream;
 import java.lang.management.ThreadInfo;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import sk.baka.webvm.analyzer.hostos.OS;
+import sk.baka.webvm.analyzer.utils.WMIUtils.Drive;
 
 /**
  *
@@ -97,6 +101,32 @@ public class MiscUtils {
         final InputStream result = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
         if (result == null) {
             throw new IllegalArgumentException("Parameter result: invalid value " + result + ": no such resource");
+        }
+        return result;
+    }
+
+    /**
+     * Returns a list of local hard-drives.
+     * @return 
+     */
+    public static List<File> getLocalHarddrives() {
+        final List<File> result = new ArrayList<File>();
+        if (WMIUtils.isAvailable()) {
+            for (Drive drive: WMIUtils.getDrives()) {
+                if (drive.driveType == WMIUtils.DriveTypeEnum.LocalDisk) {
+                    result.add(drive.file);
+                }
+            }
+        } else {
+            // fallback to Java means. Java cannot detect local harddrives for Windows properly, therefore we will just return C: (if available).
+            if (OS.isWindows()) {
+                final File c = new File("c:/");
+                if (c.exists()) {
+                    result.add(c);
+                }
+            } else {
+                result.add(new File("/"));
+            }
         }
         return result;
     }
