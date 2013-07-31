@@ -37,7 +37,6 @@ import sk.baka.webvm.analyzer.config.Config;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
-import sk.baka.webvm.analyzer.utils.WMIUtils;
 
 /**
  * Analyzes VM problems.
