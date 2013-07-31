@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.CpuUsage;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
+import sk.baka.webvm.analyzer.utils.WMIUtils;
 
 /**
  * Provides a CPU measurement support.
@@ -47,6 +48,7 @@ public final class Cpu {
         switch (OS.get()) {
             case Linux:
             case Android: cpuusage = new CpuUsageLinuxStrategy(); break;
+            case Windows: cpuusage = new CpuUsageWindowsStrategy(); break;
             default: cpuusage = new DummyCpuUsageStrategy(); break;
         }
         return new CpuUsage(cpuusage);
@@ -158,6 +160,17 @@ public final class Cpu {
         }
     }
 
+    private static class CpuUsageWindowsStrategy implements ICpuUsageMeasure {
+
+        public Object measure() throws Exception {
+            return WMIUtils.getCPUUsage();
+        }
+
+        public int getAvgCpuUsage(Object m1, Object m2) {
+            return (Integer) m2;
+        }
+    }
+    
     /**
      * Returns a Host OS CPU time waiting for IO.
      */
