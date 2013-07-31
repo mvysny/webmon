@@ -37,6 +37,7 @@ import sk.baka.webvm.analyzer.config.Config;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
+import sk.baka.webvm.analyzer.utils.WMIUtils;
 
 /**
  * Analyzes VM problems.
@@ -354,7 +355,7 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
     public ProblemReport getFreeDiskspaceReport() {
         final StringBuilder sb = new StringBuilder();
         boolean problem = false;
-        for (final File root : File.listRoots()) {
+        for (final File root : MiscUtils.getLocalHarddrives()) {
             try {
                 final long freeSpaceKb = FileSystemUtils.freeSpaceKb(root.getAbsolutePath());
                 final long freeSpaceMb = freeSpaceKb / Constants.KIBIBYTES;
