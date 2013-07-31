@@ -334,6 +334,13 @@ public class Graphs extends WebVMPage {
                     return "" + swap.getObject().getUsed();
                 }
             }));
+            border.add(new Label("swapAllocated", new LoadableDetachableModel<String>() {
+
+                @Override
+                protected String load() {
+                    return "" + swap.getObject().getCommitted();
+                }
+            }));
         } else {
             border.add(new Label("swapUsageGraph", "No information available"));
             border.add(new Label("swapUsed", "-"));

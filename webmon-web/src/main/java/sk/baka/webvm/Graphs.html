@@ -38,7 +38,10 @@
                             <h2 class="title">Host OS Swap</h2>
                             <div class="entry">
                                 <div wicket:id="swapUsageGraph"></div>
-                                <table><tr><td><div class="legendBlue"/></td><td>Used: <strong wicket:id="swapUsed"/>M</td></tr></table>
+                                <table>
+                                    <tr><td><div class="legendBlue"/></td><td>Used: <strong wicket:id="swapUsed"/>M</td></tr>
+                                    <tr><td><div class="legendBrown"/></td><td>Allocated: <strong wicket:id="swapAllocated"/>M</td></tr>
+                                </table>
                             </div>
                         </td>
                     </tr>
