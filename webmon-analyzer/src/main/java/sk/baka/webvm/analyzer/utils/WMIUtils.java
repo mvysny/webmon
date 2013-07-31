@@ -49,6 +49,8 @@ public class WMIUtils {
                     MiscUtils.closeQuietly(in);
                 }
                 System.setProperty(LibraryLoader.JACOB_DLL_PATH, tmp.getAbsolutePath());
+                ActiveXComponent.class.getName(); // force JACOB initialization
+                log.log(Level.INFO, "JACOB WMI API initialized successfully");
                 available = true;
             } catch (Throwable ex) {
                 log.log(Level.WARNING, "Cannot initialize JACOB WMI bindings", ex);
