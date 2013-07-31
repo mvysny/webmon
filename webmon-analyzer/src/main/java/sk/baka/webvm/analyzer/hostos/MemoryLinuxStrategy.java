@@ -67,11 +67,13 @@ public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
 
     static {
         boolean avail = false;
-        try {
-            parseMeminfo(MEMINFO);
-            avail = true;
-        } catch (Exception ex) {
-            LOG.log(Level.INFO, "MemoryLinuxStrategy disabled: " + MEMINFO + " not available", ex);
+        if (OS.isLinux() || OS.isAndroid()) {
+            try {
+                parseMeminfo(MEMINFO);
+                avail = true;
+            } catch (Throwable ex) {
+                LOG.log(Level.INFO, "MemoryLinuxStrategy disabled: " + MEMINFO + " not available", ex);
+            }
         }
         AVAIL = avail;
     }

@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.analyzer.hostos.MemoryJMXStrategy;
 import sk.baka.webvm.analyzer.hostos.MemoryLinuxStrategy;
+import sk.baka.webvm.analyzer.hostos.MemoryWindowsStrategy;
 import sk.baka.webvm.analyzer.hostos.OS;
 import static sk.baka.webvm.analyzer.utils.Constants.*;
 
@@ -226,10 +227,11 @@ public final class MgmtUtils {
     }
     
     public static IMemoryInfoProvider getMemoryInfoProvider() {
-        if (OS.get() == OS.Linux || OS.get() == OS.Android) {
-            if (MemoryLinuxStrategy.available()) {
-                return new MemoryLinuxStrategy();
-            }
+        if (MemoryLinuxStrategy.available()) {
+            return new MemoryLinuxStrategy();
+        }
+        if (MemoryWindowsStrategy.isAvailable()) {
+            return new MemoryWindowsStrategy();
         }
         if (MemoryJMXStrategy.available()) {
             return new MemoryJMXStrategy();

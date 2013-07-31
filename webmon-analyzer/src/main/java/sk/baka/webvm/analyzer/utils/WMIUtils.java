@@ -1,3 +1,21 @@
+/**
+ * Copyright 2009 Martin Vysny.
+ *
+ * This file is part of WebMon.
+ *
+ * WebMon is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * WebMon is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with WebMon.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package sk.baka.webvm.analyzer.utils;
 
 import com.jacob.activeX.ActiveXComponent;
@@ -10,12 +28,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
 import sk.baka.webvm.analyzer.hostos.Architecture;
+import sk.baka.webvm.analyzer.hostos.MemoryJMXStrategy;
 import sk.baka.webvm.analyzer.hostos.OS;
 
 /**
@@ -154,6 +174,49 @@ public class WMIUtils {
                 result.add(new Drive(fileSystem, driveType, file));
             }
             return result;
+        } finally {
+            closeQuietly(axWMI);
+        }
+    }
+    
+    public static void main(String[] args) {
+        System.out.println("Drives=" + getDrives());
+        System.out.println("Swap=" + getSwapUsage());
+    }
+    /**
+     * Detects Windows swap usage, in bytes.
+     * @return swap usage.
+     */
+    public static MemoryUsage getSwapUsage() {
+        checkAvailable();
+        final ActiveXComponent axWMI = new ActiveXComponent("winmgmts://");
+        try {
+            final Variant currentSwap = axWMI.invoke("ExecQuery", new Variant("Select AllocatedBaseSize,CurrentUsage from Win32_PageFileUsage"));
+            long used = 0;
+            long comitted = 0;
+            final EnumVariant currentSwapList = new EnumVariant(currentSwap.toDispatch());
+            while (currentSwapList.hasMoreElements()) {
+                final Dispatch item = currentSwapList.nextElement().toDispatch();
+                used += (long) Dispatch.call(item, "CurrentUsage").getInt() * 1024 * 1024;
+                comitted += (long) Dispatch.call(item, "AllocatedBaseSize").getInt() * 1024 * 1024;
+            }
+            final Variant maxSwap = axWMI.invoke("ExecQuery", new Variant("Select InitialSize,MaximumSize from Win32_PageFileSetting"));
+            long initial = 0;
+            long max = 0;
+            final EnumVariant maxSwapList = new EnumVariant(maxSwap.toDispatch());
+            while (maxSwapList.hasMoreElements()) {
+                final Dispatch item = currentSwapList.nextElement().toDispatch();
+                initial += (long) Dispatch.call(item, "InitialSize").getInt() * 1024 * 1024;
+                max += (long) Dispatch.call(item, "MaximumSize").getInt() * 1024 * 1024;
+            }
+            if (max < comitted) {
+                // incorrect maximum? Ask JMX
+                final MemoryUsage swap = new MemoryJMXStrategy().getSwap();
+                if (swap != null) {
+                    max = swap.getMax();
+                }
+            }
+            return max < comitted ? new MemoryUsage(initial, used, used, comitted) : new MemoryUsage(initial, used, comitted, max);
         } finally {
             closeQuietly(axWMI);
         }
