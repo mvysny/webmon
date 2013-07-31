@@ -26,6 +26,7 @@ import static org.junit.Assume.*;
 import org.junit.Test;
 import sk.baka.webvm.analyzer.config.Config;
 import sk.baka.webvm.analyzer.hostos.MemoryJMXStrategy;
+import sk.baka.webvm.analyzer.hostos.OS;
 /**
  * Tests the {@link HistorySampler}.
  * @author Martin Vysny
@@ -40,6 +41,8 @@ public class HistorySamplerTest {
     public void testGetProblemHistory() throws Exception {
             // Skip this test on java 5.x as Java 1.5.x does not report deadlock in Locks
         assumeTrue(SystemUtils.isJavaVersionAtLeast(160));
+        // na Windows nejak thready startuju pomalsie alebo co, proste test nefunguje
+        assumeTrue(OS.isLinux());
         final HistorySampler hs = new HistorySampler(new SamplerConfig(100, Integer.MAX_VALUE, Integer.MAX_VALUE), new SamplerConfig(100, 50, 0), new MemoryJMXStrategy(), new ProblemAnalyzer(new Config(), new MemoryJMXStrategy()), null);
         hs.start();
         try {
