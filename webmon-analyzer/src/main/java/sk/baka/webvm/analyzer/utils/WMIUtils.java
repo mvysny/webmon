@@ -70,6 +70,7 @@ public class WMIUtils {
                     MiscUtils.closeQuietly(in);
                 }
                 System.setProperty(LibraryLoader.JACOB_DLL_PATH, tmp.getAbsolutePath());
+                // cache the WMI instance - this is way faster than creating it anew on each call. Let's hope it is thread-safe :)
                 wmi = new ActiveXComponent("winmgmts://");
                 log.log(Level.INFO, "JACOB WMI API initialized successfully");
                 available = true;
