@@ -126,6 +126,12 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
      */
     private final CpuUsage cpuOSIO = Cpu.newHostIOCpu();
     private final IMemoryInfoProvider meminfo = MgmtUtils.getMemoryInfoProvider();
+    
+    /**
+     * Invoked when the sample is taken. The default implementation does nothing.
+     * @param hs the sample taken, never null.
+     */
+    protected void onSample(HistorySample hs) {}
 
     private final class Sampler implements Runnable {
 
@@ -146,6 +152,7 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
                         .autodetectMemClassesThreads(meminfo)
                         .build();
                 vmstatHistory.add(hs);
+                onSample(hs);
             } catch (Throwable e) {
                 // catch all throwables as the thread is going to terminate anyway
                 LOG.log(Level.SEVERE, "The Sampler thread failed", e);
