@@ -32,12 +32,30 @@ public interface IMemoryInfoProvider extends Serializable {
 
     /**
      * Returns swap memory information for host OS. The method should not throw an exception - null should be returned instead.
+     * <p/>
+     * The meaning of the values being returned:
+     * <ul>
+     * <li>{@link MemoryUsage#getInit()}: not used, -1</li>
+     * <li>{@link MemoryUsage#getUsed()}: Used swap space, equal to the <code>committed</code> value.</li>
+     * <li>{@link MemoryUsage#getCommitted()}: Used swap space, equal to the <code>used</code> value.</li>
+     * <li>{@link MemoryUsage#getMax()}: Total available swap space.</li>
+     * </ul>
+     * The following holds true: <code>init &lt;= used == committed &lt;= max</code>.
      * @return memory usage or null if the information is unavailable.
      */
     MemoryUsage getSwap();
 
     /**
      * Returns physical memory information for host OS. The method should not throw an exception - null should be returned instead.
+     * <p/>
+     * The meaning of the values being returned:
+     * <ul>
+     * <li>{@link MemoryUsage#getInit()}: not used, -1</li>
+     * <li>{@link MemoryUsage#getUsed()}: Used memory without buffers/cache</li>
+     * <li>{@link MemoryUsage#getCommitted()}: Used memory total, including buffers and cache</li>
+     * <li>{@link MemoryUsage#getMax()}: Total memory usable to the OS. This may be lower than the amount of memory installed in the system, in case when 32bit system cannot see more than 4GB of RAM.</li>
+     * </ul>
+     * The following holds true: <code>init &lt;= used &lt;= committed &lt;= max</code>.
      * @return memory usage or null if the information is unavailable.
      */
     MemoryUsage getPhysicalMemory();
