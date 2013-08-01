@@ -17,6 +17,8 @@
  */
 package sk.baka.webvm.analyzer;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -206,13 +208,13 @@ public final class HistorySample {
             return new HistorySample(gcCpuUsage, memPoolUsage, threads, classesLoaded, cpuUsage, cpuJavaUsage, cpuIOUsage, sampleTime);
         }
 
-        private static void write(MemoryUsage mu, ObjectOutput out) throws IOException {
+        private static void write(MemoryUsage mu, DataOutput out) throws IOException {
             out.writeLong(mu.getInit());
             out.writeLong(mu.getCommitted());
             out.writeLong(mu.getUsed());
             out.writeLong(mu.getMax());
         }
-        private static MemoryUsage read(ObjectInput in) throws IOException {
+        private static MemoryUsage read(DataInput in) throws IOException {
             final long init = in.readLong();
             final long committed = in.readLong();
             final long used = in.readLong();
@@ -221,8 +223,12 @@ public final class HistorySample {
         }
         
         public void writeExternal(ObjectOutput out) throws IOException {
+            writeTo(out);
+        }
+        
+        public void writeTo(DataOutput out) throws IOException {
             out.writeLong(sampleTime);
-            out.write(gcCpuUsage);
+            out.writeByte(gcCpuUsage);
             if (memPoolUsage == null) {
                 out.write(0);
             } else {
@@ -232,23 +238,27 @@ public final class HistorySample {
                 }
             }
             out.writeInt(classesLoaded);
-            out.write(cpuUsage);
-            out.write(cpuIOUsage);
-            out.write(cpuJavaUsage);
+            out.writeByte(cpuUsage);
+            out.writeByte(cpuIOUsage);
+            out.writeByte(cpuJavaUsage);
         }
-
+            
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+            readFrom(in);
+        }
+        
+        public void readFrom(DataInput in) throws IOException {
             sampleTime = in.readLong();
-            gcCpuUsage = in.read();
-            final int mempoolCount = in.read();
+            gcCpuUsage = in.readByte();
+            final int mempoolCount = in.readInt();
             memPoolUsage = new MemoryUsage[mempoolCount];
             for (int i=0;i<mempoolCount;i++){
                 memPoolUsage[i] = read(in);
             }
             classesLoaded = in.readInt();
-            cpuUsage = in.read();
-            cpuIOUsage = in.read();
-            cpuJavaUsage = in.read();
+            cpuUsage = in.readByte();
+            cpuIOUsage = in.readByte();
+            cpuJavaUsage = in.readByte();
         }
     }
 }
