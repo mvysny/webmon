@@ -230,9 +230,9 @@ public final class HistorySample {
             out.writeLong(sampleTime);
             out.writeByte(gcCpuUsage);
             if (memPoolUsage == null) {
-                out.write(0);
+                out.writeByte(0);
             } else {
-                out.write(memPoolUsage.length);
+                out.writeByte(memPoolUsage.length);
                 for (MemoryUsage mu: memPoolUsage) {
                     write(mu, out);
                 }
@@ -250,9 +250,9 @@ public final class HistorySample {
         public void readFrom(DataInput in) throws IOException {
             sampleTime = in.readLong();
             gcCpuUsage = in.readByte();
-            final int mempoolCount = in.readInt();
+            final int mempoolCount = in.readByte();
             memPoolUsage = new MemoryUsage[mempoolCount];
-            for (int i=0;i<mempoolCount;i++){
+            for (int i = 0; i < mempoolCount; i++) {
                 memPoolUsage[i] = read(in);
             }
             classesLoaded = in.readInt();
