@@ -28,11 +28,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import sk.baka.webvm.analyzer.hostos.DummyMemoryStrategy;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
-import sk.baka.webvm.analyzer.hostos.MemoryJMXStrategy;
-import sk.baka.webvm.analyzer.hostos.MemoryLinuxStrategy;
-import sk.baka.webvm.analyzer.hostos.MemoryWindowsStrategy;
+import sk.baka.webvm.analyzer.hostos.Memory;
 import static sk.baka.webvm.analyzer.utils.Constants.*;
 
 /**
@@ -46,40 +43,20 @@ public final class MgmtUtils {
     /**
      * Sums up all non-heap pools and return their memory usage.
      * @return memory usage, null if no pool collects non-heap space.
+     * @deprecated use {@link Memory#getNonHeapSummary()}.
      */
     public static MemoryUsage getNonHeapSummary() {
-        MemoryUsage result = null;
-        final List<MemoryPoolMXBean> beans = ManagementFactory.getMemoryPoolMXBeans();
-        for (final MemoryPoolMXBean bean : beans) {
-            if (bean.getType() != MemoryType.NON_HEAP) {
-                continue;
-            }
-            if (result == null) {
-                result = bean.getUsage();
-            } else {
-                result = add(result, bean.getUsage());
-            }
-        }
-        return result;
-    }
-    private static final boolean IS_NON_HEAP;
-
-    static {
-        boolean isNonHeap = false;
-        try {
-            isNonHeap = getNonHeapSummary() != null;
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "Failed to get non-heap pools: " + ex, ex);
-        }
-        IS_NON_HEAP = isNonHeap;
+        return Memory.getNonHeapSummary();
     }
 
     /**
      * Checks if there is a non-heap pool in the memory pool list.
      * @return true if there is pool managing non-heap memory, false otherwise.
+     * @deprecated use {@link Memory#isNonHeapPool() }.
      */
+    @Deprecated
     public static boolean isNonHeapPool() {
-        return IS_NON_HEAP;
+        return Memory.isNonHeapPool();
     }
 
     private MgmtUtils() {
@@ -89,12 +66,11 @@ public final class MgmtUtils {
     /**
      * Computes and returns the memory usage object, using information only from {@link Runtime}.
      * @return non-null usage object.
+     * @deprecated use {@link Memory#getHeapFromRuntime()}
      */
+    @Deprecated
     public static MemoryUsage getHeapFromRuntime() {
-        long maxMem = Runtime.getRuntime().maxMemory();
-        long heapSize = Runtime.getRuntime().totalMemory();
-        long heapUsed = heapSize - Runtime.getRuntime().freeMemory();
-        return new MemoryUsage(-1, heapUsed, heapSize, maxMem == Long.MAX_VALUE ? -1 : maxMem);
+        return Memory.getHeapFromRuntime();
     }
 
     /**
@@ -197,45 +173,22 @@ public final class MgmtUtils {
         }
         return (HUNDRED_PERCENT - (mu.getUsed() * HUNDRED_PERCENT / mu.getMax())) + "%";
     }
-    private static final SortedMap<String, MemoryPoolMXBean> MEMORY_POOLS;
-
-    static {
-        final SortedMap<String, MemoryPoolMXBean> pools = new TreeMap<String, MemoryPoolMXBean>();
-        try {
-            final List<MemoryPoolMXBean> beans = ManagementFactory.getMemoryPoolMXBeans();
-            if (beans != null && !beans.isEmpty()) {
-                for (final MemoryPoolMXBean bean : beans) {
-                    final MemoryUsage usage = bean.getUsage();
-                    if (usage == null || !bean.isUsageThresholdSupported()) {
-                        continue;
-                    }
-                    pools.put(bean.getName(), bean);
-                }
-            }
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "Failed to get MemoryPools: " + ex, ex);
-        }
-        MEMORY_POOLS = Collections.unmodifiableSortedMap(pools);
-    }
-
+    
     /**
      * Returns all known memory pools which are garbage-collectable and provide meaningful usage information.
      * @return map of memory pools, never null, may be empty.
+     * @deprecated use {@link Memory#getMemoryPools()}
      */
+    @Deprecated
     public static SortedMap<String, MemoryPoolMXBean> getMemoryPools() {
-        return MEMORY_POOLS;
+        return Memory.getMemoryPools();
     }
     
+    /**
+     * @deprecated use {@link Memory#getOSMemoryInfoProvider()}.
+     */
+    @Deprecated
     public static IMemoryInfoProvider getMemoryInfoProvider() {
-        if (MemoryLinuxStrategy.available()) {
-            return new MemoryLinuxStrategy();
-        }
-        if (MemoryWindowsStrategy.isAvailable()) {
-            return new MemoryWindowsStrategy();
-        }
-        if (MemoryJMXStrategy.available()) {
-            return new MemoryJMXStrategy();
-        }
-        return new DummyMemoryStrategy();
+        return Memory.getOSMemoryInfoProvider();
     }
 }
