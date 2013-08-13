@@ -22,9 +22,11 @@ import java.lang.management.OperatingSystemMXBean;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -116,50 +118,68 @@ public final class Cpu {
         return JavaCpuUsageStrategy.supported();
     }
 
+    private static final class LinuxProcStat {
+        private final long user;
+        private final long nice;
+        private final long system;
+        private final long idle;
+
+        public LinuxProcStat(long user, long nice, long system, long idle) {
+            this.user = user;
+            this.nice = nice;
+            this.system = system;
+            this.idle = idle;
+        }
+        public static boolean isAvailable() {
+            return PROC_STAT.exists();
+        }
+        private static final File PROC_STAT = new File("/proc/stat");
+
+        public static LinuxProcStat now() {
+            try {
+                final Scanner s = new Scanner(PROC_STAT);
+                try {
+                    for (; s.hasNextLine();) {
+                        final String name = s.next();
+                        if (name.equals("cpu")) {
+                            return new LinuxProcStat(s.nextLong(), s.nextLong(), s.nextLong(), s.nextLong());
+                        }
+                        s.nextLine(); // skip line, try next
+                    }
+                    return null;
+                } finally {
+                    MiscUtils.closeQuietly(s);
+                }
+            } catch (IOException ex) {
+                log.log(Level.INFO, "Failed to parse " + PROC_STAT, ex);
+            }
+            return null;
+        }
+        public long getTotal() {
+            return user + nice + system + idle;
+        }
+        public int getCpuUsage(LinuxProcStat prev) {
+            int cpuIdle = (int) (Constants.HUNDRED_PERCENT * (idle - prev.idle) / (getTotal() - prev.getTotal()));
+            if (cpuIdle < 0) {
+                cpuIdle = 0;
+            }
+            // To compute the CPU usage, we have to perform:
+            // (idle2-idle1)*HUNDRED_PERCENT/(user2+nice2+system2+idle2-user1-nice1-system1-idle1)
+            return Constants.HUNDRED_PERCENT - cpuIdle;
+        }
+    }
+    
     /**
      * Returns a Host OS CPU usage information.
      */
     private static class CpuUsageLinuxStrategy implements ICpuUsageMeasure {
 
-        private static final File PROC_STAT = new File("/proc/stat");
-
         public Object measure() throws Exception {
-            // the object is really an array of longs: [user, nice, system, idle].
-            // To compute the CPU usage, we have to perform:
-            // (idle2-idle1)*HUNDRED_PERCENT/(user2+nice2+system2+idle2-user1-nice1-system1-idle1)
-            final BufferedReader in = new BufferedReader(new FileReader(PROC_STAT));
-            try {
-                for (String line = in.readLine(); line != null; line = in.readLine()) {
-                    if (line.startsWith("cpu ")) {
-                        final StringTokenizer t = new StringTokenizer(line);
-                        t.nextToken();
-                        final long user = Long.parseLong(t.nextToken());
-                        final long nice = Long.parseLong(t.nextToken());
-                        final long system = Long.parseLong(t.nextToken());
-                        final long idle = Long.parseLong(t.nextToken());
-                        return new long[]{user, nice, system, idle};
-                    }
-                }
-            } finally {
-                MiscUtils.closeQuietly(in);
-            }
-            throw new IllegalStateException("No cpu line");
+            return LinuxProcStat.now();
         }
-        private static final int MEASURE_USER = 0;
-        private static final int MEASURE_NICE = 1;
-        private static final int MEASURE_SYSTEM = 2;
-        private static final int MEASURE_IDLE = 3;
 
         public int getAvgCpuUsage(Object m1, Object m2) {
-            final long[] me1 = (long[]) m1;
-            final long[] me2 = (long[]) m2;
-            final long sampleTimeDelta = me2[MEASURE_USER] + me2[MEASURE_NICE] + me2[MEASURE_SYSTEM] + me2[MEASURE_IDLE] -
-                    me1[MEASURE_USER] - me1[MEASURE_NICE] - me1[MEASURE_SYSTEM] - me1[MEASURE_IDLE];
-            if (sampleTimeDelta <= 0) {
-                return 0;
-            }
-            final long cpuIdle = (me2[MEASURE_IDLE] - me1[MEASURE_IDLE]) * Constants.HUNDRED_PERCENT / sampleTimeDelta;
-            return Constants.HUNDRED_PERCENT - ((int) cpuIdle);
+            return ((LinuxProcStat) m2).getCpuUsage((LinuxProcStat) m1);
         }
     }
 
@@ -301,6 +321,84 @@ public final class Cpu {
             return ((WMIUtils.Win32_PerfRawData_PerfProc_Process) m2).getCPUUsage((WMIUtils.Win32_PerfRawData_PerfProc_Process) m1);
         }
     }
+    private static final Logger log = Logger.getLogger(Cpu.class.getName());
+    private static class ProcessCpuUsageLinuxStrategy implements ICpuUsageMeasure {
+        public final int pid;
+        private final File pidstat;
+
+        public ProcessCpuUsageLinuxStrategy(int pid) {
+            this.pid = pid;
+            pidstat = new File("/proc/" + pid + "/stat");
+        }
+        
+        public static boolean isAvailable() {
+            return LinuxProcStat.isAvailable();
+        }
+        private static long getTimeTotal() {
+            final LinuxProcStat now = LinuxProcStat.now();
+            return now == null ? 0 : now.getTotal();
+        }
+
+        public Object measure() throws Exception {
+            final String[] stat;
+            try {
+                final Scanner s = new Scanner(pidstat);
+                try {
+                    stat = s.nextLine().trim().split("\\s+");
+                } finally {
+                    MiscUtils.closeQuietly(s);
+                }
+            } catch (IOException ex) {
+                log.log(Level.INFO, "Failed to parse " + pidstat, ex);
+                return null;
+            }
+            final long utimeJiffies = Long.parseLong(stat[13]);
+            final long stimeJiffies = Long.parseLong(stat[14]);
+            final Stat result = new Stat(utimeJiffies, stimeJiffies, getTimeTotal());
+            System.out.println(result);
+            return result;
+        }
+
+        public int getAvgCpuUsage(Object m1, Object m2) {
+            return ((Stat) m2).getCpuUsage((Stat) m1);
+        }
+        
+        private static final class Stat {
+            public final long utimeJiffies;
+            public final long stimeJiffies;
+            public final long timeTotal;
+
+            public Stat(long utimeJiffies, long stimeJiffies, long timeTotal) {
+                this.utimeJiffies = utimeJiffies;
+                this.stimeJiffies = stimeJiffies;
+                this.timeTotal = timeTotal;
+            }
+            
+            public int getCpuUsage(Stat prev) {
+                if (prev == null) {
+                    return 0;
+                }
+                final long du = utimeJiffies - prev.utimeJiffies;
+                final long ds = stimeJiffies - prev.stimeJiffies;
+                final long dt = timeTotal - prev.timeTotal;
+                if (du < 0 || ds < 0 || dt < 0) {
+                    throw new IllegalArgumentException("Parameter prev: invalid value " + prev + ": does not precede this: " + this);
+                }
+                if (dt == 0) {
+                    return 0;
+                }
+                final int user = (int) (100L * Runtime.getRuntime().availableProcessors() * du / dt);
+                final int sys = (int) (100L * Runtime.getRuntime().availableProcessors() * ds / dt);
+                final int sum = user + sys;
+                return sum;
+            }
+
+            @Override
+            public String toString() {
+                return "Stat{" + "utimeJiffies=" + utimeJiffies + ", stimeJiffies=" + stimeJiffies + ", timeTotal=" + timeTotal + '}';
+            }
+        }
+    }
     
     /**
      * Measures CPU usage of a single process.
@@ -311,6 +409,8 @@ public final class Cpu {
         final ICpuUsageMeasure m;
         if (OneProcessCpuUsageWindowsStrategy.isAvailable()) {
             m = new OneProcessCpuUsageWindowsStrategy(pid);
+        } else if (ProcessCpuUsageLinuxStrategy.isAvailable()) {
+            m = new ProcessCpuUsageLinuxStrategy(pid);
         } else {
             m = new DummyCpuUsageStrategy();
         }
