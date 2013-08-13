@@ -18,15 +18,9 @@
  */
 package sk.baka.webvm.analyzer.utils;
 
-import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
-import java.lang.management.MemoryType;
 import java.lang.management.MemoryUsage;
-import java.util.Collections;
-import java.util.List;
 import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.analyzer.hostos.Memory;
