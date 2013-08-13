@@ -214,7 +214,9 @@ public class WMIUtils {
         final EnumVariant cpuList = new EnumVariant(cpu.toDispatch());
         while (cpuList.hasMoreElements()) {
             final Dispatch item = cpuList.nextElement().toDispatch();
-            return new Win32_PerfRawData_PerfProc_Process(Dispatch.call(item, "PercentProcessorTime").getLong(), Dispatch.call(item, "TimeStamp_Sys100NS").getLong());
+            final long p = Long.parseLong(Dispatch.call(item, "PercentProcessorTime").getString());
+            final long t = Long.parseLong(Dispatch.call(item, "TimeStamp_Sys100NS").getString());
+            return new Win32_PerfRawData_PerfProc_Process(p, t);
         }
         return null;
     }
@@ -270,10 +272,10 @@ public class WMIUtils {
         final EnumVariant cpuList = new EnumVariant(cpu.toDispatch());
         while (cpuList.hasMoreElements()) {
             final Dispatch item = cpuList.nextElement().toDispatch();
-            final long workingSetSize = Dispatch.call(item, "WorkingSetSize").getLong();
+            final long workingSetSize = Long.valueOf(Dispatch.call(item, "WorkingSetSize").getString());
             final long peakWorkingSetSize = (long) Dispatch.call(item, "PeakWorkingSetSize").getInt() * 1024L;
-            final long maximumWorkingSetSize = (long) Dispatch.call(item, "MaximumWorkingSetSize").getInt() * 1024L;
-            return new MemoryUsage(0, workingSetSize, peakWorkingSetSize, maximumWorkingSetSize);
+//            final long maximumWorkingSetSize = (long) Dispatch.call(item, "MaximumWorkingSetSize").getInt() * 1024L;
+            return new MemoryUsage(0, workingSetSize, peakWorkingSetSize, Math.max(workingSetSize, peakWorkingSetSize));
         }
         return new MemoryUsage(0, 0, 0, 0);
     }
