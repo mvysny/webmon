@@ -84,7 +84,7 @@ public class TCPIPServer {
         final int port = 50000;
         final int historySize = 20;
         final SamplerConfig cfg = new SamplerConfig(historySize, 1000, 0);
-        final HistorySampler sampler = new HistorySampler(cfg, IHistorySampler.HISTORY_PROBLEMS, MgmtUtils.getMemoryInfoProvider(), null, null);
+        final HistorySampler sampler = new HistorySampler(cfg, IHistorySampler.HISTORY_PROBLEMS, MemoryUsages.getMemoryInfoProvider(), null, null);
         sampler.start();
         final TCPIPServer server = new TCPIPServer(port, sampler);
         server.start();

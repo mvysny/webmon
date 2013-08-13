@@ -32,7 +32,7 @@ import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.analyzer.utils.BackgroundService;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.INotificationDelivery;
-import sk.baka.webvm.analyzer.utils.MgmtUtils;
+import sk.baka.webvm.analyzer.utils.MemoryUsages;
 import sk.baka.webvm.analyzer.utils.SimpleFixedSizeFIFO;
 
 /**
@@ -125,7 +125,7 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
      * Serves for Host OS CPU IO usage measurement.
      */
     private final CpuUsage cpuOSIO = Cpu.newHostIOCpu();
-    private final IMemoryInfoProvider meminfo = MgmtUtils.getMemoryInfoProvider();
+    private final IMemoryInfoProvider meminfo = MemoryUsages.getMemoryInfoProvider();
     
     /**
      * Invoked when the sample is taken. The default implementation does nothing.

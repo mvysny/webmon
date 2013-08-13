@@ -16,7 +16,7 @@ import sk.baka.webvm.analyzer.ThreadMap.Item;
 import sk.baka.webvm.analyzer.hostos.Architecture;
 import sk.baka.webvm.analyzer.hostos.OS;
 import sk.baka.webvm.analyzer.utils.Constants;
-import sk.baka.webvm.analyzer.utils.MgmtUtils;
+import sk.baka.webvm.analyzer.utils.MemoryUsages;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
 
 /**
@@ -182,7 +182,7 @@ public class TextDump {
                     sb.append(" / ");
                 }
                 sb.append(content.get(i).get(0)).append(": ");
-                sb.append(MgmtUtils.toString(last.memPoolUsage[i], true));
+                sb.append(MemoryUsages.toString(last.memPoolUsage[i], true));
             }
             sb.append("\n");
         }

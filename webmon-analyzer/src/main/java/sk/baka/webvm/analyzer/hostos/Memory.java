@@ -28,8 +28,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static sk.baka.webvm.analyzer.utils.MgmtUtils.add;
-import static sk.baka.webvm.analyzer.utils.MgmtUtils.getNonHeapSummary;
+import static sk.baka.webvm.analyzer.utils.MemoryUsages.add;
+import static sk.baka.webvm.analyzer.utils.MemoryUsages.getNonHeapSummary;
 import sk.baka.webvm.analyzer.utils.WMIUtils;
 
 /**

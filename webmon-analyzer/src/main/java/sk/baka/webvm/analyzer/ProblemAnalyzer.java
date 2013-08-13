@@ -18,7 +18,7 @@
  */
 package sk.baka.webvm.analyzer;
 
-import sk.baka.webvm.analyzer.utils.MgmtUtils;
+import sk.baka.webvm.analyzer.utils.MemoryUsages;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
@@ -194,7 +194,7 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
         sb.append(phys.getCommitted() * Constants.HUNDRED_PERCENT / phys.getMax());
         sb.append("%, minus buffers/cache: ");
         sb.append(phys.getUsed() * Constants.HUNDRED_PERCENT / phys.getMax());
-        sb.append("%\nSwap used: ").append(MgmtUtils.getUsagePerc(swap));
+        sb.append("%\nSwap used: ").append(MemoryUsages.getUsagePerc(swap));
         sb.append('\n');
         final long total = phys.getMax() + (swap == null ? 0 : swap.getMax());
         final long used = phys.getUsed() + (swap == null ? 0 : swap.getUsed());
@@ -268,7 +268,7 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
             }
         }
         if (sb.length() == 0) {
-            return new ProblemReport(false, CLASS_MEMORY_USAGE, "Heap usage: " + MgmtUtils.getUsagePerc(MgmtUtils.getHeapFromRuntime()), getMemUsageDesc());
+            return new ProblemReport(false, CLASS_MEMORY_USAGE, "Heap usage: " + MemoryUsages.getUsagePerc(MemoryUsages.getHeapFromRuntime()), getMemUsageDesc());
         }
         sb.append("\nTry performing a GC: this should decrease the memory usage. If not, you may need to increase the memory or check for memory leaks");
         return new ProblemReport(false, CLASS_MEMORY_USAGE, sb.toString(), getMemUsageDesc());

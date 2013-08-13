@@ -35,7 +35,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.misc.DivGraph;
-import sk.baka.webvm.analyzer.utils.MgmtUtils;
+import sk.baka.webvm.analyzer.utils.MemoryUsages;
 
 /**
  * Shows detailed memory information.
@@ -55,7 +55,7 @@ public final class Memory extends WebVMPage {
 
             @Override
             protected MemoryUsage load() {
-                return MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
+                return MemoryUsages.getInMB(MemoryUsages.getHeapFromRuntime());
             }
         };
         drawMemoryStatus(heap, "heapStatusBar", GRAPH_WIDTH_PIXELS);
@@ -65,7 +65,7 @@ public final class Memory extends WebVMPage {
 
             @Override
             protected MemoryUsage load() {
-                return MgmtUtils.getInMB(meminfo.getPhysicalMemory());
+                return MemoryUsages.getInMB(meminfo.getPhysicalMemory());
             }
         };
         drawMemoryStatus(physical, "physicalMemoryStatusBar", GRAPH_WIDTH_PIXELS);
@@ -74,7 +74,7 @@ public final class Memory extends WebVMPage {
 
             @Override
             protected MemoryUsage load() {
-                return MgmtUtils.getInMB(meminfo.getSwap());
+                return MemoryUsages.getInMB(meminfo.getSwap());
             }
         };
         drawMemoryStatus(swap, "swapStatusBar", GRAPH_WIDTH_PIXELS);
@@ -91,7 +91,7 @@ public final class Memory extends WebVMPage {
 
             @Override
             protected String load() {
-                return MgmtUtils.toString(model.getObject(), true);
+                return MemoryUsages.toString(model.getObject(), true);
             }
         }));
     }
@@ -164,15 +164,15 @@ public final class Memory extends WebVMPage {
             item.add(new Label("poolName", bean.getName()));
             item.add(new Label("poolType", "" + bean.getType()));
             item.add(new Label("poolValid", bean.isValid() ? "Y" : "N"));
-            MemoryUsage usage = MgmtUtils.getInMB(bean.getCollectionUsage());
+            MemoryUsage usage = MemoryUsages.getInMB(bean.getCollectionUsage());
             add(item, "poolCollects", usage, true);
-            item.add(new Label("poolCollectsPerc", MgmtUtils.getUsagePerc(usage)));
-            usage = MgmtUtils.getInMB(bean.getPeakUsage());
+            item.add(new Label("poolCollectsPerc", MemoryUsages.getUsagePerc(usage)));
+            usage = MemoryUsages.getInMB(bean.getPeakUsage());
             add(item, "poolPeak", usage, false);
-            item.add(new Label("poolPeakPerc", MgmtUtils.getUsagePerc(usage)));
-            usage = MgmtUtils.getInMB(bean.getUsage());
+            item.add(new Label("poolPeakPerc", MemoryUsages.getUsagePerc(usage)));
+            usage = MemoryUsages.getInMB(bean.getUsage());
             add(item, "poolUsage", usage, false);
-            item.add(new Label("poolUsagePerc", MgmtUtils.getUsagePerc(usage)));
+            item.add(new Label("poolUsagePerc", MemoryUsages.getUsagePerc(usage)));
         }
 
         private void add(final ListItem<?> item, final String wid, MemoryUsage usage, final boolean gc) {
@@ -184,7 +184,7 @@ public final class Memory extends WebVMPage {
             if (usage != null) {
                 sb.append(DivGraph.drawMemoryStatus(usage, MEMSTAT_GRAPH_WIDTH));
             }
-            sb.append(MgmtUtils.toString(usage, true));
+            sb.append(MemoryUsages.toString(usage, true));
             final Label label = new Label(wid, sb.toString());
             label.setEscapeModelStrings(false);
             item.add(label);

@@ -20,7 +20,7 @@ package sk.baka.webvm.analyzer.hostos;
 
 import java.io.Serializable;
 import java.lang.management.MemoryUsage;
-import sk.baka.webvm.analyzer.utils.MgmtUtils;
+import sk.baka.webvm.analyzer.utils.MemoryUsages;
 
 /**
  * Provides memory information. Implementors must be thread-safe.
