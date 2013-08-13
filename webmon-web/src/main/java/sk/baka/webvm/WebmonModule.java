@@ -37,7 +37,7 @@ import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.analyzer.config.Binder;
 import sk.baka.webvm.analyzer.config.Config;
 import sk.baka.webvm.analyzer.utils.INotificationDelivery;
-import sk.baka.webvm.analyzer.utils.MgmtUtils;
+import sk.baka.webvm.analyzer.utils.MemoryUsages;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
 import sk.baka.webvm.analyzer.utils.NotificationDelivery;
 
@@ -122,6 +122,6 @@ public class WebmonModule extends AbstractModule {
     @Provides
     @Singleton
     protected IMemoryInfoProvider getMemoryInfoProvider() {
-        return MgmtUtils.getMemoryInfoProvider();
+        return MemoryUsages.getMemoryInfoProvider();
     }
 }

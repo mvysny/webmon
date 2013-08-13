@@ -36,9 +36,9 @@ import static sk.baka.webvm.analyzer.utils.Constants.*;
  * Provides utilities for the java.util.management package.
  * @author Martin Vysny
  */
-public final class MgmtUtils {
+public final class MemoryUsages {
 
-    private static final Logger LOG = Logger.getLogger(MgmtUtils.class.getName());
+    private static final Logger LOG = Logger.getLogger(MemoryUsages.class.getName());
 
     /**
      * Sums up all non-heap pools and return their memory usage.
@@ -59,7 +59,7 @@ public final class MgmtUtils {
         return Memory.isNonHeapPool();
     }
 
-    private MgmtUtils() {
+    private MemoryUsages() {
         throw new AssertionError();
     }
 

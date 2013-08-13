@@ -34,7 +34,7 @@ import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.misc.AbstractGraph;
 import sk.baka.webvm.misc.BluffGraph;
 import sk.baka.webvm.misc.GraphStyle;
-import sk.baka.webvm.analyzer.utils.MgmtUtils;
+import sk.baka.webvm.analyzer.utils.MemoryUsages;
 
 /**
  * Shows the JVM memory usage and GC CPU usage graphs.
@@ -238,7 +238,7 @@ public class Graphs extends WebVMPage {
 
             @Override
             protected MemoryUsage load() {
-                return MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
+                return MemoryUsages.getInMB(MemoryUsages.getHeapFromRuntime());
             }
         });
         border.add(new Label("heapUsage", new LoadableDetachableModel<String>() {
@@ -258,13 +258,13 @@ public class Graphs extends WebVMPage {
     }
 
     private void drawNonHeap() {
-        if (MgmtUtils.isNonHeapPool()) {
+        if (MemoryUsages.isNonHeapPool()) {
             drawMemoryUsageGraph("nonHeapUsageGraph", HistorySample.POOL_NON_HEAP);
             final IModel<MemoryUsage> nonHeap = register(new LoadableDetachableModel<MemoryUsage>() {
 
                 @Override
                 protected MemoryUsage load() {
-                    return MgmtUtils.getInMB(MgmtUtils.getNonHeapSummary());
+                    return MemoryUsages.getInMB(MemoryUsages.getNonHeapSummary());
                 }
             });
             border.add(new Label("nonHeapUsage", new LoadableDetachableModel<String>() {
@@ -293,7 +293,7 @@ public class Graphs extends WebVMPage {
 
             @Override
             protected MemoryUsage load() {
-                return MgmtUtils.getInMB(meminfo.getPhysicalMemory());
+                return MemoryUsages.getInMB(meminfo.getPhysicalMemory());
             }
         });
         if (physMem.getObject() != null) {
@@ -322,7 +322,7 @@ public class Graphs extends WebVMPage {
 
             @Override
             protected MemoryUsage load() {
-                return MgmtUtils.getInMB(meminfo.getSwap());
+                return MemoryUsages.getInMB(meminfo.getSwap());
             }
         });
         if (swap.getObject() != null) {

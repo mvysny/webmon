@@ -23,7 +23,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import sk.baka.webvm.analyzer.utils.MgmtUtils;
+import sk.baka.webvm.analyzer.utils.MemoryUsages;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
@@ -185,10 +185,10 @@ public final class HistorySample {
         }
 
         public Builder autodetectMeminfo(IMemoryInfoProvider meminfo) {
-            memPoolUsage[POOL_HEAP] = MgmtUtils.getInMB(MgmtUtils.getHeapFromRuntime());
-            memPoolUsage[POOL_NON_HEAP] = MgmtUtils.getInMB(MgmtUtils.getNonHeapSummary());
-            memPoolUsage[POOL_PHYS_MEM] = MgmtUtils.getInMB(meminfo.getPhysicalMemory());
-            memPoolUsage[POOL_SWAP] = MgmtUtils.getInMB(meminfo.getSwap());
+            memPoolUsage[POOL_HEAP] = MemoryUsages.getInMB(MemoryUsages.getHeapFromRuntime());
+            memPoolUsage[POOL_NON_HEAP] = MemoryUsages.getInMB(MemoryUsages.getNonHeapSummary());
+            memPoolUsage[POOL_PHYS_MEM] = MemoryUsages.getInMB(meminfo.getPhysicalMemory());
+            memPoolUsage[POOL_SWAP] = MemoryUsages.getInMB(meminfo.getSwap());
             return this;
         }
 
