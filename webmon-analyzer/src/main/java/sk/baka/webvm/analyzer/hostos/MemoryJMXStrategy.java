@@ -18,7 +18,6 @@
  */
 package sk.baka.webvm.analyzer.hostos;
 
-import java.io.Serializable;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.lang.management.OperatingSystemMXBean;
