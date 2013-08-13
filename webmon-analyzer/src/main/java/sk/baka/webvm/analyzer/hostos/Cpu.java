@@ -118,7 +118,10 @@ public final class Cpu {
         return JavaCpuUsageStrategy.supported();
     }
 
-    private static final class LinuxProcStat {
+    /**
+     * Parses the /proc/stat file on Linux.
+     */
+    public static final class LinuxProcStat {
         private final long user;
         private final long nice;
         private final long system;
@@ -144,7 +147,7 @@ public final class Cpu {
                         if (name.equals("cpu")) {
                             return new LinuxProcStat(s.nextLong(), s.nextLong(), s.nextLong(), s.nextLong());
                         }
-                        s.nextLine(); // skip line, try next
+                        s.nextLine(); // skip this line, try the next one
                     }
                     return null;
                 } finally {
@@ -324,22 +327,89 @@ public final class Cpu {
     private static final Logger log = Logger.getLogger(Cpu.class.getName());
     private static class ProcessCpuUsageLinuxStrategy implements ICpuUsageMeasure {
         public final int pid;
-        private final File pidstat;
 
         public ProcessCpuUsageLinuxStrategy(int pid) {
             this.pid = pid;
-            pidstat = new File("/proc/" + pid + "/stat");
         }
         
         public static boolean isAvailable() {
             return LinuxProcStat.isAvailable();
         }
-        private static long getTimeTotal() {
-            final LinuxProcStat now = LinuxProcStat.now();
-            return now == null ? 0 : now.getTotal();
-        }
 
         public Object measure() throws Exception {
+            return StatWithTime.now(pid);
+        }
+
+        public int getAvgCpuUsage(Object m1, Object m2) {
+            return ((StatWithTime) m2).getCpuUsage((StatWithTime) m1);
+        }
+    }
+    
+    private static final class StatWithTime {
+        public final Stat stat;
+        public final LinuxProcStat procStat;
+        public StatWithTime(Stat stat, LinuxProcStat procStat) {
+            this.stat = stat;
+            this.procStat = procStat;
+        }
+        public static StatWithTime now(int pid) {
+            return new StatWithTime(Stat.now(pid), LinuxProcStat.now());
+        }
+        public int getCpuUsage(StatWithTime prev) {
+            if (prev == null || stat == null || procStat == null) {
+                return 0;
+            }
+            final long du = stat.utimeJiffies - prev.stat.utimeJiffies;
+            final long ds = stat.stimeJiffies - prev.stat.stimeJiffies;
+            final long dt = procStat.getTotal() - prev.procStat.getTotal();
+            if (du < 0 || ds < 0 || dt < 0) {
+                throw new IllegalArgumentException("Parameter prev: invalid value " + prev + ": does not precede this: " + this);
+            }
+            if (dt == 0) {
+                return 0;
+            }
+            final int user = (int) (100L * Runtime.getRuntime().availableProcessors() * du / dt);
+            final int sys = (int) (100L * Runtime.getRuntime().availableProcessors() * ds / dt);
+            final int sum = user + sys;
+            return sum;
+        }
+
+        @Override
+        public String toString() {
+            return "StatWithTime{" + "stat=" + stat + ", procStat=" + procStat + '}';
+        }
+    }
+    
+    /**
+     * The contents of the Linux /proc/[pid]/stat file.
+     */
+    public static final class Stat {
+        public final long utimeJiffies;
+        public final long stimeJiffies;
+        /**
+         * RSS, Resident Set Size: number of pages the process has in real memory. This is just the pages which count toward text, data, or stack space. This does not include pages which have not been demand-loaded in, or which are swapped out.
+         */
+        public final int rssPages;
+        
+        /**
+         * Returns the RSS field in bytes.
+         * @return RSS in bytes.
+         */
+        public long getRSSAsBytes() {
+            if (MemoryLinuxStrategy.PAGE_SIZE < 0) {
+                throw new IllegalStateException("Invalid state: Linux page size not available");
+            }
+            return (long) rssPages * MemoryLinuxStrategy.PAGE_SIZE;
+        }
+
+        public Stat(long utimeJiffies, long stimeJiffies, int rssPages) {
+            this.utimeJiffies = utimeJiffies;
+            this.stimeJiffies = stimeJiffies;
+            this.rssPages = rssPages;
+        }
+        
+        public static Stat now(int pid) {
+            final File pidstat = new File("/proc/" + pid + "/stat");
             final String[] stat;
             try {
                 final Scanner s = new Scanner(pidstat);
@@ -354,52 +424,16 @@ public final class Cpu {
             }
             final long utimeJiffies = Long.parseLong(stat[13]);
             final long stimeJiffies = Long.parseLong(stat[14]);
-            final Stat result = new Stat(utimeJiffies, stimeJiffies, getTimeTotal());
-            System.out.println(result);
-            return result;
+            final int rssPages = Integer.parseInt(stat[23]);
+            return new Stat(utimeJiffies, stimeJiffies, rssPages);
         }
 
-        public int getAvgCpuUsage(Object m1, Object m2) {
-            return ((Stat) m2).getCpuUsage((Stat) m1);
-        }
-        
-        private static final class Stat {
-            public final long utimeJiffies;
-            public final long stimeJiffies;
-            public final long timeTotal;
-
-            public Stat(long utimeJiffies, long stimeJiffies, long timeTotal) {
-                this.utimeJiffies = utimeJiffies;
-                this.stimeJiffies = stimeJiffies;
-                this.timeTotal = timeTotal;
-            }
-            
-            public int getCpuUsage(Stat prev) {
-                if (prev == null) {
-                    return 0;
-                }
-                final long du = utimeJiffies - prev.utimeJiffies;
-                final long ds = stimeJiffies - prev.stimeJiffies;
-                final long dt = timeTotal - prev.timeTotal;
-                if (du < 0 || ds < 0 || dt < 0) {
-                    throw new IllegalArgumentException("Parameter prev: invalid value " + prev + ": does not precede this: " + this);
-                }
-                if (dt == 0) {
-                    return 0;
-                }
-                final int user = (int) (100L * Runtime.getRuntime().availableProcessors() * du / dt);
-                final int sys = (int) (100L * Runtime.getRuntime().availableProcessors() * ds / dt);
-                final int sum = user + sys;
-                return sum;
-            }
-
-            @Override
-            public String toString() {
-                return "Stat{" + "utimeJiffies=" + utimeJiffies + ", stimeJiffies=" + stimeJiffies + ", timeTotal=" + timeTotal + '}';
-            }
+        @Override
+        public String toString() {
+            return "Stat{" + "utimeJiffies=" + utimeJiffies + ", stimeJiffies=" + stimeJiffies + ", rssPages=" + rssPages + '}';
         }
     }
-    
+
     /**
      * Measures CPU usage of a single process.
      * @param pid the process ID. If the PID is invalid, 0 will always be returned.

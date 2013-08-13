@@ -28,6 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
+import sk.baka.webvm.analyzer.utils.Processes;
 
 /**
  * Retrieves host OS memory info using /proc/meminfo (Linux only)
@@ -63,19 +64,27 @@ public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
         }
         return result;
     }
-    private static final Logger LOG = Logger.getLogger(MemoryLinuxStrategy.class.getName());
+    private static final Logger log = Logger.getLogger(MemoryLinuxStrategy.class.getName());
 
+    /**
+     * The page size, -1 if not running on Linux.
+     */
+    public static final int PAGE_SIZE;
     static {
         boolean avail = false;
+        int pageSize = -1;
         if (OS.isLinuxBased()) {
             try {
                 parseMeminfo(MEMINFO);
+                pageSize = Integer.parseInt(Processes.executeAndWait(null, "getconf", "PAGESIZE").checkSuccess().getOutput().trim());
+                log.info("Linux reports page size of " + pageSize + " bytes long");
                 avail = true;
             } catch (Throwable ex) {
-                LOG.log(Level.INFO, "MemoryLinuxStrategy disabled: " + MEMINFO + " not available", ex);
+                log.log(Level.INFO, "MemoryLinuxStrategy disabled: a failure occurred retrieving system information", ex);
             }
         }
         AVAIL = avail;
+        PAGE_SIZE = pageSize;
     }
 
     /**
@@ -94,7 +103,7 @@ public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
         try {
             memInfo = parseMeminfo(MEMINFO);
         } catch (Exception t) {
-            LOG.log(Level.INFO, "Failed to obtain Linux memory statistics", t);
+            log.log(Level.INFO, "Failed to obtain Linux memory statistics", t);
             return null;
         }
         final Long total = memInfo.get("MemTotal");
@@ -117,7 +126,7 @@ public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
         try {
             memInfo = parseMeminfo(MEMINFO);
         } catch (Exception t) {
-            LOG.log(Level.INFO, "Failed to obtain Linux memory statistics", t);
+            log.log(Level.INFO, "Failed to obtain Linux memory statistics", t);
             throw new RuntimeException(t);
         }
         final Long total = memInfo.get("SwapTotal");

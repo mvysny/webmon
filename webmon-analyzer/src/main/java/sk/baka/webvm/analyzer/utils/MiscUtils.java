@@ -3,6 +3,8 @@ package sk.baka.webvm.analyzer.utils;
 import java.io.Closeable;
 import java.io.File;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,6 +64,17 @@ public class MiscUtils {
             }
         }
         return sb.toString();
+    }
+    
+    /**
+     * Returns stacktrace of given throwable.
+     * @param t throwable, not null.
+     * @return the stacktrace.
+     */
+    public static String getStacktrace(final Throwable t) {
+        final StringWriter out = new StringWriter();
+        t.printStackTrace(new PrintWriter(out));
+        return out.toString();
     }
 
     /**
