@@ -32,8 +32,6 @@ import static sk.baka.webvm.analyzer.utils.Constants.*;
  */
 public final class MemoryUsages {
 
-    private static final Logger LOG = Logger.getLogger(MemoryUsages.class.getName());
-
     /**
      * Sums up all non-heap pools and return their memory usage.
      * @return memory usage, null if no pool collects non-heap space.
