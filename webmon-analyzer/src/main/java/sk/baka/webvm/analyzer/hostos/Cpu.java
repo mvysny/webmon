@@ -284,4 +284,36 @@ public final class Cpu {
     private Cpu() {
         throw new AssertionError();
     }
+    
+    private static class OneProcessCpuUsageWindowsStrategy implements ICpuUsageMeasure {
+        public static boolean isAvailable() {
+            return WMIUtils.isAvailable();
+        }
+        private final int pid;
+        public OneProcessCpuUsageWindowsStrategy(int pid) {
+            this.pid = pid;
+        }
+        public Object measure() throws Exception {
+            return WMIUtils.getProcessPerfRawData(pid);
+        }
+
+        public int getAvgCpuUsage(Object m1, Object m2) {
+            return ((WMIUtils.Win32_PerfRawData_PerfProc_Process) m2).getCPUUsage((WMIUtils.Win32_PerfRawData_PerfProc_Process) m1);
+        }
+    }
+    
+    /**
+     * Measures CPU usage of a single process.
+     * @param pid the process ID. If the PID is invalid, 0 will always be returned.
+     * @return CPU usage, never null. Always returns 0 on unsupported platforms.
+     */
+    public static CpuUsage newProcessCPUUsage(int pid) {
+        final ICpuUsageMeasure m;
+        if (OneProcessCpuUsageWindowsStrategy.isAvailable()) {
+            m = new OneProcessCpuUsageWindowsStrategy(pid);
+        } else {
+            m = new DummyCpuUsageStrategy();
+        }
+        return new CpuUsage(m);
+    }
 }

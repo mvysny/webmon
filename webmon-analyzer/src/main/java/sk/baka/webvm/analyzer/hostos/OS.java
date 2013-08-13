@@ -64,6 +64,14 @@ public enum OS {
         return get() == OS.Linux;
     }
     
+    /**
+     * True if we are running some Linux-based OS. Returns true for Android.
+     * @return true if this OS is Linux-based, false if not.
+     */
+    public static boolean isLinuxBased() {
+        return isLinux() || isAndroid();
+    }
+    
     private static final Logger log = Logger.getLogger(OS.class.getName());
     
     private static final boolean IS_ANDROID;

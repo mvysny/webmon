@@ -67,7 +67,7 @@ public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
 
     static {
         boolean avail = false;
-        if (OS.isLinux() || OS.isAndroid()) {
+        if (OS.isLinuxBased()) {
             try {
                 parseMeminfo(MEMINFO);
                 avail = true;

@@ -207,7 +207,63 @@ public class WMIUtils {
         }
         return 0;
     }
+    
+    public static Win32_PerfRawData_PerfProc_Process getProcessPerfRawData(int pid) {
+        checkAvailable();
+        final Variant cpu = axWMI.invoke("ExecQuery", new Variant("Select PercentProcessorTime,TimeStamp_Sys100NS from Win32_PerfRawData_PerfProc_Process where IDProcess=" + pid));
+        final EnumVariant cpuList = new EnumVariant(cpu.toDispatch());
+        while (cpuList.hasMoreElements()) {
+            final Dispatch item = cpuList.nextElement().toDispatch();
+            return new Win32_PerfRawData_PerfProc_Process(Dispatch.call(item, "PercentProcessorTime").getLong(), Dispatch.call(item, "TimeStamp_Sys100NS").getLong());
+        }
+        return null;
+    }
+    
+    /**
+     * http://msdn.microsoft.com/en-us/library/windows/desktop/aa394323(v=vs.85).aspx
+     */
+    public static final class Win32_PerfRawData_PerfProc_Process {
+        /**
+         * Returns elapsed time that all of the threads of this process used the processor to execute instructions in 100 nanoseconds ticks. An instruction is the basic unit of execution in a computer, a thread is the object that executes instructions, and a process is the object created when a program is run. Code executed to handle some hardware interrupts and trap conditions is included in this count.
+         */
+        public final long percentProcessorTime;
+        /**
+         * Timestamp value in 100 nanosecond units. This property is inherited from Win32_Perf.
+         */
+        public final long timeStamp_Sys100NS;
 
+        public Win32_PerfRawData_PerfProc_Process(long percentProcessorTime, long timeStamp_Sys100NS) {
+            this.percentProcessorTime = percentProcessorTime;
+            this.timeStamp_Sys100NS = timeStamp_Sys100NS;
+        }
+        
+        public static final Win32_PerfRawData_PerfProc_Process ZERO = new Win32_PerfRawData_PerfProc_Process(0, 1);
+        /**
+         * Returns average CPU usage over given interval.
+         * @param previous the previous sample, may be null - in such case zero is returned.
+         * @return a value in percent, 0..100
+         */
+        public int getCPUUsage(Win32_PerfRawData_PerfProc_Process previous) {
+            if (previous == null) {
+                return 0;
+            }
+            final long nd = percentProcessorTime - previous.percentProcessorTime;
+            final long dd = timeStamp_Sys100NS - previous.timeStamp_Sys100NS;
+            if (dd < 0 || nd < 0) {
+                throw new IllegalArgumentException("Parameter previous: invalid value " + previous + ": sampled later than this: " + this);
+            }
+            if (dd == 0) {
+                return 0;
+            }
+            return (int) (nd * 100 / Runtime.getRuntime().availableProcessors() / dd);
+        }
+
+        @Override
+        public String toString() {
+            return "Win32_PerfRawData_PerfProc_Process{" + "percentProcessorTime=" + percentProcessorTime + ", timeStamp_Sys100NS=" + timeStamp_Sys100NS + '}';
+        }
+    }
+    
     /**
      * Detects Windows swap usage, in bytes.
      *
