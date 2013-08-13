@@ -28,11 +28,11 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import sk.baka.webvm.analyzer.hostos.DummyMemoryStrategy;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.analyzer.hostos.MemoryJMXStrategy;
 import sk.baka.webvm.analyzer.hostos.MemoryLinuxStrategy;
 import sk.baka.webvm.analyzer.hostos.MemoryWindowsStrategy;
-import sk.baka.webvm.analyzer.hostos.OS;
 import static sk.baka.webvm.analyzer.utils.Constants.*;
 
 /**
@@ -236,16 +236,6 @@ public final class MgmtUtils {
         if (MemoryJMXStrategy.available()) {
             return new MemoryJMXStrategy();
         }
-        return new IMemoryInfoProvider() {
-            private static final long serialVersionUID = 1L;
-
-            public MemoryUsage getSwap() {
-                return null;
-            }
-
-            public MemoryUsage getPhysicalMemory() {
-                return null;
-            }
-        };
+        return new DummyMemoryStrategy();
     }
 }

@@ -264,6 +264,20 @@ public class WMIUtils {
         }
     }
     
+    public static MemoryUsage getWorkingSetSize(int pid) {
+        checkAvailable();
+        final Variant cpu = axWMI.invoke("ExecQuery", new Variant("Select WorkingSetSize,PeakWorkingSetSize,MaximumWorkingSetSize from Win32_Process where ProcessId=" + pid));
+        final EnumVariant cpuList = new EnumVariant(cpu.toDispatch());
+        while (cpuList.hasMoreElements()) {
+            final Dispatch item = cpuList.nextElement().toDispatch();
+            final long workingSetSize = Dispatch.call(item, "WorkingSetSize").getLong();
+            final long peakWorkingSetSize = (long) Dispatch.call(item, "PeakWorkingSetSize").getInt() * 1024L;
+            final long maximumWorkingSetSize = (long) Dispatch.call(item, "MaximumWorkingSetSize").getInt() * 1024L;
+            return new MemoryUsage(0, workingSetSize, peakWorkingSetSize, maximumWorkingSetSize);
+        }
+        return new MemoryUsage(0, 0, 0, 0);
+    }
+    
     /**
      * Detects Windows swap usage, in bytes.
      *
