@@ -52,7 +52,7 @@ public class Memory {
         }
 
         public MemoryUsage getSwap() {
-            return new MemoryUsage(0, 0, 0, 0);
+            return null;
         }
 
         public MemoryUsage getPhysicalMemory() {
