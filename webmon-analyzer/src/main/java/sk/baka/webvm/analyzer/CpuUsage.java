@@ -69,7 +69,7 @@ public final class CpuUsage {
             LOG.log(Level.SEVERE, "Failed to measure a CPU usage", ex);
             return -1;
         }
-        final int result = cpuUsage.getAvgCpuUsage(cpuMeasurement, newMeasurement);
+        final int result = cpuMeasurement == null || newMeasurement == null ? 0 : cpuUsage.getAvgCpuUsage(cpuMeasurement, newMeasurement);
         cpuMeasurement = newMeasurement;
         return result;
     }
