@@ -18,6 +18,8 @@
  */
 package sk.baka.webvm.analyzer.hostos;
 
+import sk.baka.webvm.analyzer.hostos.linux.MemoryLinuxStrategy;
+import sk.baka.webvm.analyzer.hostos.windows.MemoryWindowsStrategy;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryType;
@@ -28,10 +30,9 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import sk.baka.webvm.analyzer.utils.MemoryUsages;
 import static sk.baka.webvm.analyzer.utils.MemoryUsages.add;
 import static sk.baka.webvm.analyzer.utils.MemoryUsages.getNonHeapSummary;
-import sk.baka.webvm.analyzer.utils.WMIUtils;
+import sk.baka.webvm.analyzer.hostos.windows.WMIUtils;
 
 /**
  * Provides memory information for a process.
