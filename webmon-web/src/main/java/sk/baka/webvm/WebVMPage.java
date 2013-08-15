@@ -24,7 +24,7 @@ import java.util.List;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
-import sk.baka.tools.UrlUtils;
+import sk.baka.webvm.analyzer.utils.MiscUtils;
 
 /**
  * A superclass of all WebMon pages.
@@ -60,8 +60,7 @@ public class WebVMPage extends WebPage {
     }
 
     public static File toFile(final URL url) {
-        final String file = UrlUtils.toLocalFile(url.toString());
-        return file == null ? null : new File(file);
+        return MiscUtils.toLocalFile(url.toString());
     }
     
     private final List<IModel<?>> detach = new ArrayList<IModel<?>>();

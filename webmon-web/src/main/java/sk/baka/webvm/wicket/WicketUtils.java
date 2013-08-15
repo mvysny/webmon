@@ -34,8 +34,8 @@ import org.apache.wicket.util.resource.FileResourceStream;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.apache.wicket.util.time.Time;
-import sk.baka.tools.IOUtils;
 import sk.baka.webvm.analyzer.classloader.ResourceLink;
+import sk.baka.webvm.analyzer.utils.MiscUtils;
 
 /**
  * Contains Wicket utilities.
@@ -121,7 +121,7 @@ public final class WicketUtils {
 
         public void close() throws IOException {
             for (final InputStream is : streams) {
-                IOUtils.closeQuietly(is);
+                MiscUtils.closeQuietly(is);
             }
             streams.clear();
         }

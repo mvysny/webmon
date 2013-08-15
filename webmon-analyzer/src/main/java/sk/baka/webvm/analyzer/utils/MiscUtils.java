@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.management.ThreadInfo;
+import java.net.URI;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -143,4 +145,66 @@ public class MiscUtils {
         }
         return result;
     }
+
+    /**
+     * Normalizes slashes in given string, i.e. backslashes are converted to forward slashes.
+     * @param fileName the file name to normalize
+     * @return name with backslashes converted to forward slashes.
+     */
+    public static String normalizeSlashes(final String fileName) {
+        if (fileName == null) {
+            return null;
+        }
+        return fileName.replace('\\', '/');
+    }
+    /**
+     * Converts given file object to a local filesystem file with absolute path. Returns null if the file is not located on a local filesystem.
+     * @param fileUri the file to convert, in the URI format. WARNING: if given string is a local filesystem-dependent path
+     * then the function may return null.
+     * @return filesystem-dependent location of the file. null if given URL is not a local-filesystem URL.
+     * @throws IllegalArgumentException if the file is not located on the local filesystem.
+     */
+    public static File toLocalFile(final String fileUri) {
+        final String uri = normalizeSlashes(fileUri);
+        final URI url;
+        try {
+            url = new URI(uri);
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Failed to parse " + uri + ": " + ex, ex);
+        }
+        if (url.isOpaque() && !"file".equals(url.getScheme())) {
+            // Opaque URI: cannot be a filesystem reference
+            return null;
+        }
+        if (!url.isAbsolute() && !uri.startsWith("/")) {
+            // relative URI, already a local filesystem reference
+            return new File(uri);
+        }
+        if (url.getScheme() == null) {
+            // no scheme, perhaps already a local filesystem reference. return null
+            return null;
+        }
+        String localFile = null;
+        try {
+            localFile = URLDecoder.decode(uri, "UTF-8");
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Failed to parse " + uri + ": " + ex, ex);
+        }
+        if (localFile.startsWith(FILE_URI_HIERARCHICAL_PREFIX)) {
+            localFile = localFile.substring(FILE_URI_HIERARCHICAL_PREFIX.length());
+        } else if (localFile.startsWith(FILE_URI_OPAQUE_PREFIX)) {
+            localFile = localFile.substring(FILE_URI_OPAQUE_PREFIX.length());
+        } else {
+            return null;
+        }
+        return new File(localFile);
+    }
+    /**
+     * An opaque URI file prefix: {@value #FILE_URI_OPAQUE_PREFIX}.
+     */
+    private static final String FILE_URI_OPAQUE_PREFIX = "file:";
+    /**
+     * A hierarchical URI file prefix: {@value #FILE_URI_HIERARCHICAL_PREFIX}.
+     */
+    private static final String FILE_URI_HIERARCHICAL_PREFIX = "file://";
 }
