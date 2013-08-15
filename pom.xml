@@ -81,13 +81,6 @@
 <module>webmon-analyzer</module>
 <module>webmon-web</module>
 </modules>
-    <repositories>
-        <repository>
-            <id>baka.sk</id>
-            <name>bakatools repository</name>
-            <url>http://baka.sk/maven2/</url>
-        </repository>
-    </repositories>
     <build>
         <extensions>
             <extension>
