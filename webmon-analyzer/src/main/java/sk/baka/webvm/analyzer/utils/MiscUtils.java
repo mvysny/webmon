@@ -1,5 +1,6 @@
 package sk.baka.webvm.analyzer.utils;
 
+import sk.baka.webvm.analyzer.hostos.windows.WMIUtils;
 import java.io.Closeable;
 import java.io.File;
 import java.io.InputStream;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.hostos.OS;
-import sk.baka.webvm.analyzer.utils.WMIUtils.Drive;
+import sk.baka.webvm.analyzer.hostos.windows.WMIUtils.Drive;
 
 /**
  *

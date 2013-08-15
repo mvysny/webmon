@@ -16,10 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with WebMon.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sk.baka.webvm.analyzer.hostos;
+package sk.baka.webvm.analyzer.hostos.windows;
 
 import java.lang.management.MemoryUsage;
-import sk.baka.webvm.analyzer.utils.WMIUtils;
+import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
+import sk.baka.webvm.analyzer.hostos.MemoryJMXStrategy;
 
 /**
  * Provides Windows memory data from the WMI.

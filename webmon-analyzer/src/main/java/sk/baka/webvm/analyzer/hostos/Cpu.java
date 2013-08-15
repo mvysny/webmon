@@ -18,6 +18,9 @@
  */
 package sk.baka.webvm.analyzer.hostos;
 
+import sk.baka.webvm.analyzer.hostos.linux.MemoryLinuxStrategy;
+import sk.baka.webvm.analyzer.hostos.windows.CpuUsageWindowsStrategy;
+import sk.baka.webvm.analyzer.hostos.windows.IOCpuUsageWindowsStrategy;
 import java.lang.management.OperatingSystemMXBean;
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,7 +36,7 @@ import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.CpuUsage;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
-import sk.baka.webvm.analyzer.utils.WMIUtils;
+import sk.baka.webvm.analyzer.hostos.windows.WMIUtils;
 
 /**
  * Provides a CPU measurement support.
@@ -183,28 +186,6 @@ public final class Cpu {
 
         public int getAvgCpuUsage(Object m1, Object m2) {
             return ((LinuxProcStat) m2).getCpuUsage((LinuxProcStat) m1);
-        }
-    }
-
-    private static class CpuUsageWindowsStrategy implements ICpuUsageMeasure {
-
-        public Object measure() throws Exception {
-            return WMIUtils.getCPUUsage();
-        }
-
-        public int getAvgCpuUsage(Object m1, Object m2) {
-            return (Integer) m2;
-        }
-    }
-    
-    private static class IOCpuUsageWindowsStrategy implements ICpuUsageMeasure {
-
-        public Object measure() throws Exception {
-            return WMIUtils.getIOCPUUsage();
-        }
-
-        public int getAvgCpuUsage(Object m1, Object m2) {
-            return (Integer) m2;
         }
     }
     

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with WebMon.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sk.baka.webvm.analyzer.hostos;
+package sk.baka.webvm.analyzer.hostos.linux;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
+import sk.baka.webvm.analyzer.hostos.OS;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
 import sk.baka.webvm.analyzer.utils.Processes;

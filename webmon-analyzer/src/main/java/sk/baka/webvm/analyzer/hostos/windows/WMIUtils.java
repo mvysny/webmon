@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License along with
  * WebMon. If not, see <http://www.gnu.org/licenses/>.
  */
-package sk.baka.webvm.analyzer.utils;
+package sk.baka.webvm.analyzer.hostos.windows;
 
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.Dispatch;
@@ -36,6 +36,7 @@ import org.apache.commons.io.IOUtils;
 import sk.baka.webvm.analyzer.hostos.Architecture;
 import sk.baka.webvm.analyzer.hostos.MemoryJMXStrategy;
 import sk.baka.webvm.analyzer.hostos.OS;
+import sk.baka.webvm.analyzer.utils.MiscUtils;
 
 /**
  * Utility methods which access Windows WMI API.
