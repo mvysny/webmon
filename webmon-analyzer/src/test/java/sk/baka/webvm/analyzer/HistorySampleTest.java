@@ -35,8 +35,7 @@ public class HistorySampleTest {
     private HistorySample build() {
         final HistorySample.Builder b = new HistorySample.Builder().setClassesLoaded(5).setCpuIOUsage(10).setCpuJavaUsage(15).setCpuUsage(25).setGcCpuUsage(100);
         b.threads = ThreadMap.takeSnapshot();
-        b.memPoolUsage = new MemoryUsage[1];
-        b.memPoolUsage[0] = new MemoryUsage(-1, 25, 50, 10000);
+        b.memPoolUsage.put(HistorySample.MemoryPools.PhysMem, new MemoryUsage(-1, 25, 50, 10000));
         return b.build();
     }
 
@@ -46,24 +45,28 @@ public class HistorySampleTest {
         assertEquals(15, hs.cpuJavaUsage);
         assertEquals(25, hs.cpuUsage);
         assertEquals(100, hs.gcCpuUsage);
-        assertEquals(1, hs.memPoolUsage.length);
-        assertEquals(-1L, hs.memPoolUsage[0].getInit());
-        assertEquals(25L, hs.memPoolUsage[0].getUsed());
-        assertEquals(50L, hs.memPoolUsage[0].getCommitted());
-        assertEquals(10000L, hs.memPoolUsage[0].getMax());
+        assertEquals(1, hs.memPoolUsage.size());
+        final MemoryUsage physmem = hs.memPoolUsage.get(HistorySample.MemoryPools.PhysMem);
+        assertEquals(-1L, physmem.getInit());
+        assertEquals(25L, physmem.getUsed());
+        assertEquals(50L, physmem.getCommitted());
+        assertEquals(10000L, physmem.getMax());
     }
 
     @Test
     public void testCreation() {
         final HistorySample hs = build();
         check(hs);
+        assertEquals(hs, hs);
         assertNotNull(hs.threads);
     }
 
     @Test
     public void testBuilderCopy() {
-        final HistorySample hs = new HistorySample.Builder().copy(build()).build();
+        final HistorySample hs1 = build();
+        final HistorySample hs = new HistorySample.Builder().copy(hs1).build();
         check(hs);
+        assertEquals(hs1, hs);
         assertNotNull(hs.threads);
     }
 
@@ -76,5 +79,6 @@ public class HistorySampleTest {
         final HistorySample.Builder b = new HistorySample.Builder();
         b.readFrom(new DataInputStream(new ByteArrayInputStream(bout.toByteArray())));
         check(b.build());
+        assertEquals(build(), b.build());
     }
 }

@@ -26,7 +26,11 @@ import java.io.ObjectOutput;
 import sk.baka.webvm.analyzer.utils.MemoryUsages;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
+import sk.baka.webvm.analyzer.hostos.Memory;
 
 /**
  * Holds history data for a single time unit.
@@ -35,6 +39,31 @@ import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
  */
 public final class HistorySample {
 
+    public static enum MemoryPools {
+        /**
+         * The {@link MgmtUtils#getHeapFromRuntime() heap usage}.
+         */
+        Heap("Java Heap"),
+        /**
+         * The {@link MgmtUtils#getNonHeapSummary() non-heap usage}, may be
+         * null.
+         */
+        NonHeap("Java Non-Heap"),
+        /**
+         * The
+         * {@link IMemoryInfoProvider#getPhysicalMemory() host OS physical memory},
+         * may be null.
+         */
+        PhysMem("OS Memory"),
+        /**
+         * The {@link IMemoryInfoProvider#getSwap() swap}, may be null.
+         */
+        Swap("OS Swap");
+        public final String displayable;
+        private MemoryPools(String displayable) {
+            this.displayable = displayable;
+        }
+    }
     /**
      * Returns GC CPU Usage.
      *
@@ -46,28 +75,9 @@ public final class HistorySample {
      */
     public final long sampleTime;
     /**
-     * The {@link MgmtUtils#getHeapFromRuntime() heap usage}.
+     * The memory usage list, never null, may be empty. The values are in MB.
      */
-    public static final int POOL_HEAP = 0;
-    /**
-     * The {@link MgmtUtils#getNonHeapSummary() non-heap usage}, may be null.
-     */
-    public static final int POOL_NON_HEAP = 1;
-    /**
-     * The
-     * {@link IMemoryInfoProvider#getPhysicalMemory() host OS physical memory},
-     * may be null.
-     */
-    public static final int POOL_PHYS_MEM = 2;
-    /**
-     * The {@link IMemoryInfoProvider#getSwap() swap}, may be null.
-     */
-    public static final int POOL_SWAP = 3;
-    /**
-     * The memory usage list, indexed according to the value of the
-     * <code>POOL_*</code> constants. The values are in MB.
-     */
-    public final MemoryUsage[] memPoolUsage;
+    public final Map<MemoryPools, MemoryUsage> memPoolUsage;
     /**
      * A thread dump. Does not contain any stacktraces.
      */
@@ -92,10 +102,10 @@ public final class HistorySample {
      */
     public final int cpuIOUsage;
 
-    private HistorySample(int gcCpuUsage, MemoryUsage[] memPoolUsage, ThreadMap threads, int classesLoaded, int cpuUsage, int cpuJavaUsage, int cpuIOUsage, long sampleTime) {
+    private HistorySample(int gcCpuUsage, EnumMap<MemoryPools, MemoryUsage> memPoolUsage, ThreadMap threads, int classesLoaded, int cpuUsage, int cpuJavaUsage, int cpuIOUsage, long sampleTime) {
         this.sampleTime = sampleTime;
         this.gcCpuUsage = gcCpuUsage;
-        this.memPoolUsage = memPoolUsage;
+        this.memPoolUsage = Collections.unmodifiableMap(memPoolUsage);
         this.threads = threads;
         this.classesLoaded = classesLoaded;
         this.cpuUsage = cpuUsage;
@@ -104,16 +114,20 @@ public final class HistorySample {
     }
 
     /**
-     * A mutable builder for the {@link HistorySample}. Serializable, with the exception of {@link #threads} field - the field is not serialized and is null upon deserialization.
+     * A mutable builder for the {@link HistorySample}. Serializable, with the
+     * exception of {@link #threads} field - the field is not serialized and is
+     * null upon deserialization.
      */
     public static class Builder implements Externalizable {
+
         public Builder copy(HistorySample hs) {
             this.classesLoaded = hs.classesLoaded;
             this.cpuIOUsage = hs.cpuIOUsage;
             this.cpuJavaUsage = hs.cpuJavaUsage;
             this.cpuUsage = hs.cpuUsage;
             this.gcCpuUsage = hs.gcCpuUsage;
-            this.memPoolUsage = hs.memPoolUsage;
+            this.memPoolUsage.clear();
+            this.memPoolUsage.putAll(hs.memPoolUsage);
             this.sampleTime = hs.sampleTime;
             this.threads = hs.threads;
             return this;
@@ -130,10 +144,9 @@ public final class HistorySample {
          */
         public int gcCpuUsage = 0;
         /**
-         * The memory usage list, indexed according to the value of the
-         * <code>POOL_*</code> constants. The values are in MB.
+         * The memory usage list. The values are in MB.
          */
-        public MemoryUsage[] memPoolUsage = new MemoryUsage[4];
+        public final EnumMap<MemoryPools, MemoryUsage> memPoolUsage = new EnumMap<MemoryPools, MemoryUsage>(MemoryPools.class);
         /**
          * A thread dump. Does not contain any stacktraces. Never null.
          */
@@ -185,10 +198,10 @@ public final class HistorySample {
         }
 
         public Builder autodetectMeminfo(IMemoryInfoProvider meminfo) {
-            memPoolUsage[POOL_HEAP] = MemoryUsages.getInMB(MemoryUsages.getHeapFromRuntime());
-            memPoolUsage[POOL_NON_HEAP] = MemoryUsages.getInMB(MemoryUsages.getNonHeapSummary());
-            memPoolUsage[POOL_PHYS_MEM] = MemoryUsages.getInMB(meminfo.getPhysicalMemory());
-            memPoolUsage[POOL_SWAP] = MemoryUsages.getInMB(meminfo.getSwap());
+            memPoolUsage.put(MemoryPools.Heap, MemoryUsages.getInMB(Memory.getHeapFromRuntime()));
+            memPoolUsage.put(MemoryPools.NonHeap, MemoryUsages.getInMB(Memory.getNonHeapSummary()));
+            memPoolUsage.put(MemoryPools.PhysMem, MemoryUsages.getInMB(meminfo.getPhysicalMemory()));
+            memPoolUsage.put(MemoryPools.Swap, MemoryUsages.getInMB(meminfo.getSwap()));
             return this;
         }
 
@@ -214,6 +227,7 @@ public final class HistorySample {
             out.writeLong(mu.getUsed());
             out.writeLong(mu.getMax());
         }
+
         private static MemoryUsage read(DataInput in) throws IOException {
             final long init = in.readLong();
             final long committed = in.readLong();
@@ -221,20 +235,21 @@ public final class HistorySample {
             final long max = in.readLong();
             return new MemoryUsage(init, used, committed, max);
         }
-        
+
         public void writeExternal(ObjectOutput out) throws IOException {
             writeTo(out);
         }
-        
+
         public void writeTo(DataOutput out) throws IOException {
             out.writeLong(sampleTime);
             out.writeByte(gcCpuUsage);
             if (memPoolUsage == null) {
                 out.writeByte(0);
             } else {
-                out.writeByte(memPoolUsage.length);
-                for (MemoryUsage mu: memPoolUsage) {
-                    write(mu, out);
+                out.writeByte(memPoolUsage.size());
+                for (Map.Entry<MemoryPools, MemoryUsage> mu : memPoolUsage.entrySet()) {
+                    out.writeByte(mu.getKey().ordinal());
+                    write(mu.getValue(), out);
                 }
             }
             out.writeInt(classesLoaded);
@@ -242,23 +257,76 @@ public final class HistorySample {
             out.writeByte(cpuIOUsage);
             out.writeByte(cpuJavaUsage);
         }
-            
+
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
             readFrom(in);
         }
-        
+
         public void readFrom(DataInput in) throws IOException {
             sampleTime = in.readLong();
             gcCpuUsage = in.readByte();
             final int mempoolCount = in.readByte();
-            memPoolUsage = new MemoryUsage[mempoolCount];
+            memPoolUsage.clear();
             for (int i = 0; i < mempoolCount; i++) {
-                memPoolUsage[i] = read(in);
+                memPoolUsage.put(MemoryPools.values()[in.readByte()], read(in));
             }
             classesLoaded = in.readInt();
             cpuUsage = in.readByte();
             cpuIOUsage = in.readByte();
             cpuJavaUsage = in.readByte();
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final HistorySample other = (HistorySample) obj;
+        if (this.gcCpuUsage != other.gcCpuUsage) {
+            return false;
+        }
+        if (!this.memPoolUsage.keySet().equals(other.memPoolUsage.keySet())) {
+            return false;
+        }
+        for (MemoryPools pool: memPoolUsage.keySet()) {
+            if (!equals(memPoolUsage.get(pool), other.memPoolUsage.get(pool))) {
+                return false;
+            }
+        }
+        if (this.classesLoaded != other.classesLoaded) {
+            return false;
+        }
+        if (this.cpuUsage != other.cpuUsage) {
+            return false;
+        }
+        if (this.cpuJavaUsage != other.cpuJavaUsage) {
+            return false;
+        }
+        if (this.cpuIOUsage != other.cpuIOUsage) {
+            return false;
+        }
+        return true;
+    }
+    
+    private static boolean equals(MemoryUsage m1, MemoryUsage m2) {
+        return m1.getCommitted() == m2.getCommitted() &&
+                m1.getInit() == m2.getInit() &&
+                m1.getMax() == m2.getMax() &&
+                m1.getUsed() == m2.getUsed();
+    }
+
+    @Override
+    public String toString() {
+        return "HistorySample{" + "gcCpuUsage=" + gcCpuUsage + ", sampleTime=" + sampleTime + ", memPoolUsage=" + memPoolUsage + ", classesLoaded=" + classesLoaded + ", cpuUsage=" + cpuUsage + ", cpuJavaUsage=" + cpuJavaUsage + ", cpuIOUsage=" + cpuIOUsage + '}';
     }
 }

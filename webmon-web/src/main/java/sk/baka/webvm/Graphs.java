@@ -233,7 +233,7 @@ public class Graphs extends WebVMPage {
     }
 
     private void drawHeap() {
-        drawMemoryUsageGraph("heapUsageGraph", HistorySample.POOL_HEAP);
+        drawMemoryUsageGraph("heapUsageGraph", HistorySample.MemoryPools.Heap);
         final IModel<MemoryUsage> heap = register(new LoadableDetachableModel<MemoryUsage>() {
 
             @Override
@@ -259,7 +259,7 @@ public class Graphs extends WebVMPage {
 
     private void drawNonHeap() {
         if (MemoryUsages.isNonHeapPool()) {
-            drawMemoryUsageGraph("nonHeapUsageGraph", HistorySample.POOL_NON_HEAP);
+            drawMemoryUsageGraph("nonHeapUsageGraph", HistorySample.MemoryPools.NonHeap);
             final IModel<MemoryUsage> nonHeap = register(new LoadableDetachableModel<MemoryUsage>() {
 
                 @Override
@@ -297,7 +297,7 @@ public class Graphs extends WebVMPage {
             }
         });
         if (physMem.getObject() != null) {
-            drawMemoryUsageGraph("physUsageGraph", HistorySample.POOL_PHYS_MEM);
+            drawMemoryUsageGraph("physUsageGraph", HistorySample.MemoryPools.PhysMem);
         } else {
             border.add(new Label("physUsageGraph", "No information available"));
         }
@@ -326,7 +326,7 @@ public class Graphs extends WebVMPage {
             }
         });
         if (swap.getObject() != null) {
-            drawMemoryUsageGraph("swapUsageGraph", HistorySample.POOL_SWAP);
+            drawMemoryUsageGraph("swapUsageGraph", HistorySample.MemoryPools.Swap);
             border.add(new Label("swapUsed", new LoadableDetachableModel<String>() {
 
                 @Override
@@ -402,18 +402,18 @@ public class Graphs extends WebVMPage {
      * @param index the memory usage index to the {@link HistorySample#memUsage}
      * array.
      */
-    private void drawMemoryUsageGraph(final String wid, final int index) {
+    private void drawMemoryUsageGraph(final String wid, final HistorySample.MemoryPools pool) {
         unescaped(wid, new LoadableDetachableModel<String>() {
 
             @Override
             protected String load() {
                 final GraphStyle gs = Graphs.newDefaultStyle();
                 gs.colors = new String[]{Graphs.COLOR_BLUE, Graphs.COLOR_BROWN};
-                long maxMem = history.getObject().isEmpty() ? -1 : history.getObject().get(0).memPoolUsage[index].getMax();
+                long maxMem = history.getObject().isEmpty() ? -1 : history.getObject().get(0).memPoolUsage.get(pool).getMax();
                 if (maxMem == -1) {
                     maxMem = 0;
                     for (final HistorySample hs : history.getObject()) {
-                        final MemoryUsage usage = hs.memPoolUsage[index];
+                        final MemoryUsage usage = hs.memPoolUsage.get(pool);
                         if (maxMem < usage.getCommitted()) {
                             maxMem = usage.getCommitted();
                         }
@@ -422,7 +422,7 @@ public class Graphs extends WebVMPage {
                 }
                 final BluffGraph dg = new BluffGraph((int) maxMem, gs);
                 for (final HistorySample hs : history.getObject()) {
-                    final MemoryUsage usage = hs.memPoolUsage[index];
+                    final MemoryUsage usage = hs.memPoolUsage.get(pool);
                     dg.add(new int[]{(int) usage.getUsed(), (int) usage.getCommitted()});
                 }
                 dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength(), false);
