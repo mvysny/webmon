@@ -22,7 +22,7 @@ import java.lang.management.MemoryUsage;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 
 /**
- * Provides the Working Set value.
+ * Provides the RSS and SWAP values.
  * @author Martin Vysny
  */
 public class LinuxProcessMemoryProvider implements IMemoryInfoProvider {
@@ -37,7 +37,9 @@ public class LinuxProcessMemoryProvider implements IMemoryInfoProvider {
     }
 
     public MemoryUsage getSwap() {
-        return null;
+        final Proc.PidStatus status = Proc.PidStatus.now(pid);
+        final long swap = status == null ? 0 : status.getVmSwap();
+        return new MemoryUsage(0, swap, swap, swap);
     }
 
     public MemoryUsage getPhysicalMemory() {
