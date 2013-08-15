@@ -108,9 +108,9 @@ public class WebmonModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public IHistorySampler newHistorySampler(Config cfg, IMemoryInfoProvider meminfo, IProblemAnalyzer a) {
+    public IHistorySampler newHistorySampler(Config cfg, IProblemAnalyzer a) {
         final INotificationDelivery d = new NotificationDelivery(cfg);
-        return new HistorySampler(meminfo, a, d);
+        return new HistorySampler(a, d);
     }
     
     @Provides
@@ -122,6 +122,6 @@ public class WebmonModule extends AbstractModule {
     @Provides
     @Singleton
     protected IMemoryInfoProvider getMemoryInfoProvider() {
-        return MemoryUsages.getMemoryInfoProvider();
+        return sk.baka.webvm.analyzer.hostos.Memory.getOSMemoryInfoProvider();
     }
 }
