@@ -46,23 +46,21 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
 
     /**
      * Creates new sampler instance with default values.
-     * @param meminfo memory info provider, not null.
      * @param analyzer a configured instance of the analyzer. May be null if this functionality is not required.
      * @param notificator the notificator, may be null if not needed. 
      */
-    public HistorySampler(IMemoryInfoProvider meminfo, IProblemAnalyzer analyzer, INotificationDelivery notificator) {
-        this(HISTORY_VMSTAT, HISTORY_PROBLEMS, meminfo, analyzer, notificator);
+    public HistorySampler(IProblemAnalyzer analyzer, INotificationDelivery notificator) {
+        this(HISTORY_VMSTAT, HISTORY_PROBLEMS, analyzer, notificator);
     }
 
     /**
      * Creates new sampler instance.
      * @param vmstatConfig the vmstat sampler config
      * @param problemConfig the problem sampler config
-     * @param meminfo memory info provider, not null.
      * @param analyzer a configured instance of the analyzer. May be null if this functionality is not required.
      * @param notificator the notificator, may be null if not needed. 
      */
-    public HistorySampler(final SamplerConfig vmstatConfig, final SamplerConfig problemConfig, final IMemoryInfoProvider meminfo, final IProblemAnalyzer analyzer, INotificationDelivery notificator) {
+    public HistorySampler(final SamplerConfig vmstatConfig, final SamplerConfig problemConfig, final IProblemAnalyzer analyzer, INotificationDelivery notificator) {
         super("Sampler", 1);
         this.vmstatConfig = vmstatConfig;
         this.problemConfig = problemConfig;
@@ -76,7 +74,7 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
 
     /**
      * Sets the new configuration file.
-     * @param config the new config file.
+     * @param cfg the new config file.
      */
     public void configChanged(Config cfg) {
         if (notificator != null) {

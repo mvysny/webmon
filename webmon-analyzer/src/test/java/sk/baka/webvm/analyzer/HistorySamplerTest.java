@@ -43,7 +43,7 @@ public class HistorySamplerTest {
         assumeTrue(SystemUtils.isJavaVersionAtLeast(160));
         // na Windows nejak thready startuju pomalsie alebo co, proste test nefunguje
         assumeTrue(OS.isLinux());
-        final HistorySampler hs = new HistorySampler(new SamplerConfig(100, Integer.MAX_VALUE, Integer.MAX_VALUE), new SamplerConfig(100, 75, 0), new MemoryJMXStrategy(), new ProblemAnalyzer(new Config(), new MemoryJMXStrategy()), null);
+        final HistorySampler hs = new HistorySampler(new SamplerConfig(100, Integer.MAX_VALUE, Integer.MAX_VALUE), new SamplerConfig(100, 75, 0), new ProblemAnalyzer(new Config(), new MemoryJMXStrategy()), null);
         hs.start();
         try {
             Thread.sleep(100);
