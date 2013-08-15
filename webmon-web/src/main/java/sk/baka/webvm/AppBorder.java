@@ -34,7 +34,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
-import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.util.resource.StringResourceStream;
 import org.apache.wicket.validation.validator.StringValidator;
 import sk.baka.webvm.analyzer.IHistorySampler;

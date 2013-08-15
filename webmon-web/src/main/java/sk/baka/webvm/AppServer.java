@@ -27,7 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.Context;
 import org.apache.wicket.markup.html.basic.Label;
-import sk.baka.tools.javaee.JeeServer;
+import sk.baka.webvm.analyzer.hostos.JavaEEServer;
 
 /**
  * Shows an information about an application server: the connection strings, Hibernate configuration etc.
@@ -35,7 +35,7 @@ import sk.baka.tools.javaee.JeeServer;
  */
 public class AppServer extends WebVMPage {
 
-    public AppServer(final JeeServer server) {
+    public AppServer(final JavaEEServer server) {
         super();
         border.add(new Label("appServerName", server.getServerName()));
         border.add(new Label("sampleCodeRemoteEjb", getSampleCodeRemoteEjb(server)));
@@ -54,7 +54,7 @@ public class AppServer extends WebVMPage {
         return str == null ? "unknown" : str;
     }
 
-    private String getSampleCodeRemoteEjb(final JeeServer server) {
+    private String getSampleCodeRemoteEjb(final JavaEEServer server) {
         final StringBuilder sb = new StringBuilder();
         sb.append("final Properties p = new Properties();\n");
         final Properties p = server.getJNDIProperties(false);

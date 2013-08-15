@@ -19,7 +19,7 @@
 package sk.baka.webvm;
 
 import org.junit.Test;
-import sk.baka.tools.javaee.JeeServer;
+import sk.baka.webvm.analyzer.hostos.JavaEEServer;
 
 /**
  * Simple test using the WicketTester
@@ -29,6 +29,6 @@ public class AppServerTest extends AbstractWicket {
 
     @Test
     public void testRenderPage() {
-        startPage(new AppServer(JeeServer.JBoss));
+        startPage(new AppServer(JavaEEServer.JBoss));
     }
 }

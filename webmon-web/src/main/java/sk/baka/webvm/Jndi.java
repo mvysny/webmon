@@ -37,7 +37,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import org.apache.wicket.markup.html.tree.LabelTree;
 import org.apache.wicket.model.LoadableDetachableModel;
-import sk.baka.tools.javaee.JeeServer;
+import sk.baka.webvm.analyzer.hostos.JavaEEServer;
 
 /**
  * Shows the JNDI tree.
@@ -302,7 +302,7 @@ public final class Jndi extends WebVMPage {
     }
     static String jndiFix(String name) {
         // workaround: Glassfish returns java:comp/env as a single child of java:comp. It should return just env instead. Fix that.
-        if (JeeServer.getRuntimeNull() == JeeServer.Glassfish && name.equals("java:comp/env")) {
+        if (JavaEEServer.getRuntimeNull() == JavaEEServer.Glassfish && name.equals("java:comp/env")) {
             return "env";
         }
         return name;

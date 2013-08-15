@@ -36,7 +36,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import sk.baka.tools.javaee.JeeServer;
+import sk.baka.webvm.analyzer.hostos.JavaEEServer;
 
 /**
  * Homepage
@@ -55,7 +55,7 @@ public class HomePage extends WebVMPage {
         border.add(new Label("hw", System.getProperty("os.arch") + "; CPU#: " + Runtime.getRuntime().availableProcessors()));
         border.add(new Label("java", System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + " by " + System.getProperty("java.vm.vendor")));
         border.add(new Label("netInterfaces", getAllInterfaces()));
-        final JeeServer server = JeeServer.getRuntimeNull();
+        final JavaEEServer server = JavaEEServer.getRuntimeNull();
         // java properties
         listMap(border, new SystemPropertiesProducer(), "systemProperties", "sysPropName", "sysPropValue");
         // environment properties
@@ -64,8 +64,8 @@ public class HomePage extends WebVMPage {
 
             @Override
             public void onClick() {
-                if (JeeServer.getRuntimeNull() != null) {
-                    setResponsePage(new AppServer(JeeServer.getRuntimeNull()));
+                if (JavaEEServer.getRuntimeNull() != null) {
+                    setResponsePage(new AppServer(JavaEEServer.getRuntimeNull()));
                 }
             }
         };
