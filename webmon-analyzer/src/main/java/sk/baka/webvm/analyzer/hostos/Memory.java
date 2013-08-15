@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm.analyzer.hostos;
 
+import sk.baka.webvm.analyzer.hostos.linux.LinuxProcessMemoryProvider;
 import sk.baka.webvm.analyzer.hostos.linux.MemoryLinuxStrategy;
 import sk.baka.webvm.analyzer.hostos.windows.MemoryWindowsStrategy;
 import java.lang.management.ManagementFactory;
@@ -171,30 +172,5 @@ public class Memory {
      */
     public static SortedMap<String, MemoryPoolMXBean> getMemoryPools() {
         return MEMORY_POOLS;
-    }
-
-    /**
-     * Provides the Working Set value.
-     */
-    private static class LinuxProcessMemoryProvider implements IMemoryInfoProvider {
-        private final int pid;
-
-        public LinuxProcessMemoryProvider(int pid) {
-            this.pid = pid;
-        }
-        
-        public static boolean isAvailable() {
-            return Cpu.LinuxProcStat.isAvailable();
-        }
-
-        public MemoryUsage getSwap() {
-            return null;
-        }
-
-        public MemoryUsage getPhysicalMemory() {
-            final Cpu.Stat stat = Cpu.Stat.now(pid);
-            final long rss = stat == null ? 0 : stat.getRSSAsBytes();
-            return new MemoryUsage(0, rss, rss, rss);
-        }
     }
 }
