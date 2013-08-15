@@ -22,7 +22,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -161,15 +163,20 @@ public class Proc {
      * The contents of the Linux /proc/[pid]/stat file.
      */
     public static final class PidStat {
+
         public final long utimeJiffies;
         public final long stimeJiffies;
         /**
-         * RSS, Resident Set Size: number of pages the process has in real memory. This is just the pages which count toward text, data, or stack space. This does not include pages which have not been demand-loaded in, or which are swapped out.
+         * RSS, Resident Set Size: number of pages the process has in real
+         * memory. This is just the pages which count toward text, data, or
+         * stack space. This does not include pages which have not been
+         * demand-loaded in, or which are swapped out.
          */
         public final int rssPages;
-        
+
         /**
          * Returns the RSS field in bytes.
+         *
          * @return RSS in bytes.
          */
         public long getRSSAsBytes() {
@@ -184,7 +191,7 @@ public class Proc {
             this.stimeJiffies = stimeJiffies;
             this.rssPages = rssPages;
         }
-        
+
         public static PidStat now(int pid) {
             final File pidstat = new File("/proc/" + pid + "/stat");
             final String[] stat;
@@ -208,6 +215,78 @@ public class Proc {
         @Override
         public String toString() {
             return "PidStat{" + "utimeJiffies=" + utimeJiffies + ", stimeJiffies=" + stimeJiffies + ", rssPages=" + rssPages + '}';
+        }
+    }
+
+    /**
+     * The /proc/[pid]/status file contents. Immutable, thread-safe.
+     */
+    public static final class PidStatus {
+
+        private final Map<String, String> properties;
+
+        public PidStatus(Map<String, String> properties) {
+            this.properties = new HashMap<String, String>(properties);
+        }
+
+        public static PidStatus now(int pid) {
+            final File f = new File("/proc/" + pid + "/status");
+            final Map<String, String> props = new HashMap<String, String>();
+            try {
+                final Scanner s = new Scanner(f);
+                try {
+                    for (; s.hasNextLine();) {
+                        final String line = s.nextLine().trim();
+                        if (MiscUtils.isBlank(line)) {
+                            continue;
+                        }
+                        String name = line.split("\\s+")[0];
+                        final String value = line.substring(name.length()).trim();
+                        if (name.endsWith(":")) {
+                            name = name.substring(0, name.length() - 1);
+                        }
+                        props.put(name, value);
+                    }
+                } finally {
+                    MiscUtils.closeQuietly(s);
+                }
+            } catch (IOException ex) {
+                log.log(Level.INFO, "Failed to parse " + f, ex);
+                return null;
+            }
+            return new PidStatus(props);
+        }
+
+        public long getValueInBytes(String name) {
+            String value = properties.get(name);
+            if (value == null) {
+                throw new IllegalArgumentException("Parameter name: invalid value " + name + ": not present in properties. Available properties: " + properties.keySet());
+            }
+            return parseValueInBytes(value);
+        }
+        
+        private static long parseValueInBytes(String value) {
+            long multiplier = 1;
+            if (value.toLowerCase().endsWith("kb")) {
+                multiplier = 1024;
+                value = value.substring(0, value.length() - 2).trim();
+            }
+            return multiplier * Long.parseLong(value);
+        }
+
+        public long getValueInBytesNull(String name) {
+            String value = properties.get(name);
+            if (value == null) {
+                return 0;
+            }
+            return parseValueInBytes(value);
+        }
+
+        public long getVmSwap() {
+            return getValueInBytes("VmSwap");
+        }
+        public long getVmPTE() {
+            return getValueInBytes("VmPTE");
         }
     }
 }
