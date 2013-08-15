@@ -1,11 +1,8 @@
 package sk.baka.webvm.analyzer;
 
-import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -170,28 +167,25 @@ public class TextDump {
         table.verticalContentsSeparator = false;
         final List<Boolean> rightAlign = new ArrayList<Boolean>(Collections.nCopies(history.size() + 1, Boolean.TRUE));
         table.add(header, rightAlign);
-        final List<List<String>> content = new ArrayList<List<String>>(4);
-        content.add(new ArrayList<String>(Collections.singletonList("Java Heap")));
-        content.add(new ArrayList<String>(Collections.singletonList("Java Non-Heap")));
-        content.add(new ArrayList<String>(Collections.singletonList("OS Memory")));
-        content.add(new ArrayList<String>(Collections.singletonList("OS Swap")));
+        final List<List<String>> content = new ArrayList<List<String>>();
         final HistorySample last = history.isEmpty() ? null : history.get(history.size() - 1);
-        if (last != null) {
-            for (int i = 0; i < 4; i++) {
-                if (i != 0) {
+        for (HistorySample.MemoryPools pool: HistorySample.MemoryPools.values()) {
+            content.add(new ArrayList<String>(Collections.singletonList(pool.displayable)));
+            if (last != null) {
+                if (content.size() > 1) {
                     sb.append(" / ");
                 }
-                sb.append(content.get(i).get(0)).append(": ");
-                sb.append(MemoryUsages.toString(last.memPoolUsage[i], true));
+                sb.append(content.get(content.size() - 1).get(0)).append(": ");
+                sb.append(MemoryUsages.toString(last.memPoolUsage.get(pool), true));
             }
-            sb.append("\n");
         }
+        sb.append("\n");
         for (int i = 0; i < history.size(); i++) {
-            for (int j = 0; j < 4; j++) {
-                content.get(j).add(getUsagePerc(history.get(i).memPoolUsage[j]));
+            for (int j = 0; j < HistorySample.MemoryPools.values().length; j++) {
+                content.get(j).add(getUsagePerc(history.get(i).memPoolUsage.get(HistorySample.MemoryPools.values()[j])));
             }
         }
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < HistorySample.MemoryPools.values().length; i++) {
             table.add(content.get(i), rightAlign);
         }
         sb.append(table.toString());
