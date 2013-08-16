@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -219,21 +220,25 @@ public class Proc {
     }
 
     /**
-     * The /proc/[pid]/status file contents. Immutable, thread-safe.
+     * A file in the form of NAME: VALUE. Immutable, thread-safe.
      */
-    public static final class PidStatus {
-
+    public static final class LinuxProperties {
         private final Map<String, String> properties;
 
-        public PidStatus(Map<String, String> properties) {
+        public LinuxProperties(Map<String, String> properties) {
             this.properties = new HashMap<String, String>(properties);
         }
-
-        public static PidStatus now(int pid) {
-            final File f = new File("/proc/" + pid + "/status");
+        public static final LinuxProperties EMPTY = new LinuxProperties(Collections.<String, String>emptyMap());
+        
+        /**
+         * Parses given file. Never fails. Returns empty property instance on error.
+         * @param file the file to parse, not null.
+         * @return properties, never null.
+         */
+        public static LinuxProperties parse(File file) {
             final Map<String, String> props = new HashMap<String, String>();
             try {
-                final Scanner s = new Scanner(f);
+                final Scanner s = new Scanner(file);
                 try {
                     for (; s.hasNextLine();) {
                         final String line = s.nextLine().trim();
@@ -251,12 +256,12 @@ public class Proc {
                     MiscUtils.closeQuietly(s);
                 }
             } catch (IOException ex) {
-                log.log(Level.INFO, "Failed to parse " + f, ex);
-                return null;
+                log.log(Level.INFO, "Failed to parse " + file, ex);
+                return EMPTY;
             }
-            return new PidStatus(props);
+            return new LinuxProperties(props);
         }
-
+        
         public long getValueInBytes(String name) {
             String value = properties.get(name);
             if (value == null) {
@@ -274,7 +279,7 @@ public class Proc {
             return multiplier * Long.parseLong(value);
         }
 
-        public long getValueInBytesNull(String name) {
+        public long getValueInBytesZero(String name) {
             String value = properties.get(name);
             if (value == null) {
                 return 0;
@@ -282,11 +287,39 @@ public class Proc {
             return parseValueInBytes(value);
         }
 
+        public Long getValueInBytesNull(String name) {
+            String value = properties.get(name);
+            if (value == null) {
+                return null;
+            }
+            return parseValueInBytes(value);
+        }
+
+        public boolean isEmpty() {
+            return properties.isEmpty();
+        }
+    }
+    
+    /**
+     * The /proc/[pid]/status file contents. Immutable, thread-safe.
+     */
+    public static final class PidStatus {
+        public final LinuxProperties props;
+
+        public PidStatus(LinuxProperties props) {
+            this.props = Objects.requireNonNull(props);
+        }
+
+        public static PidStatus now(int pid) {
+            final File f = new File("/proc/" + pid + "/status");
+            return new PidStatus(LinuxProperties.parse(f));
+        }
+
         public long getVmSwap() {
-            return getValueInBytes("VmSwap");
+            return props.getValueInBytes("VmSwap");
         }
         public long getVmPTE() {
-            return getValueInBytes("VmPTE");
+            return props.getValueInBytes("VmPTE");
         }
     }
 }
