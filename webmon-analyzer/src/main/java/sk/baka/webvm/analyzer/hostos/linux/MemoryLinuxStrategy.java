@@ -18,18 +18,12 @@
  */
 package sk.baka.webvm.analyzer.hostos.linux;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.File;
 import java.lang.management.MemoryUsage;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.analyzer.hostos.OS;
-import sk.baka.webvm.analyzer.utils.Constants;
-import sk.baka.webvm.analyzer.utils.MiscUtils;
 import sk.baka.webvm.analyzer.utils.Processes;
 
 /**
@@ -38,33 +32,10 @@ import sk.baka.webvm.analyzer.utils.Processes;
 public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
 
     private static final boolean AVAIL;
-    private static final String MEMINFO = "/proc/meminfo";
+    private static final File MEMINFO = new File("/proc/meminfo");
 
-    private static Map<String, Long> parseMeminfo(final String memInfo) throws IOException {
-        final Map<String, Long> result = new HashMap<String, Long>();
-        final BufferedReader in = new BufferedReader(new FileReader(memInfo));
-        try {
-            for (String line = in.readLine(); line != null; line = in.readLine()) {
-                int colon = line.indexOf(':');
-                if (colon < 0) {
-                    continue;
-                }
-                final String key = line.substring(0, colon);
-                String value = line.substring(colon + 1, line.length()).trim();
-                if (value.endsWith(" kB")) {
-                    value = value.substring(0, value.length() - " kB".length());
-                }
-                try {
-                    final long val = Long.parseLong(value);
-                    result.put(key, val);
-                } catch (NumberFormatException ex) {
-                    continue;
-                }
-            }
-        } finally {
-            MiscUtils.closeQuietly(in);
-        }
-        return result;
+    private static Proc.LinuxProperties parseMeminfo() {
+        return Proc.LinuxProperties.parse(MEMINFO);
     }
     private static final Logger log = Logger.getLogger(MemoryLinuxStrategy.class.getName());
 
@@ -77,10 +48,11 @@ public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
         int pageSize = -1;
         if (OS.isLinuxBased()) {
             try {
-                parseMeminfo(MEMINFO);
-                pageSize = Integer.parseInt(Processes.executeAndWait(null, "getconf", "PAGESIZE").checkSuccess().getOutput().trim());
-                log.info("Linux reports page size of " + pageSize + " bytes long");
-                avail = true;
+                if (!parseMeminfo().isEmpty()) {
+                    pageSize = Integer.parseInt(Processes.executeAndWait(null, "getconf", "PAGESIZE").checkSuccess().getOutput().trim());
+                    log.info("Linux reports page size of " + pageSize + " bytes long");
+                    avail = true;
+                }
             } catch (Throwable ex) {
                 log.log(Level.INFO, "MemoryLinuxStrategy disabled: a failure occurred retrieving system information", ex);
             }
@@ -101,42 +73,36 @@ public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
         if (!available()) {
             return null;
         }
-        final Map<String, Long> memInfo;
-        try {
-            memInfo = parseMeminfo(MEMINFO);
-        } catch (Exception t) {
-            log.log(Level.INFO, "Failed to obtain Linux memory statistics", t);
+        final Proc.LinuxProperties memInfo = parseMeminfo();
+        if (memInfo.isEmpty()) {
             return null;
         }
-        final Long total = memInfo.get("MemTotal");
-        final Long free = memInfo.get("MemFree");
-        final Long buffers = memInfo.get("Buffers");
-        final Long cache = memInfo.get("Cached");
+        final Long total = memInfo.getValueInBytesNull("MemTotal");
+        final Long free = memInfo.getValueInBytesNull("MemFree");
+        final Long buffers = memInfo.getValueInBytesNull("Buffers");
+        final Long cache = memInfo.getValueInBytesNull("Cached");
         if (total == null || free == null || buffers == null || cache == null) {
             return null;
         }
         final long committed = total - free;
         final long used = committed - buffers - cache;
-        return new MemoryUsage(-1, used * Constants.KIBIBYTES, committed * Constants.KIBIBYTES, total * Constants.KIBIBYTES);
+        return new MemoryUsage(-1, used, committed, total);
     }
 
     public MemoryUsage getSwap() {
         if (!available()) {
             return null;
         }
-        final Map<String, Long> memInfo;
-        try {
-            memInfo = parseMeminfo(MEMINFO);
-        } catch (Exception t) {
-            log.log(Level.INFO, "Failed to obtain Linux memory statistics", t);
-            throw new RuntimeException(t);
+        final Proc.LinuxProperties memInfo = parseMeminfo();
+        if (memInfo.isEmpty()) {
+            return null;
         }
-        final Long total = memInfo.get("SwapTotal");
-        final Long free = memInfo.get("SwapFree");
+        final Long total = memInfo.getValueInBytesNull("SwapTotal");
+        final Long free = memInfo.getValueInBytesNull("SwapFree");
         if (total == null || free == null) {
             return null;
         }
         final long used = total - free;
-        return new MemoryUsage(-1, used * Constants.KIBIBYTES, used * Constants.KIBIBYTES, total * Constants.KIBIBYTES);
+        return new MemoryUsage(-1, used, used, total);
     }
 }
