@@ -265,7 +265,8 @@ public class Proc {
         public long getValueInBytes(String name) {
             String value = properties.get(name);
             if (value == null) {
-                throw new IllegalArgumentException("Parameter name: invalid value " + name + ": not present in properties. Available properties: " + properties.keySet());
+                log.info("Parameter name: invalid value " + name + ": not present in properties. Available properties: " + properties.keySet());
+                return 0;
             }
             return parseValueInBytes(value);
         }

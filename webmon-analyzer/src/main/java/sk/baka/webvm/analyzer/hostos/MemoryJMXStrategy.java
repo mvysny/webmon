@@ -23,6 +23,7 @@ import java.lang.management.MemoryUsage;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import sk.baka.webvm.analyzer.utils.MemoryUsages;
 
 /**
  * Retrieves host OS memory info using com.sun.management.OperatingSystemMXBean
@@ -68,7 +69,7 @@ public final class MemoryJMXStrategy implements IMemoryInfoProvider {
             return null;
         }
     }
-
+    
     public MemoryUsage getSwap() {
         if (!available()) {
             return null;
