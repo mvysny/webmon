@@ -42,7 +42,13 @@ public class ProcessCpuUsageLinuxStrategy implements ICpuUsageMeasure {
         return ((StatWithTime) m2).getCpuUsage((StatWithTime) m1);
     }
     private static final class StatWithTime {
+        /**
+         * may be null.
+         */
         public final Proc.PidStat stat;
+        /**
+         * may be null.
+         */
         public final Proc.Stat procStat;
         public StatWithTime(Proc.PidStat stat, Proc.Stat procStat) {
             this.stat = stat;

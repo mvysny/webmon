@@ -47,7 +47,10 @@ public class LinuxProcessMemoryProvider implements IMemoryInfoProvider {
 
     public MemoryUsage getPhysicalMemory() {
         final Proc.PidStat stat = Proc.PidStat.now(pid);
-        final long rss = stat == null ? 0 : stat.getRSSAsBytes();
+        if (stat == null) {
+            return null;
+        }
+        final long rss = stat.getRSSAsBytes();
         return new MemoryUsage(0, rss, rss, rss);
     }
 }
