@@ -19,7 +19,6 @@
 package sk.baka.webvm.analyzer.hostos.windows;
 
 import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasure;
-import sk.baka.webvm.analyzer.hostos.windows.WMIUtils;
 
 /**
  *
@@ -34,5 +33,4 @@ public class CpuUsageWindowsStrategy implements ICpuUsageMeasure {
     public int getAvgCpuUsage(Object m1, Object m2) {
         return (Integer) m2;
     }
-    
 }
