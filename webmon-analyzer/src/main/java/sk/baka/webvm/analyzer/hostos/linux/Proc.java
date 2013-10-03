@@ -90,7 +90,11 @@ public class Proc {
         }
 
         public int getCpuUsage(Stat prev) {
-            int cpuIdle = (int) (Constants.HUNDRED_PERCENT * (idle - prev.idle) / (getTotal() - prev.getTotal()));
+            final long dtotal = getTotal() - prev.getTotal();
+            if (dtotal ==0) {
+                return 0;
+            }
+            int cpuIdle = (int) (Constants.HUNDRED_PERCENT * (idle - prev.idle) / dtotal);
             if (cpuIdle < 0) {
                 cpuIdle = 0;
             }
