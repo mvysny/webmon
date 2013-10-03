@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -256,8 +258,14 @@ public final class Memory extends WebVMPage {
 
             @Override
             protected String load() {
-                return DivGraph.drawMemoryStatus(usage.getObject(), width);
+                try {
+                    return DivGraph.drawMemoryStatus(usage.getObject(), width);
+                } catch (Throwable t) {
+                    log.log(Level.CONFIG, "Failed to obtain memory status", t);
+                    return "Failed to obtain: " + t;
+                }
             }
         });
     }
+    private static final Logger log = Logger.getLogger(Memory.class.getName());
 }

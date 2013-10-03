@@ -278,7 +278,7 @@ public class WMIUtils {
 //            final long maximumWorkingSetSize = (long) Dispatch.call(item, "MaximumWorkingSetSize").getInt() * 1024L;
             return new MemoryUsage(0, workingSetSize, peakWorkingSetSize, Math.max(workingSetSize, peakWorkingSetSize));
         }
-        return new MemoryUsage(0, 0, 0, 0);
+        return null;
     }
     
     /**

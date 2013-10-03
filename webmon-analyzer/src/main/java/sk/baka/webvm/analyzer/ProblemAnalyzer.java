@@ -172,29 +172,47 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
         result.add(getHostVirtMemReport());
         return result;
     }
-
+    private static final Logger log = Logger.getLogger(ProblemAnalyzer.class.getName());
     private final IMemoryInfoProvider meminfo;
     /**
      * Prepares the {@link #CLASS_HOST_MEMORY_USAGE} report.
      * @return report
      */
     public ProblemReport getHostVirtMemReport() {
-        final MemoryUsage phys = meminfo.getPhysicalMemory();
-        if (phys == null) {
-            return new ProblemReport(false, CLASS_HOST_MEMORY_USAGE, "Host memory reporting unsupported on this platform", getHostMemoryUsageDesc());
-        }
-        // buffer/cache information is available?
-        final boolean cbAvailable = (phys.getCommitted() == phys.getUsed());
         final StringBuilder sb = new StringBuilder();
-        if (cbAvailable) {
-            sb.append("buffers/cache detection not supported, disabled\n");
+        boolean isProblem = false;
+        // buffer/cache information is available?
+        boolean cbAvailable = false;
+        MemoryUsage phys = new MemoryUsage(0, 0, 0, 0);
+        try {
+            phys = meminfo.getPhysicalMemory();
+            if (phys == null) {
+                return new ProblemReport(false, CLASS_HOST_MEMORY_USAGE, "Host memory reporting unsupported on this platform", getHostMemoryUsageDesc());
+            }
+            cbAvailable = !(phys.getCommitted() == phys.getUsed());
+            if (!cbAvailable) {
+                sb.append("buffers/cache detection not supported, disabled\n");
+            }
+            sb.append("Physical memory used: ");
+            sb.append(phys.getCommitted() * Constants.HUNDRED_PERCENT / phys.getMax());
+            sb.append("%, minus buffers/cache: ");
+            sb.append(phys.getUsed() * Constants.HUNDRED_PERCENT / phys.getMax());
+            sb.append("%\n");
+        } catch (Throwable t) {
+            sb.append("Failed to obtain physical memory usage: ").append(t).append("\n");
+            log.log(Level.CONFIG, "Failed to obtain physical memory usage", t);
+            isProblem = true;
         }
-        final MemoryUsage swap = meminfo.getSwap();
-        sb.append("Physical memory used: ");
-        sb.append(phys.getCommitted() * Constants.HUNDRED_PERCENT / phys.getMax());
-        sb.append("%, minus buffers/cache: ");
-        sb.append(phys.getUsed() * Constants.HUNDRED_PERCENT / phys.getMax());
-        sb.append("%\nSwap used: ").append(MemoryUsages.getUsagePerc(swap));
+        sb.append("Swap used: ");
+        MemoryUsage swap = new MemoryUsage(0, 0, 0, 0);
+        try {
+            swap = meminfo.getSwap();
+            sb.append(MemoryUsages.getUsagePerc(swap));
+        } catch (Throwable t) {
+            sb.append("Failed to obtain swap usage: ").append(t);
+            log.log(Level.CONFIG, "Failed to obtain swap usage", t);
+            isProblem = true;
+        }
         sb.append('\n');
         final long total = phys.getMax() + (swap == null ? 0 : swap.getMax());
         final long used = phys.getUsed() + (swap == null ? 0 : swap.getUsed());
@@ -202,7 +220,7 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
         sb.append("Total virtual memory usage: ");
         sb.append(usedPerc);
         sb.append('%');
-        final boolean isProblem = !cbAvailable && (usedPerc >= config.hostVirtMem);
+        isProblem |= cbAvailable && (usedPerc >= config.hostVirtMem);
         return new ProblemReport(isProblem, CLASS_HOST_MEMORY_USAGE, sb.toString(), getHostMemoryUsageDesc());
     }
 

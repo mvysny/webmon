@@ -20,7 +20,6 @@ package sk.baka.webvm.analyzer.hostos;
 
 import java.io.Serializable;
 import java.lang.management.MemoryUsage;
-import sk.baka.webvm.analyzer.utils.MemoryUsages;
 
 /**
  * Provides memory information. Implementors must be thread-safe.
@@ -31,7 +30,7 @@ import sk.baka.webvm.analyzer.utils.MemoryUsages;
 public interface IMemoryInfoProvider extends Serializable {
 
     /**
-     * Returns swap memory information for host OS. The method should not throw an exception - null should be returned instead.
+     * Returns swap memory information for host OS.
      * <p/>
      * The meaning of the values being returned:
      * <ul>
@@ -42,11 +41,12 @@ public interface IMemoryInfoProvider extends Serializable {
      * </ul>
      * The following holds true: <code>init &lt;= used == committed &lt;= max</code>.
      * @return memory usage or null if the information is unavailable.
+     * @throws RuntimeException if the information retrieval fails.
      */
     MemoryUsage getSwap();
 
     /**
-     * Returns physical memory information for host OS. The method should not throw an exception - null should be returned instead.
+     * Returns physical memory information for host OS.
      * <p/>
      * The meaning of the values being returned:
      * <ul>
@@ -57,6 +57,7 @@ public interface IMemoryInfoProvider extends Serializable {
      * </ul>
      * The following holds true: <code>init &lt;= used &lt;= committed &lt;= max</code>.
      * @return memory usage or null if the information is unavailable.
+     * @throws RuntimeException if the information retrieval fails.
      */
     MemoryUsage getPhysicalMemory();
 }

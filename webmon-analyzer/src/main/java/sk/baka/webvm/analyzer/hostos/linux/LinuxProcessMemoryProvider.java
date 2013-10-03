@@ -38,7 +38,10 @@ public class LinuxProcessMemoryProvider implements IMemoryInfoProvider {
 
     public MemoryUsage getSwap() {
         final Proc.PidStatus status = Proc.PidStatus.now(pid);
-        final long swap = status == null ? 0 : status.getVmSwap();
+        if (status == null) {
+            return null;
+        }
+        final long swap = status.getVmSwap();
         return new MemoryUsage(0, swap, swap, swap);
     }
 
