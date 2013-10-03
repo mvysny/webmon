@@ -209,6 +209,11 @@ public class WMIUtils {
         return 0;
     }
     
+    /**
+     * Retrieves performance raw data for given process. Returns null if there is no process with given PID.
+     * @param pid the process PID.
+     * @return perf data or null if there is no such process.
+     */
     public static Win32_PerfRawData_PerfProc_Process getProcessPerfRawData(int pid) {
         checkAvailable();
         final Variant cpu = axWMI.invoke("ExecQuery", new Variant("Select PercentProcessorTime,TimeStamp_Sys100NS from Win32_PerfRawData_PerfProc_Process where IDProcess=" + pid));
@@ -267,6 +272,11 @@ public class WMIUtils {
         }
     }
     
+    /**
+     * Returns the process working set size.
+     * @param pid the process PID
+     * @return working set size or null if there is no such process with given PID.
+     */
     public static MemoryUsage getWorkingSetSize(int pid) {
         checkAvailable();
         final Variant cpu = axWMI.invoke("ExecQuery", new Variant("Select WorkingSetSize,PeakWorkingSetSize,MaximumWorkingSetSize from Win32_Process where ProcessId=" + pid));
