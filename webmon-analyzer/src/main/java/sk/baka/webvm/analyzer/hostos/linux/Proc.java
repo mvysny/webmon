@@ -262,6 +262,7 @@ public class Proc {
                     MiscUtils.closeQuietly(s);
                 }
             } catch (FileNotFoundException ex) {
+                log.log(Level.CONFIG, "File " + file + " does not exist", ex);
                 return null;
             }
             return new LinuxProperties(props);
