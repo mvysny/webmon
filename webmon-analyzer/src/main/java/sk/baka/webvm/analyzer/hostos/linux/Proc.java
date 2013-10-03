@@ -19,6 +19,7 @@ package sk.baka.webvm.analyzer.hostos.linux;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collections;
@@ -235,9 +236,10 @@ public class Proc {
         public static final LinuxProperties EMPTY = new LinuxProperties(Collections.<String, String>emptyMap());
         
         /**
-         * Parses given file. Never fails. Returns empty property instance on error.
+         * Parses given file. Fails if the file is unreadable or has invalid/unparsable contents. Returns null if the file does not exist.
          * @param file the file to parse, not null.
-         * @return properties, never null.
+         * @return properties, null if the file does not exist.
+         * @throws RuntimeException if the parsing fails.
          */
         public static LinuxProperties parse(File file) {
             final Map<String, String> props = new HashMap<String, String>();
@@ -259,9 +261,8 @@ public class Proc {
                 } finally {
                     MiscUtils.closeQuietly(s);
                 }
-            } catch (IOException ex) {
-                log.log(Level.INFO, "Failed to parse " + file, ex);
-                return EMPTY;
+            } catch (FileNotFoundException ex) {
+                return null;
             }
             return new LinuxProperties(props);
         }
