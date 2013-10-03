@@ -26,16 +26,17 @@ public interface ICpuUsageMeasure {
 
     /**
      * Measures an implementation-dependent CPU usage statistics. Used in {@link #getAvgCpuUsage(java.lang.Object, java.lang.Object)} to compute the real CPU usage.
-     * @return the measurement object
+     * @return the measurement object. May return null if the measurement is not available.
      * @throws Exception if something happens.
      */
     Object measure() throws Exception;
 
     /**
-     * Computes an average CPU usage between two measurements. The first measurement was taken before the second one was taken.<p/>
+     * Computes an average CPU usage between two measurements. The first measurement was taken before the second one was taken.
+     * <p/>
      * The method must not fail if m1 is same as m2 - in such case return 0.
-     * @param m1 first measurement.
-     * @param m2 second measurement
+     * @param m1 first measurement, must not be null.
+     * @param m2 second measurement, must not be null.
      * @return CPU usage in percent, must be a value between 0 and 100.
      */
     int getAvgCpuUsage(final Object m1, final Object m2);

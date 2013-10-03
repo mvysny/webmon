@@ -21,7 +21,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -65,6 +64,12 @@ public class Proc {
         }
         private static final File PROC_STAT = new File("/proc/stat");
 
+        /**
+         * Parses the file contents.
+         * @param pid the process PID.
+         * @return parsed file contents or null if the file does not exist or it does not contain the "cpu" line.
+         * @throws RuntimeException if the parse fails
+         */
         public static Stat now() {
             try {
                 final Scanner s = new Scanner(PROC_STAT);
@@ -80,10 +85,10 @@ public class Proc {
                 } finally {
                     MiscUtils.closeQuietly(s);
                 }
-            } catch (IOException ex) {
-                log.log(Level.INFO, "Failed to parse " + PROC_STAT, ex);
+            } catch (FileNotFoundException ex) {
+                log.log(Level.CONFIG, "Failed to parse " + PROC_STAT + " - the file does not exist", ex);
+                return null;
             }
-            return null;
         }
 
         public long getTotal() {
@@ -198,6 +203,12 @@ public class Proc {
             this.rssPages = rssPages;
         }
 
+        /**
+         * Parses the file.
+         * @param pid the process PID.
+         * @return parsed file contents or null if the file does not exist (probably because the process is terminated).
+         * @throws RuntimeException if the parse fails
+         */
         public static PidStat now(int pid) {
             final File pidstat = new File("/proc/" + pid + "/stat");
             final String[] stat;
@@ -208,8 +219,8 @@ public class Proc {
                 } finally {
                     MiscUtils.closeQuietly(s);
                 }
-            } catch (IOException ex) {
-                log.log(Level.INFO, "Failed to parse " + pidstat, ex);
+            } catch (FileNotFoundException ex) {
+                log.log(Level.CONFIG, "Failed to parse " + pidstat + ": the file does not exist", ex);
                 return null;
             }
             final long utimeJiffies = Long.parseLong(stat[13]);
@@ -328,9 +339,15 @@ public class Proc {
             this.props = Objects.requireNonNull(props);
         }
 
+        /**
+         * Parses the /proc/[pid]/status file.
+         * @param pid the process PID.
+         * @return parsed file contents or null if the file does not exist (probably because the process is terminated).
+         * @throws RuntimeException if the parse fails
+         */
         public static PidStatus now(int pid) {
-            final File f = new File("/proc/" + pid + "/status");
-            return new PidStatus(LinuxProperties.parse(f));
+            final LinuxProperties props = LinuxProperties.parse(new File("/proc/" + pid + "/status"));
+            return props == null ? null : new PidStatus(props);
         }
 
         public Long getVmSwapNull() {
