@@ -268,10 +268,16 @@ public class Proc {
             return new LinuxProperties(props);
         }
         
-        public long getValueInBytes(String name) {
-            String value = properties.get(name);
+        /**
+         * Returns a value in bytes, stored under given key.
+         * @param key the key, not null.
+         * @return value in bytes.
+         * @throws IllegalArgumentException if there is no such key.
+         */
+        public long getValueInBytes(String key) {
+            String value = properties.get(key);
             if (value == null) {
-                throw new IllegalArgumentException("Parameter name: invalid value " + name + ": not present in properties. Available properties: " + properties.keySet());
+                throw new IllegalArgumentException("Parameter key: invalid value " + key + ": not present in properties. Available properties: " + properties.keySet());
             }
             return parseValueInBytes(value);
         }
@@ -285,6 +291,11 @@ public class Proc {
             return multiplier * Long.parseLong(value);
         }
 
+        /**
+         * Returns a value in bytes, stored under given key.
+         * @param key the key, not null.
+         * @return value in bytes. If there is no such key, returns 0.
+         */
         public long getValueInBytesZero(String name) {
             String value = properties.get(name);
             if (value == null) {
@@ -293,16 +304,17 @@ public class Proc {
             return parseValueInBytes(value);
         }
 
+        /**
+         * Returns a value in bytes, stored under given key.
+         * @param key the key, not null.
+         * @return value in bytes. If there is no such key, returns null.
+         */
         public Long getValueInBytesNull(String name) {
             String value = properties.get(name);
             if (value == null) {
                 return null;
             }
             return parseValueInBytes(value);
-        }
-
-        public boolean isEmpty() {
-            return properties.isEmpty();
         }
     }
     

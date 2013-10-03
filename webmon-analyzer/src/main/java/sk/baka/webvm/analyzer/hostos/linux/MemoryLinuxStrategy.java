@@ -40,7 +40,7 @@ public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
     private static final Logger log = Logger.getLogger(MemoryLinuxStrategy.class.getName());
 
     /**
-     * The page size, -1 if not running on Linux.
+     * The page size, -1 if not running on Linux or if value retrieval fails.
      */
     public static final int PAGE_SIZE;
     static {
@@ -48,7 +48,7 @@ public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
         int pageSize = -1;
         if (OS.isLinuxBased()) {
             try {
-                if (!parseMeminfo().isEmpty()) {
+                if (parseMeminfo() != null) {
                     pageSize = Integer.parseInt(Processes.executeAndWait(null, "getconf", "PAGESIZE").checkSuccess().getOutput().trim());
                     log.info("Linux reports page size of " + pageSize + " bytes long");
                     avail = true;
@@ -74,9 +74,6 @@ public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
             return null;
         }
         final Proc.LinuxProperties memInfo = parseMeminfo();
-        if (memInfo.isEmpty()) {
-            return null;
-        }
         final Long total = memInfo.getValueInBytesNull("MemTotal");
         final Long free = memInfo.getValueInBytesNull("MemFree");
         final Long buffers = memInfo.getValueInBytesNull("Buffers");
@@ -94,9 +91,6 @@ public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
             return null;
         }
         final Proc.LinuxProperties memInfo = parseMeminfo();
-        if (memInfo.isEmpty()) {
-            return null;
-        }
         final Long total = memInfo.getValueInBytesNull("SwapTotal");
         final Long free = memInfo.getValueInBytesNull("SwapFree");
         if (total == null || free == null) {
