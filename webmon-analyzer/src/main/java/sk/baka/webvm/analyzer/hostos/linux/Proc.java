@@ -271,8 +271,7 @@ public class Proc {
         public long getValueInBytes(String name) {
             String value = properties.get(name);
             if (value == null) {
-                log.info("Parameter name: invalid value " + name + ": not present in properties. Available properties: " + properties.keySet());
-                return 0;
+                throw new IllegalArgumentException("Parameter name: invalid value " + name + ": not present in properties. Available properties: " + properties.keySet());
             }
             return parseValueInBytes(value);
         }
@@ -322,10 +321,10 @@ public class Proc {
             return new PidStatus(LinuxProperties.parse(f));
         }
 
-        public long getVmSwap() {
+        public Long getVmSwapNull() {
             return props.getValueInBytes("VmSwap");
         }
-        public long getVmPTE() {
+        public Long getVmPTENull() {
             return props.getValueInBytes("VmPTE");
         }
     }
