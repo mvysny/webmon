@@ -41,8 +41,8 @@ public class LinuxProcessMemoryProvider implements IMemoryInfoProvider {
         if (status == null) {
             return null;
         }
-        final long swap = status.getVmSwap();
-        return new MemoryUsage(0, swap, swap, swap);
+        final Long swap = status.getVmSwapNull();
+        return swap == null ? null : new MemoryUsage(0, swap, swap, swap);
     }
 
     public MemoryUsage getPhysicalMemory() {
