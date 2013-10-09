@@ -22,7 +22,7 @@
     <groupId>sk.baka.webmon</groupId>
     <artifactId>webmon</artifactId>
     <packaging>pom</packaging>
-    <version>0.14-SNAPSHOT</version>
+    <version>0.14</version>
     <name>WebMon</name>
     <description>WebMon: A Java Virtual Machine analyzer with Web interface. Ideal for watching out for your
         Tomcat or J2EE server installations. You can even embed it into your EAR.
