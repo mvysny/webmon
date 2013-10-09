@@ -271,9 +271,9 @@ public class Threads {
         final StringBuilder sb = new StringBuilder();
         sb.append("0x");
         sb.append(Long.toHexString(info.getThreadId()));
-        sb.append(" [");
+        sb.append(" named '");
         sb.append(info.getThreadName());
-        sb.append("] ");
+        sb.append("' ");
         sb.append(info.getThreadState().toString());
         if (info.isInNative()) {
             sb.append(", in native");
@@ -283,14 +283,14 @@ public class Threads {
         }
         final String lockName = info.getLockName();
         if (lockName != null) {
-            sb.append(", locked on [");
+            sb.append(", locked on lock named '");
             sb.append(lockName);
-            sb.append("]");
+            sb.append("'");
             sb.append(" owned by thread ");
-            sb.append(info.getLockOwnerId());
-            sb.append(" [");
+            sb.append(new ThreadID(info.getLockOwnerId()));
+            sb.append(" named '");
             sb.append(info.getLockOwnerName());
-            sb.append("]");
+            sb.append("'");
         }
         return sb.toString();
     }
