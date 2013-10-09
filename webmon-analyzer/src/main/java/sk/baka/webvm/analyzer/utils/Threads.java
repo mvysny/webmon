@@ -286,11 +286,15 @@ public class Threads {
             sb.append(", locked on lock named '");
             sb.append(lockName);
             sb.append("'");
-            sb.append(" owned by thread ");
-            sb.append(new ThreadID(info.getLockOwnerId()));
-            sb.append(" named '");
-            sb.append(info.getLockOwnerName());
-            sb.append("'");
+            sb.append(" owned by thread: ");
+            if (info.getLockOwnerId() < 0) {
+                sb.append("none");
+            } else {
+                sb.append(new ThreadID(info.getLockOwnerId()));
+                sb.append(" named '");
+                sb.append(info.getLockOwnerName());
+                sb.append("'");
+            }
         }
         return sb.toString();
     }
