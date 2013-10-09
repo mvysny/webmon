@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -447,14 +448,20 @@ public class Threads {
             if (!iterateBlockerThreads) {
                 return Threads.getThreadStacktrace(ti.info);
             }
+            final Set<ThreadID> visitedThreads = new HashSet<ThreadID>();
             final StringBuilder sb = new StringBuilder();
             sb.append(Threads.getThreadStacktrace(ti.info));
+            visitedThreads.add(ti.id);
             while (ti.hasBlockers()) {
                 sb.append("Blocked by ").append(ti.waiting);
                 final ThreadID blocker = ti.waiting.get(0);
                 Info ti2 = threads.get(blocker);
                 if (ti2 == null) {
                     sb.append("; WARNING: thread ").append(blocker).append(" is reportedly blocking this thread but is not available in thread dump - perhaps it is no longer alive?\n");
+                    break;
+                }
+                if (!visitedThreads.add(ti2.id)) {
+                    sb.append(", but thread ").append(ti2.id).append(" stack already printed - a deadlock?\n");
                     break;
                 }
                 sb.append(", stacktrace of thread ").append(ti2.id).append(" follows\n");
