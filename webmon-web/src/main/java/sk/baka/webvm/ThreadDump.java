@@ -18,9 +18,6 @@
  */
 package sk.baka.webvm;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.wicket.markup.html.basic.Label;
@@ -28,7 +25,8 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import sk.baka.webvm.analyzer.utils.MiscUtils;
+import sk.baka.webvm.analyzer.utils.ThreadID;
+import sk.baka.webvm.analyzer.utils.Threads;
 
 /**
  * Performs and displays a full thread dump.
@@ -48,39 +46,54 @@ public final class ThreadDump extends WebVMPage {
     /**
      * Provides a list of all VM threads.
      */
-    private static class ThreadListModel extends LoadableDetachableModel<List<ThreadInfo>> {
+    private static class ThreadListModel extends LoadableDetachableModel<List<ThreadDumpListItem>> {
 
         private static final long serialVersionUID = 1L;
 
         @Override
-        protected List<ThreadInfo> load() {
-            final ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-            final ThreadInfo[] info = bean.getThreadInfo(bean.getAllThreadIds(), Integer.MAX_VALUE);
-            final List<ThreadInfo> result = new ArrayList<ThreadInfo>(info.length);
-            for (final ThreadInfo i : info) {
-                if (i != null) {
-                    result.add(i);
-                }
+        protected List<ThreadDumpListItem> load() {
+            final sk.baka.webvm.analyzer.utils.Threads.Dump dump = new sk.baka.webvm.analyzer.utils.Threads.Dump();
+            final List<ThreadDumpListItem> list = new ArrayList<ThreadDumpListItem>();
+            for (ThreadID id: dump.threads.keySet()) {
+                list.add(new ThreadDumpListItem(dump, id));
             }
-            return result;
+            return list;
         }
     }
 
+    private static class ThreadDumpListItem {
+        public final sk.baka.webvm.analyzer.utils.Threads.Dump dump;
+        public final ThreadID id;
+
+        public ThreadDumpListItem(Threads.Dump dump, ThreadID id) {
+            this.dump = dump;
+            this.id = id;
+        }
+
+        public String getThreadMetadata() {
+            return dump.get(id).getThreadMetadata();
+        }
+
+        private String getThreadStacktrace() {
+            return dump.getThreadStacktrace(id, true);
+        }
+    }
+    
     /**
      * Wicket ListView which displays a thread list.
      */
-    private static class ThreadListView extends ListView<ThreadInfo> {
+    private static class ThreadListView extends ListView<ThreadDumpListItem> {
 
-        public ThreadListView(String id, IModel<? extends List<? extends ThreadInfo>> model) {
+        public ThreadListView(String id, IModel<? extends List<? extends ThreadDumpListItem>> model) {
             super(id, model);
         }
         private static final long serialVersionUID = 1L;
 
         @Override
-        protected void populateItem(final ListItem<ThreadInfo> item) {
-            final ThreadInfo info = item.getModelObject();
-            item.add(new Label("threadName", MiscUtils.getThreadMetadata(info)));
-            item.add(new Label("threadStacktrace", MiscUtils.getThreadStacktrace(info)));
+        protected void populateItem(final ListItem<ThreadDumpListItem> item) {
+            final ThreadDumpListItem info = item.getModelObject();
+            item.add(new Label("threadName", info.getThreadMetadata()));
+            item.add(new Label("threadStacktrace", info.getThreadStacktrace()));
         }
     }
 }

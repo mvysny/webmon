@@ -372,16 +372,26 @@ public class Threads {
         }
         
         /**
+         * Returns thread info for given thread. Fails if there is no such thread.
+         * @param threadId the thread id, not null.
+         * @return info, never null.
+         */
+        public Info get(ThreadID threadId) {
+            final Info ti = threads.get(threadId);
+            if (ti == null) {
+                throw new IllegalArgumentException("Parameter threadId: invalid value " + threadId + ": not present in the threads map. Available thread IDs: " + threads.keySet());
+            }
+            return ti;
+        }
+        
+        /**
          * Formats a thread stack trace. Optionally includes blocker threads stracktraces (similar as caused-by).
          * @param threadId the thread ID, must be present in {@link #threads}.
          * @param iterateBlockerThreads 
          * @return formatted stack-trace. For details see {@link Threads#getThreadStacktrace(java.lang.management.ThreadInfo)}.
          */
         public String getThreadStacktrace(ThreadID threadId, boolean iterateBlockerThreads) {
-            Info ti = threads.get(threadId);
-            if (ti == null) {
-                throw new IllegalArgumentException("Parameter threadId: invalid value " + threadId + ": not present in the threads map. Available thread IDs: " + threads.keySet());
-            }
+            Info ti = get(threadId);
             if (!iterateBlockerThreads) {
                 return Threads.getThreadStacktrace(ti.info);
             }
