@@ -465,26 +465,6 @@ public class Threads {
         }
     }
 
-    /**
-     * Creates a new daemon thread factory for given owner.
-     *
-     * @param owner the owner, not null.
-     * @return thread factory, not null.
-     */
-    public static ThreadFactory newDaemonThreadFactory(final Class<?> owner) {
-        Checks.checkNotNull("owner", owner);
-        final AtomicInteger id = new AtomicInteger();
-        return new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                final Thread t = new Thread(r);
-                t.setName(owner.getSimpleName() + "-" + id.getAndIncrement());
-                t.setDaemon(true);
-                return t;
-            }
-        };
-    }
-
     public static class ExceptionLoggingRunnableDecorator implements Runnable {
 
         public final Runnable original;
