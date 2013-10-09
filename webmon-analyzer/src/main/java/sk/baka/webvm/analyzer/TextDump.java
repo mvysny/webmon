@@ -143,13 +143,7 @@ public class TextDump {
 
     private static void printThreadStacktraceDump(StringBuilder sb) {
         printHeader(sb, "Thread Stacktrace Dump");
-        final Threads.Dump dump = new Threads.Dump();
-        for (final Threads.Info i : dump.threads.values()) {
-            sb.append(i.getThreadMetadata());
-            sb.append('\n');
-            sb.append(dump.getThreadStacktrace(i.id, true));
-            sb.append('\n');
-        }
+        sb.append(new Threads.Dump());
         sb.append("\nThead Deadlock Analysis Result:\n");
         sb.append(ProblemAnalyzer.getDeadlockReport().toString());
         sb.append("\n\n");
