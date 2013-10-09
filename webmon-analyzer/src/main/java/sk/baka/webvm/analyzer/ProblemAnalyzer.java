@@ -37,6 +37,7 @@ import sk.baka.webvm.analyzer.config.Config;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
+import sk.baka.webvm.analyzer.utils.Threads;
 
 /**
  * Analyzes VM problems.
@@ -343,26 +344,12 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
         for (final long thread : dt) {
             final ThreadInfo info = bean.getThreadInfo(thread, Integer.MAX_VALUE);
             sb.append("Locked thread: ");
-            sb.append(MiscUtils.getThreadMetadata(info));
+            sb.append(Threads.getThreadMetadata(info));
             sb.append('\n');
             sb.append("Stacktrace:");
-            sb.append(printStackTrace(info.getStackTrace()));
+            sb.append(Threads.getThreadStacktrace(info));
         }
         return new ProblemReport(true, CLASS_DEADLOCKED_THREADS, sb.toString(), CLASS_DEADLOCKED_THREADS_DESC);
-    }
-
-    private static String printStackTrace(final StackTraceElement[] stacktrace) {
-        if (stacktrace == null || stacktrace.length == 0) {
-            return "unknown\n";
-        }
-        final StringBuilder sb = new StringBuilder();
-        sb.append('\n');
-        for (int i = 0; i < stacktrace.length; i++) {
-            sb.append("\tat ");
-            sb.append(stacktrace[i]);
-            sb.append('\n');
-        }
-        return sb.toString();
     }
 
     /**

@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.management.ThreadInfo;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -48,28 +47,6 @@ public class MiscUtils {
     private static final Logger log = Logger.getLogger(MiscUtils.class.getName());
 
     /**
-     * Pretty-prints a thread stacktrace, similar to {@link Throwable#printStackTrace()} except that it handles nulls correctly.
-     * @param info
-     * @return string representation of the stacktrace.
-     */
-    public static String getThreadStacktrace(final ThreadInfo info) {
-        final StringBuilder sb = new StringBuilder();
-        final StackTraceElement[] stack = info.getStackTrace();
-        if (stack == null) {
-            sb.append("  stack trace not available");
-        } else if (stack.length == 0) {
-            sb.append("  stack trace is empty");
-        } else {
-            for (final StackTraceElement ste : stack) {
-                sb.append("  at ");
-                sb.append(ste.toString());
-                sb.append('\n');
-            }
-        }
-        return sb.toString();
-    }
-    
-    /**
      * Returns stacktrace of given throwable.
      * @param t throwable, not null.
      * @return the stacktrace.
@@ -80,39 +57,6 @@ public class MiscUtils {
         return out.toString();
     }
 
-    /**
-     * Shows a basic thread info: thread ID, whether the thread is native, suspended, etc.
-     * @param info the thread info.
-     * @return pretty-printed thread info.
-     */
-    public static String getThreadMetadata(final ThreadInfo info) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("0x");
-        sb.append(Long.toHexString(info.getThreadId()));
-        sb.append(" [");
-        sb.append(info.getThreadName());
-        sb.append("] ");
-        sb.append(info.getThreadState().toString());
-        if (info.isInNative()) {
-            sb.append(", in native");
-        }
-        if (info.isSuspended()) {
-            sb.append(", suspended");
-        }
-        final String lockName = info.getLockName();
-        if (lockName != null) {
-            sb.append(", locked on [");
-            sb.append(lockName);
-            sb.append("]");
-            sb.append(" owned by thread ");
-            sb.append(info.getLockOwnerId());
-            sb.append(" [");
-            sb.append(info.getLockOwnerName());
-            sb.append("]");
-        }
-        return sb.toString();
-    }
-    
     public static InputStream getResource(String resource) {
         final InputStream result = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
         if (result == null) {

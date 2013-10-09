@@ -1,7 +1,6 @@
 package sk.baka.webvm.analyzer;
 
 import java.lang.management.MemoryUsage;
-import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,7 +13,7 @@ import sk.baka.webvm.analyzer.hostos.Architecture;
 import sk.baka.webvm.analyzer.hostos.OS;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.MemoryUsages;
-import sk.baka.webvm.analyzer.utils.MiscUtils;
+import sk.baka.webvm.analyzer.utils.Threads;
 
 /**
  * Dumps a VM state.
@@ -144,14 +143,12 @@ public class TextDump {
 
     private static void printThreadStacktraceDump(StringBuilder sb) {
         printHeader(sb, "Thread Stacktrace Dump");
-        final ThreadInfo[] info = ThreadMap.BEAN.getThreadInfo(ThreadMap.BEAN.getAllThreadIds(), Integer.MAX_VALUE);
-        for (final ThreadInfo i : info) {
-            if (i != null) {
-                sb.append(MiscUtils.getThreadMetadata(i));
-                sb.append('\n');
-                sb.append(MiscUtils.getThreadStacktrace(i));
-                sb.append('\n');
-            }
+        final Threads.Dump dump = new Threads.Dump();
+        for (final Threads.Info i : dump.threads.values()) {
+            sb.append(i.getThreadMetadata());
+            sb.append('\n');
+            sb.append(dump.getThreadStacktrace(i.id, true));
+            sb.append('\n');
         }
         sb.append("\nThead Deadlock Analysis Result:\n");
         sb.append(ProblemAnalyzer.getDeadlockReport().toString());
