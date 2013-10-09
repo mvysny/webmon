@@ -304,9 +304,9 @@ public class Threads {
         final StringBuilder sb = new StringBuilder();
         final StackTraceElement[] stack = info.getStackTrace();
         if (stack == null) {
-            sb.append("  stack trace not available");
+            sb.append("  stack trace not available\n");
         } else if (stack.length == 0) {
-            sb.append("  stack trace is empty");
+            sb.append("  stack trace is empty\n");
         } else {
             for (final StackTraceElement ste : stack) {
                 sb.append("  at ");
@@ -383,7 +383,19 @@ public class Threads {
             }
             return ti;
         }
-        
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder();
+            for (final Threads.Info i : threads.values()) {
+                sb.append(i.getThreadMetadata());
+                sb.append('\n');
+                sb.append(getThreadStacktrace(i.id, true));
+                sb.append('\n');
+            }
+            return sb.toString();
+        }
+
         /**
          * Formats a thread stack trace. Optionally includes blocker threads stracktraces (similar as caused-by).
          * @param threadId the thread ID, must be present in {@link #threads}.
@@ -396,15 +408,16 @@ public class Threads {
                 return Threads.getThreadStacktrace(ti.info);
             }
             final StringBuilder sb = new StringBuilder();
+            sb.append(Threads.getThreadStacktrace(ti.info));
             while (ti.hasBlockers()) {
                 sb.append("Blocked by ").append(ti.waiting);
                 final ThreadID blocker = ti.waiting.get(0);
                 Info ti2 = threads.get(blocker);
                 if (ti2 == null) {
-                    sb.append("; WARNING: thread " + blocker + " is reportedly blocking this thread but is not available in thread dump - perhaps it is no longer alive?\n");
+                    sb.append("; WARNING: thread ").append(blocker).append(" is reportedly blocking this thread but is not available in thread dump - perhaps it is no longer alive?\n");
                     break;
                 }
-                sb.append(", picking " + ti2.id + "\n");
+                sb.append(", stacktrace of thread ").append(ti2.id).append(" follows\n");
                 sb.append(Threads.getThreadStacktrace(ti2.info));
                 ti = ti2;
             }
