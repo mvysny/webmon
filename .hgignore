@@ -1,14 +1,6 @@
+syntax: glob
+
 target
-profiles.xml
-.idea/workspace.xml
-.idea/tasks.xml
-
-
-\.orig\..*$
-\.orig$
-\.chg\..*$
-\.rej$
-\.conflict\~$
 .idea
-.*\.iml
+*.iml
 
