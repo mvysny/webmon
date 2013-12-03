@@ -53,11 +53,6 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>1.4</version>
-        </dependency>
-        <dependency>
             <groupId>net.sf.jacob-project</groupId>
             <artifactId>jacob</artifactId>
             <version>1.14.3</version>

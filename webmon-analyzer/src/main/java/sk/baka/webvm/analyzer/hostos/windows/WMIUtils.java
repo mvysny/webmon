@@ -18,11 +18,12 @@
 package sk.baka.webvm.analyzer.hostos.windows;
 
 import com.jacob.activeX.ActiveXComponent;
-import com.jacob.com.Dispatch;
-import com.jacob.com.EnumVariant;
-import com.jacob.com.JacobObject;
-import com.jacob.com.LibraryLoader;
-import com.jacob.com.Variant;
+import com.jacob.com.*;
+import sk.baka.webvm.analyzer.hostos.Architecture;
+import sk.baka.webvm.analyzer.hostos.MemoryJMXStrategy;
+import sk.baka.webvm.analyzer.hostos.OS;
+import sk.baka.webvm.analyzer.utils.MiscUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -32,11 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.IOUtils;
-import sk.baka.webvm.analyzer.hostos.Architecture;
-import sk.baka.webvm.analyzer.hostos.MemoryJMXStrategy;
-import sk.baka.webvm.analyzer.hostos.OS;
-import sk.baka.webvm.analyzer.utils.MiscUtils;
 
 /**
  * Utility methods which access Windows WMI API.
@@ -63,7 +59,7 @@ public class WMIUtils {
                 try {
                     final OutputStream out = new FileOutputStream(tmp);
                     try {
-                        IOUtils.copy(in, out);
+                        MiscUtils.copy(in, out);
                     } finally {
                         MiscUtils.closeQuietly(out);
                     }

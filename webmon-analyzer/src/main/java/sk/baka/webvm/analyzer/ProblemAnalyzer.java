@@ -18,26 +18,21 @@
  */
 package sk.baka.webvm.analyzer;
 
+import sk.baka.webvm.analyzer.config.Config;
+import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
+import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.MemoryUsages;
+import sk.baka.webvm.analyzer.utils.MiscUtils;
+import sk.baka.webvm.analyzer.utils.Threads;
+
 import java.io.File;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryPoolMXBean;
-import java.lang.management.MemoryUsage;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
+import java.lang.management.*;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.FileSystemUtils;
-import org.apache.commons.io.FileUtils;
-import sk.baka.webvm.analyzer.config.Config;
-import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
-import sk.baka.webvm.analyzer.utils.Constants;
-import sk.baka.webvm.analyzer.utils.MiscUtils;
-import sk.baka.webvm.analyzer.utils.Threads;
 
 /**
  * Analyzes VM problems.
@@ -361,16 +356,16 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
         boolean problem = false;
         for (final File root : MiscUtils.getLocalHarddrives()) {
             try {
-                final long freeSpaceKb = FileSystemUtils.freeSpaceKb(root.getAbsolutePath());
-                final long freeSpaceMb = freeSpaceKb / Constants.KIBIBYTES;
+                final long freeSpace = root.getFreeSpace();  // breaks java 1.5 compatibility
+                final long freeSpaceMb = freeSpace / Constants.KIBIBYTES /  Constants.KIBIBYTES;
                 if (freeSpaceMb < config.minFreeDiskSpaceMb) {
                     problem = true;
                     sb.append("Low disk space: ");
                 }
                 sb.append(root.getAbsolutePath());
                 sb.append("  ");
-                sb.append(FileUtils.byteCountToDisplaySize(freeSpaceKb * Constants.KIBIBYTES));
-                sb.append(" free\n");
+                sb.append(freeSpaceMb);
+                sb.append("mB free\n");
             } catch (Exception ex) {
                 LOG.log(Level.INFO, "Failed to get free space on " + root.getAbsolutePath(), ex);
                 sb.append("Failed to get free space on ");

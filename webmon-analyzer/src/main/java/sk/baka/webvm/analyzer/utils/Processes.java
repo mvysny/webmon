@@ -30,7 +30,6 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.IOUtils;
 
 /**
  * Provides means of running a child process and capturing its stdout.
@@ -226,12 +225,7 @@ public class Processes {
          * @throws IOException on I/O error.
          */
         public String asString(String charset) throws IOException {
-            final InputStreamReader r = new InputStreamReader(newInputStream(), charset);
-            try {
-                return IOUtils.toString(r);
-            } finally {
-                MiscUtils.closeQuietly(r);
-            }
+            return MiscUtils.toString(newInputStream(), charset);
         }
     }
 
