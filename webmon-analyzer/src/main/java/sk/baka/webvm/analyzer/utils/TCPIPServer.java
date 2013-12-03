@@ -1,8 +1,10 @@
 package sk.baka.webvm.analyzer.utils;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.HistorySampler;
@@ -71,6 +73,63 @@ public class TCPIPServer {
         try {
             s.getOutputStream().write(TextDump.dump(sampler.getVmstatHistory()).getBytes("UTF-8"));
             s.getOutputStream().flush();
+            final PrintWriter w = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "ASCII"));
+            final BufferedReader r = new BufferedReader(new InputStreamReader(s.getInputStream()));
+            while (true) {
+                try {
+                    String line = r.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    line = line.trim();
+                    final String[] args = line.split("\\s+");
+                    if (line.length() == 0 || args.length == 0) {
+                        continue;
+                    }
+                    final String cmd = args[0];
+                    if ("help".equals(cmd)) {
+                        w.println("help - displays this help");
+                        w.println("getResources java/lang/String.class  - calls Thread.currentThread().getContextClassLoader().getResources()");
+                        w.println("getResourceAsStream java/lang/String.class  - calls Thread.currentThread().getContextClassLoader().getResources() and dumps each URL here");
+                    } else if ("getResources".equals(cmd)) {
+                        final Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(args[1]);
+                        if (urls == null || !urls.hasMoreElements()) {
+                            w.println("Resource " + args[1] + " not found");
+                        } else {
+                            int count = 0;
+                            while (urls.hasMoreElements()) {
+                                w.println(urls.nextElement());
+                                count++;
+                            }
+                            w.println(count + " resource(s) found");
+                        }
+                    } else if ("getResourceAsStream".equals(cmd)) {
+                        final Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(args[1]);
+                        if (urls == null || !urls.hasMoreElements()) {
+                            w.println("Resource " + args[1] + " not found");
+                        } else {
+                            int count = 0;
+                            while (urls.hasMoreElements()) {
+                                final URL url = urls.nextElement();
+                                w.println(url);
+                                w.flush();
+                                MiscUtils.copy(url.openStream(), s.getOutputStream());
+                                s.getOutputStream().flush();
+                                w.println();
+                                w.flush();
+                                count++;
+                            }
+                            w.println(count + " resource(s) found");
+                        }
+                    } else {
+                        w.println("Invalid command '" + cmd + "' - type 'help' for help");
+                    }
+                } catch (Throwable t) {
+                    w.println(MiscUtils.getStacktrace(t));
+                }
+                w.println();
+                w.flush();
+            }
         } finally {
             try {
                 s.close();

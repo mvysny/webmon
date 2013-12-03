@@ -23,7 +23,6 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Enumeration;
-import org.apache.commons.io.IOUtils;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
 
 /**
@@ -44,7 +43,7 @@ public enum CLEnum {
                 for (final URL url : Collections.list(e)) {
                     final InputStream in = url.openStream();
                     try {
-                        final String webXml = IOUtils.toString(in);
+                        final String webXml = MiscUtils.toString(in);
                         if (webXml.contains("WebMon")) {
                             return true;
                         }

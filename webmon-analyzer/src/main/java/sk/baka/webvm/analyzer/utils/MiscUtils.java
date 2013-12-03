@@ -1,11 +1,8 @@
 package sk.baka.webvm.analyzer.utils;
 
 import sk.baka.webvm.analyzer.hostos.windows.WMIUtils;
-import java.io.Closeable;
-import java.io.File;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+
+import java.io.*;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -152,4 +149,27 @@ public class MiscUtils {
      * A hierarchical URI file prefix: {@value #FILE_URI_HIERARCHICAL_PREFIX}.
      */
     private static final String FILE_URI_HIERARCHICAL_PREFIX = "file://";
+
+    private static final int BUFSIZE = 8192;
+    public static void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
+        try {
+            final byte[] buffer = new byte[BUFSIZE];
+            for (int bytesRead = inputStream.read(buffer); bytesRead >= 0; bytesRead = inputStream.read(buffer)) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        } finally {
+            closeQuietly(inputStream);
+        }
+    }
+    public static String toString(InputStream inputStream) throws IOException {
+        final ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        copy(inputStream, bout);
+        return new String(bout.toByteArray());
+    }
+
+    public static String toString(InputStream inputStream, String charset) throws IOException {
+        final ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        copy(inputStream, bout);
+        return new String(bout.toByteArray(), charset);
+    }
 }
