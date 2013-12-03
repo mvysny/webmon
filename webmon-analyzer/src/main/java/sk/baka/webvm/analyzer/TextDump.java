@@ -130,6 +130,7 @@ public class TextDump {
         printProperties(sb, System.getenv());
         final Thread current = Thread.currentThread();
         sb.append("\nContext Class Loader of thread " + "0x" + Long.toHexString(current.getId()) + " " + current.getName() + "\n");
+        sb.append("WARNING: several CLs may be missing. Use Webmon web interface to obtain class loaders of the web server");
         final List<ClassLoader> cls = ClassLoaderUtils.getClassLoaderChain(Thread.currentThread().getContextClassLoader());
         int clNumber = 1;
         for (ClassLoader cl: cls) {
