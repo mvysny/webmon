@@ -9,4 +9,6 @@ profiles.xml
 \.chg\..*$
 \.rej$
 \.conflict\~$
+.idea
+.*\.iml
 

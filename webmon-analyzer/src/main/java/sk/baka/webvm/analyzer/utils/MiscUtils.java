@@ -41,7 +41,7 @@ public class MiscUtils {
         try {
             c.close();
         } catch (Throwable t) {
-            log.log(Level.INFO, "Failed to close " + c, t);
+//            log.log(Level.INFO, "Failed to close " + c + ": " + t);  // do not log exception stacktrace: it will only clutter the log
         }
     }
     private static final Logger log = Logger.getLogger(MiscUtils.class.getName());
