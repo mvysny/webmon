@@ -1,0 +1,14 @@
+target
+profiles.xml
+.classpath
+.project
+.settings/.*
+
+\.orig\..*$
+\.orig$
+\.chg\..*$
+\.rej$
+\.conflict\~$
+.idea
+.*\.iml
+

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright 2009 Martin Vysny.
+ *
+ * This file is part of WebMon.
+ *
+ * WebMon is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * WebMon is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with WebMon.  If not, see <http://www.gnu.org/licenses />.
+-->
+<project name="WebVM">
+	<bannerLeft>
+		<name>WebMon</name>
+		<href>http://baka.sk/webmon</href>
+	</bannerLeft>
+	<bannerRight>
+		<name>GoogleCode</name>
+		<href>http://code.google.com</href>
+	</bannerRight>
+	<body>
+		<links>
+			<item name="GoogleCode project page" href="http://code.google.com/p/webmon"/>
+			<item name="VisualVM" href="https://visualvm.dev.java.net"/>
+		</links>
+		<menu name="About">
+			<item name="About" href="index.html"/>
+			<item name="Download" href="http://code.google.com/p/webmon/downloads/list"/>
+			<item name="What's new" href="changes-report.html"/>
+		</menu>
+		<menu name="Using">
+			<item name="Configuration" href="config.html"/>
+		</menu>
+		<menu ref="modules" />
+		<menu ref="reports" />
+	</body>
+</project>
+

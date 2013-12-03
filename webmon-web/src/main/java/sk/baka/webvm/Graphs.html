@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta http-equiv="refresh" content="2"/>
+        <title>Graphs</title>
+        <link rel="stylesheet" type="text/css" href="style.css" media="screen"/>
+        <script language="javascript" src="bluff/js-class.js" type="text/javascript"></script><script language="javascript" src="bluff/bluff-min.js" type="text/javascript"></script><script language="javascript" src="bluff/excanvas.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <div wicket:id="appBorder">
+            <div class="post">
+                <table>
+                    <tr style="vertical-align: top;">
+                        <td>
+                            <h2 class="title">Host OS CPU Usage (%)</h2>
+                            <div class="entry">
+                                <div wicket:id="cpuUsageGraph"></div>
+                                <table>
+                                    <tr><td><div class="legendBrown"/></td><td>Current CPU usage: <strong wicket:id="cpuUsagePerc"/>%</td></tr>
+                                    <tr><td><div class="legendBlue"/></td><td>CPU used by java: <strong wicket:id="javaCpuUsagePerc"/>%</td></tr>
+                                    <tr><td><div class="legendGrey"/></td><td>IO wait: <strong wicket:id="iowait"/>%</td></tr>
+                                </table>
+                            </div>
+                        </td>
+                        <td>
+                            <h2 class="title">Host OS Phys. Memory</h2>
+                            <div class="entry">
+                                <div wicket:id="physUsageGraph"></div>
+                                <table>
+                                    <tr><td><div class="legendBrown"/></td><td>Used: <strong wicket:id="physCommitted"/>M</td></tr>
+                                    <tr><td><div class="legendBlue"/></td><td>minus buffers/cache: <strong wicket:id="physUsed"/>M</td></tr>
+                                </table>
+                            </div>
+                        </td>
+                        <td>
+                            <h2 class="title">Host OS Swap</h2>
+                            <div class="entry">
+                                <div wicket:id="swapUsageGraph"></div>
+                                <table>
+                                    <tr><td><div class="legendBlue"/></td><td>Used: <strong wicket:id="swapUsed"/>M</td></tr>
+                                    <tr><td><div class="legendBrown"/></td><td>Allocated: <strong wicket:id="swapAllocated"/>M</td></tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <table>
+                    <tr style="vertical-align: top;">
+                        <td>
+                            <h2 class="title">GC CPU Usage (%)</h2>
+                            <div class="entry">
+                                <div wicket:id="gcCPUUsageGraph"></div>
+                                <table><tr><td><div class="legendBlue"/></td><td>Current GC usage: <strong wicket:id="gcCPUUsagePerc"/>%</td></tr></table>
+                            </div>
+                        </td>
+                        <td>
+                            <h2 class="title">Heap Usage (MB)</h2>
+                            <div class="entry">
+                                <a href="Memory" wicket:id="heapUsageGraph"></a>
+                                <table><tr><td><div class="legendBrown"/></td><td>Heap size: <strong wicket:id="heapSize"/>M</td><td><div class="legendBlue"/></td><td>Heap usage: <strong wicket:id="heapUsage"/>M</td></tr></table>
+                            </div>
+                        </td>
+                        <td>
+                            <h2 class="title">Non-heap Usage (MB)</h2>
+                            <div class="entry">
+                                <a href="Memory" wicket:id="nonHeapUsageGraph"></a>
+                                <table><tr><td><div class="legendBrown"/></td><td>non-heap size: <strong wicket:id="nonHeapSize"/>M</td><td><div class="legendBlue"/></td><td>Non-heap usage: <strong wicket:id="nonHeapUsage"/>M</td></tr></table>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <table>
+                    <tr style="vertical-align: top;">
+                        <td>
+                            <h2 class="title">Classes</h2>
+                            <div class="entry">
+                                <div wicket:id="classesGraph"></div>
+                                <table><tr><td><div class="legendBrown"/></td><td> Loaded classes: <strong wicket:id="classesCurrentlyLoaded"/></td></tr></table>
+                                Loaded since VM start: <strong wicket:id="classesLoadedTotal"/><br/>Unloaded since VM start: <strong wicket:id="classesUnloadedTotal"/>
+                            </div>
+                        </td>
+                        <td>
+                            <h2 class="title">Threads</h2>
+                            <div class="entry">
+                                <a href="Threads" wicket:id="threadsGraph"></a>
+                                <table><tr><td><div class="legendBrown"/></td><td>Live threads - <strong wicket:id="liveThreads"/></td><td><div class="legendBlue"/></td><td>daemon threads - <strong wicket:id="daemonThreads"/></td></tr></table>
+                                Started since the VM start: <strong wicket:id="threadsStartedTotal"/>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </body>
+</html>

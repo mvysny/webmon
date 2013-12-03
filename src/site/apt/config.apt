@@ -1,0 +1,19 @@
+            ------
+            Configuration
+            ------
+            Martin Vysny
+            ------
+            2009-09-09
+
+Configuration
+
+  The configuration file is loaded as follows:
+
+  * From URL in the webmon.war/WEB-INF/web.xml parameter configFile (if it exists)
+
+  * From /etc/webmon.properties (if it exists)
+
+  * From webmon.war/WEB-INF/classes/config.properties
+
+  []
+

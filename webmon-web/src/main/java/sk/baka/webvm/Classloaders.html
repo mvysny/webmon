@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>Classloaders</title>
+        <link rel="stylesheet" type="text/css" href="style.css" media="screen"/>
+    </head>
+    <body>
+        <div wicket:id="appBorder">
+            <div class="post">
+                <h2 class="title">Classloaders</h2>
+                <div class="entry">
+                    Note that classloader resources are downloadable. The items are downloaded from jar/directory files, <strong>not</strong> using the
+                    <code>ClassLoader.getResource()</code> method. Results of <code>ClassLoader.getResource()</code> depends on the ClassLoader
+                    implementation and may differ from files downloadable here.
+                    <div class="entry" wicket:id="classloaderHierarchy"></div>
+                </div>
+            </div>
+            <div class="post">
+                <h2 class="title">Clashes</h2>
+                <div class="entry">
+                    List of ClassLoaders which loads the same URLs
+                    <table id="table">
+                        <thead><tr><th>URI</th><th>ClassLoader</th></tr></thead>
+                        <tr wicket:id="clRow">
+                            <td wicket:id="clURI"></td>
+                            <td wicket:id="clClassLoader"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

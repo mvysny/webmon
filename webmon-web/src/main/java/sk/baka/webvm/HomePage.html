@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>WebMon</title>
+        <link rel="stylesheet" type="text/css" href="style.css" media="screen"/>
+    </head>
+    <body>
+        <div wicket:id="appBorder">
+            <div class="post">
+                <h2 class="title">System info</h2>
+                <div class="entry">
+                    <table id="table">
+                        <tbody>
+                            <tr>
+                                <td><strong>OS:</strong></td>
+                                <td wicket:id="os"/>
+                            </tr>
+                            <tr>
+                                <td><strong>HW:</strong></td>
+                                <td wicket:id="hw"/>
+                            </tr>
+                            <tr>
+                                <td><strong>Java:</strong></td>
+                                <td wicket:id="java"/>
+                            </tr>
+                            <tr>
+                                <td><strong>Networks:</strong></td>
+                                <td wicket:id="netInterfaces"/>
+                            </tr>
+                            <tr>
+                                <td><strong>AppServer:</strong></td>
+                                <td><a wicket:id="asLink"><span wicket:id="as"/></a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="post">
+                <h2 class="title">System properties</h2>
+                <div class="entry">
+                    <table id="table">
+                        <thead><tr><th>Property name</th><th>Property value</th></tr></thead>
+                        <tbody>
+                            <tr wicket:id="systemProperties">
+                                <td wicket:id="sysPropName"></td>
+                                <td wicket:id="sysPropValue"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="post">
+                <h2 class="title">Environment values</h2>
+                <div class="entry">
+                    <table id="table">
+                        <thead><tr><th>Property name</th><th>Property value</th></tr></thead>
+                        <tbody>
+                            <tr wicket:id="env">
+                                <td wicket:id="envName"></td>
+                                <td wicket:id="envValue"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+

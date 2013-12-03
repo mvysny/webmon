@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright 2009 Martin Vysny.
+ *
+ * This file is part of WebMon.
+ *
+ * WebMon is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * WebMon is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with WebMon.  If not, see <http://www.gnu.org/licenses />.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>sk.baka.webmon</groupId>
+    <artifactId>webmon</artifactId>
+    <packaging>pom</packaging>
+    <version>0.15-SNAPSHOT</version>
+    <name>WebMon</name>
+    <description>WebMon: A Java Virtual Machine analyzer with Web interface. Ideal for watching out for your
+        Tomcat or J2EE server installations. You can even embed it into your EAR.
+    </description>
+    <url>http://baka.sk/webmon</url>
+    <organization>
+        <name>Baka</name>
+        <url>http://www.baka.sk/</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>GPL 3.0</name>
+            <url>http://www.gnu.org/licenses/gpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:hg:https://webmon.googlecode.com/hg/</connection>
+        <url>https://webmon.googlecode.com/hg/</url>
+    </scm>
+    <issueManagement>
+        <system>Google Code Tracker</system>
+        <url>http://code.google.com/p/webmon/issues/list</url>
+    </issueManagement>
+    <mailingLists>
+        <mailingList>
+            <name>News (read-only)</name>
+            <subscribe>http://groups.google.com/group/webmon-news/subscribe</subscribe>
+            <unsubscribe>http://groups.google.com/group/webmon-news/subscribe</unsubscribe>
+            <post>webmon-news@googlegroups.com</post>
+            <archive>http://groups.google.com/group/webmon-news/topics</archive>
+        </mailingList>
+    </mailingLists>
+    <developers>
+        <developer>
+            <id>vyzivus</id>
+            <name>Martin Vysny</name>
+            <email>vysny@baka.sk</email>
+            <timezone>1</timezone>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+    <distributionManagement>
+        <site>
+            <id>realtime</id>
+            <url>scp://rt.sk/home/moto/public_html/webmon/</url>
+        </site>
+        <repository>
+            <id>realtime</id>
+            <url>scp://rt.sk/home/moto/public_html/maven2</url>
+        </repository>
+    </distributionManagement>
+    <modules>
+<module>webmon-analyzer</module>
+<module>webmon-web</module>
+</modules>
+    <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>2.2</version>
+            </extension>
+        </extensions>
+        <plugins>
+            <plugin>
+                <inherited>true</inherited>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5.1</version>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                    <optimise>true</optimise>
+                    <debug>true</debug>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.0</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <preparationGoals>clean install</preparationGoals>
+                    <goals>clean deploy -DskipTests</goals>
+                    <username>${google-code.hg.username}</username>
+                    <password>${google-code.hg.password}</password>
+                </configuration>
+            </plugin>
+            <plugin>
+                <inherited>true</inherited>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <properties>
+        <netbeans.hint.deploy.server>J2EE</netbeans.hint.deploy.server>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+</project>
+

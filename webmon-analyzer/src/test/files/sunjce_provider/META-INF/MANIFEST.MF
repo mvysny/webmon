@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Implementation-Vendor: Sun Microsystems, Inc.
+Implementation-Title: Java Runtime Environment
+Implementation-Version: 1.6.0_0
+Implementation-Vendor-Id: com.sun
+Specification-Vendor: Sun Microsystems, Inc.
+Created-By: 1.6.0_0 (Sun Microsystems Inc.)
+Specification-Title: Java Platform API Specification
+Specification-Version: 1.6
+Extension-Name: javax.crypto
+

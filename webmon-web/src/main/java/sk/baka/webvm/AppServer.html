@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>AppServer</title>
+        <link rel="stylesheet" type="text/css" href="style.css" media="screen"/>
+        <link href="rss.xml" type="application/rss+xml" rel="alternate" title="The Problems feed" />
+    </head>
+    <body>
+        <div wicket:id="appBorder">
+            <div class="post">
+                <h2 class="title"><span wicket:id="appServerName"/> Application Server Info</h2>
+                <div class="entry">
+                    To connect to the server remotely just write:
+                    <pre wicket:id="sampleCodeRemoteEjb"/>
+                    Interesting object JNDI locations (also see the <wicket:link><a href="Jndi.html">JNDI</a></wicket:link> page):
+                   <table id="table">
+                        <thead><tr><th>Object</th><th>Location</th></tr></thead>
+                        <tr>
+                            <td>UserTransaction</td>
+                            <td wicket:id="userTransactionJndi"/>
+                        </tr>
+                        <tr>
+                            <td>TransactionManager</td>
+                            <td wicket:id="transactionManagerJndi"/>
+                        </tr>
+                    </table>
+                    To use container-managed persistency with Hibernate just set the <code>hibernate.transaction.manager_lookup_class</code> property to
+                    <code wicket:id="managerLookupClass"/> (or use the <code>sk.baka.tools.javaee.UniversalTransactionManagerLookup</code> class which
+                    supports transaction manager auto-detection. <a href="http://baka.sk/bakatools/apidocs/index.html">Click here</a> for more info).
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
