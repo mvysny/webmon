@@ -162,14 +162,16 @@ public class MiscUtils {
         }
     }
     public static String toString(InputStream inputStream) throws IOException {
-        final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        copy(inputStream, bout);
-        return new String(bout.toByteArray());
+        return new String(toByteArray(inputStream));
     }
 
     public static String toString(InputStream inputStream, String charset) throws IOException {
+        return new String(toByteArray(inputStream), charset);
+    }
+
+    public static byte[] toByteArray(InputStream inputStream) throws IOException {
         final ByteArrayOutputStream bout = new ByteArrayOutputStream();
         copy(inputStream, bout);
-        return new String(bout.toByteArray(), charset);
+        return bout.toByteArray();
     }
 }
