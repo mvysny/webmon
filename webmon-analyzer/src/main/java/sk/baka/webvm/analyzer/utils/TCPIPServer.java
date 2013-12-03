@@ -91,6 +91,7 @@ public class TCPIPServer {
                         w.println("help - displays this help");
                         w.println("getResources java/lang/String.class  - calls Thread.currentThread().getContextClassLoader().getResources()");
                         w.println("getResourceAsStream java/lang/String.class  - calls Thread.currentThread().getContextClassLoader().getResources() and dumps each URL here");
+                        w.println("getResourceAsStreamBase64 java/lang/String.class  - calls Thread.currentThread().getContextClassLoader().getResources() and dumps each URL here");
                     } else if ("getResources".equals(cmd)) {
                         final Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(args[1]);
                         if (urls == null || !urls.hasMoreElements()) {
@@ -104,23 +105,9 @@ public class TCPIPServer {
                             w.println(count + " resource(s) found");
                         }
                     } else if ("getResourceAsStream".equals(cmd)) {
-                        final Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(args[1]);
-                        if (urls == null || !urls.hasMoreElements()) {
-                            w.println("Resource " + args[1] + " not found");
-                        } else {
-                            int count = 0;
-                            while (urls.hasMoreElements()) {
-                                final URL url = urls.nextElement();
-                                w.println(url);
-                                w.flush();
-                                MiscUtils.copy(url.openStream(), s.getOutputStream());
-                                s.getOutputStream().flush();
-                                w.println();
-                                w.flush();
-                                count++;
-                            }
-                            w.println(count + " resource(s) found");
-                        }
+                        getResourceAsStream(s, w, args[1], false);
+                    } else if ("getResourceAsStreamBase64".equals(cmd)) {
+                        getResourceAsStream(s, w, args[1], true);
                     } else {
                         w.println("Invalid command '" + cmd + "' - type 'help' for help");
                     }
@@ -138,7 +125,31 @@ public class TCPIPServer {
             }
         }
     }
-    
+
+    private void getResourceAsStream(Socket s, PrintWriter w, String arg, boolean base64) throws IOException {
+        final Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(arg);
+        if (urls == null || !urls.hasMoreElements()) {
+            w.println("Resource " + arg + " not found");
+        } else {
+            int count = 0;
+            while (urls.hasMoreElements()) {
+                final URL url = urls.nextElement();
+                w.println(url);
+                w.flush();
+                if (!base64) {
+                    MiscUtils.copy(url.openStream(), s.getOutputStream());
+                    s.getOutputStream().flush();
+                } else {
+                    w.println(Base64Coder.encodeLines(MiscUtils.toByteArray(url.openStream())));
+                }
+                w.println();
+                w.flush();
+                count++;
+            }
+            w.println(count + " resource(s) found");
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         final int port = 50000;
         final int historySize = 20;
