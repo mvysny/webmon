@@ -104,4 +104,24 @@ public final class ClassLoaderUtils {
             }
         }
     }
+
+    public static Map<URI, List<Integer>> getClashes() {
+        final List<ClassLoader> cls = ClassLoaderUtils.getClassLoaderChain(Thread.currentThread().getContextClassLoader());
+        final Map<URI, List<ClassLoader>> clashes;
+        try {
+            clashes = ClassLoaderUtils.getClassLoaderURIs(Thread.currentThread().getContextClassLoader());
+        } catch (URISyntaxException ex) {
+            throw new RuntimeException(ex);
+        }
+        ClassLoaderUtils.filterClashes(clashes);
+        final Map<URI, List<Integer>> result = new HashMap<URI, List<Integer>>();
+        for (final Map.Entry<URI, List<ClassLoader>> e : clashes.entrySet()) {
+            final List<Integer> clNumbers = new ArrayList<Integer>();
+            for (final ClassLoader cl : e.getValue()) {
+                clNumbers.add(cls.indexOf(cl) + 1);
+            }
+            result.put(e.getKey(), clNumbers);
+        }
+        return result;
+    }
 }
