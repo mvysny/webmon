@@ -65,29 +65,9 @@ public final class Classloaders extends WebVMPage {
     private LabelTree tree;
 
     private void analyzeClashes(AppBorder border) {
-        final Map<URI, List<Integer>> clashes = getClashes();
+        final Map<URI, List<Integer>> clashes = ClassLoaderUtils.getClashes();
         final List<URI> uris = new ArrayList<URI>(clashes.keySet());
         border.add(new ClassloaderClashes("clRow", uris, clashes));
-    }
-
-    private Map<URI, List<Integer>> getClashes() {
-        final List<ClassLoader> cls = ClassLoaderUtils.getClassLoaderChain(Thread.currentThread().getContextClassLoader());
-        final Map<URI, List<ClassLoader>> clashes;
-        try {
-            clashes = ClassLoaderUtils.getClassLoaderURIs(Thread.currentThread().getContextClassLoader());
-        } catch (URISyntaxException ex) {
-            throw new RuntimeException(ex);
-        }
-        ClassLoaderUtils.filterClashes(clashes);
-        final Map<URI, List<Integer>> result = new HashMap<URI, List<Integer>>();
-        for (final Map.Entry<URI, List<ClassLoader>> e : clashes.entrySet()) {
-            final List<Integer> clNumbers = new ArrayList<Integer>();
-            for (final ClassLoader cl : e.getValue()) {
-                clNumbers.add(cls.indexOf(cl) + 1);
-            }
-            result.put(e.getKey(), clNumbers);
-        }
-        return result;
     }
 
     private LabelTree newClassloaderHierarchy() {

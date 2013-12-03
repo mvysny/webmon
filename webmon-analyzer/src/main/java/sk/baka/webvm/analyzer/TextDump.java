@@ -1,6 +1,9 @@
 package sk.baka.webvm.analyzer;
 
 import java.lang.management.MemoryUsage;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import sk.baka.webvm.analyzer.ThreadMap.Item;
+import sk.baka.webvm.analyzer.classloader.CLEnum;
+import sk.baka.webvm.analyzer.classloader.ClassLoaderUtils;
 import sk.baka.webvm.analyzer.hostos.Architecture;
 import sk.baka.webvm.analyzer.hostos.OS;
 import sk.baka.webvm.analyzer.utils.Constants;
@@ -123,6 +128,23 @@ public class TextDump {
         printProperties(sb, System.getProperties());
         sb.append("\nEnvironment Variables\n");
         printProperties(sb, System.getenv());
+        final Thread current = Thread.currentThread();
+        sb.append("\nContext Class Loader of thread " + "0x" + Long.toHexString(current.getId()) + " " + current.getName() + "\n");
+        final List<ClassLoader> cls = ClassLoaderUtils.getClassLoaderChain(Thread.currentThread().getContextClassLoader());
+        int clNumber = 1;
+        for (ClassLoader cl: cls) {
+            final String name = "[" + (clNumber++) + "] " + CLEnum.getTypes(cl) + " " + cl.getClass().getName() + ": " + cl;
+            sb.append(name).append("\n");
+            if (cl instanceof URLClassLoader) {
+                for (URL url: ((URLClassLoader) cl).getURLs()) {
+                    sb.append("  ").append(url).append("\n");
+                }
+            }
+            sb.append("\n");
+        }
+        sb.append("\nClass loaders loading same jar\n");
+        final Map<URI, List<Integer>> clashes = ClassLoaderUtils.getClashes();
+        sb.append(clashes).append("\n");
         return sb.toString();
     }
 
