@@ -14,7 +14,9 @@ import java.util.SortedMap;
 import sk.baka.webvm.analyzer.ThreadMap.Item;
 import sk.baka.webvm.analyzer.classloader.CLEnum;
 import sk.baka.webvm.analyzer.classloader.ClassLoaderUtils;
+import sk.baka.webvm.analyzer.config.Config;
 import sk.baka.webvm.analyzer.hostos.Architecture;
+import sk.baka.webvm.analyzer.hostos.Memory;
 import sk.baka.webvm.analyzer.hostos.OS;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.MemoryUsages;
@@ -146,6 +148,11 @@ public class TextDump {
         sb.append("\nClass loaders loading same jar\n");
         final Map<URI, List<Integer>> clashes = ClassLoaderUtils.getClashes();
         sb.append(clashes).append("\n");
+        printHeader(sb, "Problems report");
+        final List<ProblemReport> problems = new ProblemAnalyzer(new Config(), Memory.getOSMemoryInfoProvider()).getProblems(history);
+        for (ProblemReport problem : problems) {
+            sb.append(problem).append('\n');
+        }
         return sb.toString();
     }
 
