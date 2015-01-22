@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm.analyzer;
 
+import sk.baka.webvm.analyzer.hostos.CPUUsage;
 import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasureStrategy;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
@@ -139,18 +140,19 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
         @Override
         public void run() {
             try {
-                final int cpuUsageByGC = gcCpuUsage.getCpuUsage();
-                int usage = cpuOS.getCpuUsage();
-                usage = usage < 0 ? 0 : usage;
-                int javaUsage = cpuJava.getCpuUsage();
-                javaUsage = javaUsage < 0 ? 0 : javaUsage;
-                int ioUsage = cpuOSIO.getCpuUsage();
-                ioUsage = ioUsage < 0 ? 0 : ioUsage;
+                final CPUUsage cpuUsageByGC = gcCpuUsage.getCpuUsage();
+                assert cpuUsageByGC != null; // this info is always available.
+                CPUUsage usage = cpuOS.getCpuUsage();
+                usage = usage == null ? CPUUsage.ZERO : usage;
+                CPUUsage javaUsage = cpuJava.getCpuUsage();
+                javaUsage = javaUsage == null ? CPUUsage.ZERO : javaUsage;
+                CPUUsage ioUsage = cpuOSIO.getCpuUsage();
+                ioUsage = ioUsage == null ? CPUUsage.ZERO : ioUsage;
                 final HistorySample hs = new HistorySample.Builder().
-                        setGcCpuUsage(cpuUsageByGC)
+                        setGcCpuUsage(cpuUsageByGC.cpuAvgUsage)
                         .setCpuUsage(usage)
-                        .setCpuIOUsage(ioUsage)
-                        .setCpuJavaUsage(javaUsage)
+                        .setCpuIOUsage(ioUsage.cpuAvgUsage)
+                        .setCpuJavaUsage(javaUsage.cpuAvgUsage)
                         .autodetectMemClassesThreads(meminfo)
                         .build();
                 vmstatHistory.add(hs);
