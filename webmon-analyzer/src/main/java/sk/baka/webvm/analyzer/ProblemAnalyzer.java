@@ -76,6 +76,7 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
     /**
      * Notifies the component that the config file has been changed.
      */
+    @Override
     public synchronized void configChanged(Config cfg) {
         this.config = cfg;
     }
@@ -127,6 +128,16 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
         return "Triggered when GC uses " + config.gcCpuTreshold + "% or more of CPU continuously for "
                 + (config.gcCpuTresholdSamples * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / Constants.MILLIS_IN_SECOND) + " seconds";
     }
+
+    /**
+     * The "CPU Usage" problem class.
+     */
+    public static final String CLASS_CPU_USAGE = "CPU Usage";
+
+    private String getCpuUsageDesc() {
+        return "Triggered when CPU is used for " + config.cpuTreshold + "% or more, continuously for "
+                + (config.cpuTresholdSamples * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / Constants.MILLIS_IN_SECOND) + " seconds";
+    }
     /**
      * The "GC Memory cleanup" problem class.
      */
@@ -158,10 +169,12 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
      * @param history current history.
      * @return the list of reports.
      */
+    @Override
     public List<ProblemReport> getProblems(final List<HistorySample> history) {
         final List<ProblemReport> result = new ArrayList<ProblemReport>();
         result.add(getDeadlockReport());
         result.add(getGCCPUUsageReport(history));
+        result.add(getCPUUsageReport(history));
         result.add(getMemStatReport());
         result.add(getGCMemUsageReport());
         result.add(getFreeDiskspaceReport());
@@ -255,6 +268,43 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
         return new ProblemReport(false, CLASS_GC_CPU_USAGE, "Avg. GC CPU usage last "
                 + (history.size() * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / Constants.MILLIS_IN_SECOND) + " seconds: " + totalAvgTreshold + "%",
                 getGcCpuUsageDesc());
+    }
+
+    /**
+     * Prepares the {@link #CLASS_GC_CPU_USAGE} report.
+     * @param history the history
+     * @return report
+     */
+    public ProblemReport getCPUUsageReport(final List<HistorySample> history) {
+        int tresholdViolationCount = 0;
+        int maxTresholdViolationCount = 0;
+        int totalAvgTreshold = 0;
+        int avgTresholdViolation = 0;
+        int maxAvgTresholdViolation = 0;
+        for (final HistorySample h : history) {
+            totalAvgTreshold += h.cpuUsage;
+            if (h.cpuUsage >= config.cpuTreshold) {
+                tresholdViolationCount++;
+                avgTresholdViolation += h.cpuUsage;
+                if (maxTresholdViolationCount < tresholdViolationCount) {
+                    maxTresholdViolationCount = tresholdViolationCount;
+                    maxAvgTresholdViolation = avgTresholdViolation;
+                }
+            } else {
+                tresholdViolationCount = 0;
+                avgTresholdViolation = 0;
+            }
+        }
+        maxAvgTresholdViolation = maxTresholdViolationCount == 0 ? 0 : maxAvgTresholdViolation / maxTresholdViolationCount;
+        totalAvgTreshold = history.size() == 0 ? 0 : totalAvgTreshold / history.size();
+        if (maxTresholdViolationCount >= config.cpuTresholdSamples) {
+            return new ProblemReport(true, CLASS_CPU_USAGE, "CPU spent more than " + config.cpuTreshold + "% (avg. "
+                    + maxAvgTresholdViolation + "%) of CPU for " + (maxTresholdViolationCount * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / Constants.MILLIS_IN_SECOND) + " seconds",
+                    getCpuUsageDesc());
+        }
+        return new ProblemReport(false, CLASS_CPU_USAGE, "Avg. CPU usage last "
+                + (history.size() * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / Constants.MILLIS_IN_SECOND) + " seconds: " + totalAvgTreshold + "%",
+                getCpuUsageDesc());
     }
 
     /**
@@ -378,6 +428,6 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
         if (sb.length() == 0) {
             sb.append("OK");
         }
-        return new ProblemReport(problem, CLASS_FREE_DISK_SPACE, sb.toString(), getFreeDiskSpaceDesc());
+        return new ProblemReport(problem, CLASS_FREE_DISK_SPACE, sb.toString().trim(), getFreeDiskSpaceDesc());
     }
 }

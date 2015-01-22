@@ -24,7 +24,7 @@ import java.lang.management.MemoryUsage;
 /**
  * Provides memory information. Implementors must be thread-safe.
  * <p/>
- * Use {@link MgmtUtils#getMemoryInfoProvider()} to obtain correct memory info provider for your platform.
+ * Use {@link sk.baka.webvm.analyzer.hostos.Memory#getOSMemoryInfoProvider()} to obtain correct memory info provider for your platform.
  * <p/>
  * Note that if the information is not available (the platform does not support such retrieval, or the process being monitored no longer
  * exists), all methods return null and log some information in the CONFIG level.

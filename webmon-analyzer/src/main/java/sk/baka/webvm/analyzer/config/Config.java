@@ -71,6 +71,16 @@ public class Config implements Serializable {
     @Bind(key = "gcCpuTresholdSamples", min = 1, group = GROUP_PROBLEMS)
     public int gcCpuTresholdSamples = 3;
     /**
+     * Triggers a problem when CPU is used for cpuTreshold% or more continuously for {@link #cpuTresholdSamples} seconds.
+     */
+    @Bind(key = "cpuTreshold", min = 0, group = GROUP_PROBLEMS)
+    public int cpuTreshold = 90;
+    /**
+     * Triggers a problem when CPU is used for cpuTreshold% or more continuously for {@link #cpuTresholdSamples} seconds.
+     */
+    @Bind(key = "cpuTresholdSamples", min = 1, group = GROUP_PROBLEMS)
+    public int cpuTresholdSamples = 10;
+    /**
      * If the memory usage after GC goes above this value the {@link #CLASS_GC_MEMORY_CLEANUP} problem is reported.
      */
     @Bind(key = "memAfterGcUsageTreshold", min = 0, max = 100, group = GROUP_PROBLEMS)
