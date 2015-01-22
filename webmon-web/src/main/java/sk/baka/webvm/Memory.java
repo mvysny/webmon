@@ -57,7 +57,7 @@ public final class Memory extends WebVMPage {
 
             @Override
             protected MemoryUsage load() {
-                return MemoryUsages.getInMB(MemoryUsages.getHeapFromRuntime());
+                return MemoryUsages.getInMB(sk.baka.webvm.analyzer.hostos.Memory.getHeapFromRuntime());
             }
         };
         drawMemoryStatus(heap, "heapStatusBar", GRAPH_WIDTH_PIXELS);

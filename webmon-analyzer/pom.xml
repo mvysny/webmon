@@ -57,6 +57,11 @@
             <artifactId>jacob</artifactId>
             <version>1.14.3</version>
         </dependency>
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>annotations</artifactId>
+            <version>12.0</version>
+        </dependency>
     </dependencies>
 </project>
 
