@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.config.Config;
 import sk.baka.webvm.analyzer.hostos.Cpu;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
+import sk.baka.webvm.analyzer.hostos.Memory;
 import sk.baka.webvm.analyzer.utils.BackgroundService;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.INotificationDelivery;
@@ -76,6 +77,7 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
      * Sets the new configuration file.
      * @param cfg the new config file.
      */
+    @Override
     public void configChanged(Config cfg) {
         if (notificator != null) {
             notificator.configChanged(cfg);
@@ -108,6 +110,7 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
      * Returns a snapshot of the history values.
      * @return modifiable snapshot.
      */
+    @Override
     public List<HistorySample> getVmstatHistory() {
         return vmstatHistory.toList();
     }
@@ -123,7 +126,7 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
      * Serves for Host OS CPU IO usage measurement.
      */
     private final CPUUsageMeasurer cpuOSIO = Cpu.newHostIOCpu();
-    private final IMemoryInfoProvider meminfo = MemoryUsages.getMemoryInfoProvider();
+    private final IMemoryInfoProvider meminfo = Memory.getOSMemoryInfoProvider();
     
     /**
      * Invoked when the sample is taken. The default implementation does nothing.
@@ -133,6 +136,7 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
 
     private final class Sampler implements Runnable {
 
+        @Override
         public void run() {
             try {
                 final int cpuUsageByGC = gcCpuUsage.getCpuUsage();
@@ -170,6 +174,7 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
             return true;
         }
 
+        @Override
         public Object measure() throws Exception {
             // get the GC CPU usage
             long collectTime = 0;
@@ -188,6 +193,7 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
             return new long[]{collectTime, currentTimeMillis};
         }
 
+        @Override
         public int getAvgCpuUsage(Object o1, Object o2) {
             final long[] m1 = (long[]) o1;
             final long[] m2 = (long[]) o2;
@@ -202,6 +208,7 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
 
     private final class ProblemSampler implements Runnable {
 
+        @Override
         public void run() {
             try {
                 final List<ProblemReport> currentProblems = analyzer.getProblems(vmstatHistory.toList());
@@ -230,6 +237,7 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
      * Returns a snapshot view over the problem history.
      * @return the history.
      */
+    @Override
     public List<List<ProblemReport>> getProblemHistory() {
         return problemHistory.toList();
     }

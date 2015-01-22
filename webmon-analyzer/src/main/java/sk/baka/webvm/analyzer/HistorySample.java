@@ -23,12 +23,20 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+
+import sk.baka.webvm.analyzer.hostos.CPUUsage;
+import sk.baka.webvm.analyzer.utils.MemoryUsage2;
 import sk.baka.webvm.analyzer.utils.MemoryUsages;
+
+import java.io.Serializable;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
+
+import org.jetbrains.annotations.NotNull;
+
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.analyzer.hostos.Memory;
 
@@ -77,27 +85,19 @@ public final class HistorySample {
     /**
      * The memory usage list, never null, may be empty. The values are in MB.
      */
-    public final Map<MemoryPools, MemoryUsage> memPoolUsage;
+    @NotNull
+    public final Map<MemoryPools, MemoryUsage2> memPoolUsage;
     /**
      * A thread dump. Does not contain any stacktraces.
      */
+    @NotNull
     public final ThreadMap threads;
     /**
      * Count of classes currently loaded in the VM.
      */
     public final int classesLoaded;
-    /**
-     * Shows the host OS CPU usage. A value of 0..100, 0 when not supported. If
-     * the computer contains more than one CPU, this value is the average of all
-     * CPU usages of all CPUs.
-     */
-    public final int cpuUsage;
-    /**
-     * Shows the host OS CPU usage. A value of 0..100, 0 when not supported. If
-     * the computer contains more than one CPU/core, this value is the max usage of all
-     * CPU usages of all CPUs/cores.
-     */
-    public final int cpuMaxOneCoreUsage;
+    @NotNull
+    public final CPUUsage cpuUsage;
     /**
      * Shows the owner java process CPU usage. A value of 0..100, 0 when not
      * supported.
@@ -108,7 +108,9 @@ public final class HistorySample {
      */
     public final int cpuIOUsage;
 
-    private HistorySample(int gcCpuUsage, EnumMap<MemoryPools, MemoryUsage> memPoolUsage, ThreadMap threads, int classesLoaded, int cpuUsage, int cpuMaxOneCoreUsage, int cpuJavaUsage, int cpuIOUsage, long sampleTime) {
+    private HistorySample(int gcCpuUsage, @NotNull EnumMap<MemoryPools, MemoryUsage2> memPoolUsage,
+                          @NotNull ThreadMap threads, int classesLoaded, @NotNull CPUUsage cpuUsage,
+                          int cpuJavaUsage, int cpuIOUsage, long sampleTime) {
         this.sampleTime = sampleTime;
         this.gcCpuUsage = gcCpuUsage;
         this.memPoolUsage = Collections.unmodifiableMap(memPoolUsage);
@@ -117,7 +119,6 @@ public final class HistorySample {
         this.cpuUsage = cpuUsage;
         this.cpuJavaUsage = cpuJavaUsage;
         this.cpuIOUsage = cpuIOUsage;
-        this.cpuMaxOneCoreUsage = cpuMaxOneCoreUsage;
     }
 
     /**
@@ -125,14 +126,13 @@ public final class HistorySample {
      * exception of {@link #threads} field - the field is not serialized and is
      * null upon deserialization.
      */
-    public static class Builder implements Externalizable {
+    public static class Builder implements Serializable {
 
         public Builder copy(HistorySample hs) {
             this.classesLoaded = hs.classesLoaded;
             this.cpuIOUsage = hs.cpuIOUsage;
             this.cpuJavaUsage = hs.cpuJavaUsage;
             this.cpuUsage = hs.cpuUsage;
-            this.cpuMaxOneCoreUsage = hs.cpuMaxOneCoreUsage;
             this.gcCpuUsage = hs.gcCpuUsage;
             this.memPoolUsage.clear();
             this.memPoolUsage.putAll(hs.memPoolUsage);
@@ -154,7 +154,7 @@ public final class HistorySample {
         /**
          * The memory usage list. The values are in MB.
          */
-        public final EnumMap<MemoryPools, MemoryUsage> memPoolUsage = new EnumMap<MemoryPools, MemoryUsage>(MemoryPools.class);
+        public final EnumMap<MemoryPools, MemoryUsage2> memPoolUsage = new EnumMap<MemoryPools, MemoryUsage2>(MemoryPools.class);
         /**
          * A thread dump. Does not contain any stacktraces. Never null.
          */
@@ -163,23 +163,13 @@ public final class HistorySample {
          * Count of classes currently loaded in the VM.
          */
         public int classesLoaded = 0;
-        /**
-         * Shows the host OS CPU usage. A value of 0..100, 0 when not supported.
-         * If the computer contains more than one CPU, this value is the average
-         * of all CPU usages of all CPUs.
-         */
-        public int cpuUsage = 0;
+        @NotNull
+        public CPUUsage cpuUsage = CPUUsage.ZERO;
         /**
          * Shows the owner java process CPU usage. A value of 0..100, 0 when not
          * supported.
          */
         public int cpuJavaUsage = 0;
-        /**
-         * Shows the host OS CPU usage. A value of 0..100, 0 when not supported. If
-         * the computer contains more than one CPU/core, this value is the max usage of all
-         * CPU usages of all CPUs/cores.
-         */
-        public int cpuMaxOneCoreUsage = 0;
         /**
          * Shows the host OS CPU IO usage. A value of 0..100, 0 when not
          * supported.
@@ -196,9 +186,8 @@ public final class HistorySample {
             return this;
         }
 
-        public Builder setCpuUsage(int cpuUsage, int cpuMaxOneCoreUsage) {
+        public Builder setCpuUsage(@NotNull CPUUsage cpuUsage) {
             this.cpuUsage = cpuUsage;
-            this.cpuMaxOneCoreUsage = cpuMaxOneCoreUsage;
             return this;
         }
 
@@ -233,66 +222,7 @@ public final class HistorySample {
         }
 
         public HistorySample build() {
-            return new HistorySample(gcCpuUsage, memPoolUsage, threads, classesLoaded, cpuUsage, cpuMaxOneCoreUsage, cpuJavaUsage, cpuIOUsage, sampleTime);
-        }
-
-        private static void write(MemoryUsage mu, DataOutput out) throws IOException {
-            out.writeLong(mu.getInit());
-            out.writeLong(mu.getCommitted());
-            out.writeLong(mu.getUsed());
-            out.writeLong(mu.getMax());
-        }
-
-        private static MemoryUsage read(DataInput in) throws IOException {
-            final long init = in.readLong();
-            final long committed = in.readLong();
-            final long used = in.readLong();
-            final long max = in.readLong();
-            return new MemoryUsage(init, used, committed, max);
-        }
-
-        @Override
-        public void writeExternal(ObjectOutput out) throws IOException {
-            writeTo(out);
-        }
-
-        public void writeTo(DataOutput out) throws IOException {
-            out.writeLong(sampleTime);
-            out.writeByte(gcCpuUsage);
-            if (memPoolUsage == null) {
-                out.writeByte(0);
-            } else {
-                out.writeByte(memPoolUsage.size());
-                for (Map.Entry<MemoryPools, MemoryUsage> mu : memPoolUsage.entrySet()) {
-                    out.writeByte(mu.getKey().ordinal());
-                    write(mu.getValue(), out);
-                }
-            }
-            out.writeInt(classesLoaded);
-            out.writeByte(cpuUsage);
-            out.writeByte(cpuMaxOneCoreUsage);
-            out.writeByte(cpuIOUsage);
-            out.writeByte(cpuJavaUsage);
-        }
-
-        @Override
-        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-            readFrom(in);
-        }
-
-        public void readFrom(DataInput in) throws IOException {
-            sampleTime = in.readLong();
-            gcCpuUsage = in.readByte();
-            final int mempoolCount = in.readByte();
-            memPoolUsage.clear();
-            for (int i = 0; i < mempoolCount; i++) {
-                memPoolUsage.put(MemoryPools.values()[in.readByte()], read(in));
-            }
-            classesLoaded = in.readInt();
-            cpuUsage = in.readByte();
-            cpuMaxOneCoreUsage = in.readByte();
-            cpuIOUsage = in.readByte();
-            cpuJavaUsage = in.readByte();
+            return new HistorySample(gcCpuUsage, memPoolUsage, threads, classesLoaded, cpuUsage, cpuJavaUsage, cpuIOUsage, sampleTime);
         }
     }
 
@@ -318,7 +248,7 @@ public final class HistorySample {
             return false;
         }
         for (MemoryPools pool: memPoolUsage.keySet()) {
-            if (!equals(memPoolUsage.get(pool), other.memPoolUsage.get(pool))) {
+            if (!memPoolUsage.get(pool).equals(other.memPoolUsage.get(pool))) {
                 return false;
             }
         }
@@ -337,18 +267,11 @@ public final class HistorySample {
         return true;
     }
     
-    private static boolean equals(MemoryUsage m1, MemoryUsage m2) {
-        return m1.getCommitted() == m2.getCommitted() &&
-                m1.getInit() == m2.getInit() &&
-                m1.getMax() == m2.getMax() &&
-                m1.getUsed() == m2.getUsed();
-    }
-
     @Override
     public String toString() {
         return "HistorySample{" + "gcCpuUsage=" + gcCpuUsage + ", sampleTime=" + sampleTime +
                 ", memPoolUsage=" + memPoolUsage + ", classesLoaded=" + classesLoaded +
-                ", cpuUsage=" + cpuUsage + ", cpuMaxOneCoreUsage=" + cpuMaxOneCoreUsage +
+                ", " + cpuUsage +
                 ", cpuJavaUsage=" + cpuJavaUsage
                 + ", cpuIOUsage=" + cpuIOUsage + '}';
     }

@@ -20,6 +20,7 @@ package sk.baka.webvm.analyzer;
 
 import sk.baka.webvm.analyzer.config.Config;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
+import sk.baka.webvm.analyzer.hostos.Memory;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.MemoryUsages;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
@@ -332,7 +333,7 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
             }
         }
         if (sb.length() == 0) {
-            return new ProblemReport(false, CLASS_MEMORY_USAGE, "Heap usage: " + MemoryUsages.getUsagePerc(MemoryUsages.getHeapFromRuntime()), getMemUsageDesc());
+            return new ProblemReport(false, CLASS_MEMORY_USAGE, "Heap usage: " + MemoryUsages.getUsagePerc(Memory.getHeapFromRuntime()), getMemUsageDesc());
         }
         sb.append("\nTry performing a GC: this should decrease the memory usage. If not, you may need to increase the memory or check for memory leaks");
         return new ProblemReport(false, CLASS_MEMORY_USAGE, sb.toString(), getMemUsageDesc());

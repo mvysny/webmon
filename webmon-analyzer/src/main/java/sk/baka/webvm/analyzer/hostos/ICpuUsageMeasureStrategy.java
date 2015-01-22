@@ -18,6 +18,8 @@
  */
 package sk.baka.webvm.analyzer.hostos;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Interface for measuring CPU usage.
  * @author mvy
@@ -40,4 +42,5 @@ public interface ICpuUsageMeasureStrategy {
      * @return CPU usage in percent, must be a value between 0 and 100.
      */
     int getAvgCpuUsage(final Object m1, final Object m2);
+
 }

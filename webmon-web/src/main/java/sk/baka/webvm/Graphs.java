@@ -29,8 +29,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import sk.baka.webvm.analyzer.HistorySampler;
 import sk.baka.webvm.analyzer.IHistorySampler;
-import sk.baka.webvm.analyzer.hostos.Cpu;
-import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
+import sk.baka.webvm.analyzer.hostos.*;
 import sk.baka.webvm.misc.AbstractGraph;
 import sk.baka.webvm.misc.BluffGraph;
 import sk.baka.webvm.misc.GraphStyle;
@@ -238,7 +237,7 @@ public class Graphs extends WebVMPage {
 
             @Override
             protected MemoryUsage load() {
-                return MemoryUsages.getInMB(MemoryUsages.getHeapFromRuntime());
+                return MemoryUsages.getInMB(sk.baka.webvm.analyzer.hostos.Memory.getHeapFromRuntime());
             }
         });
         border.add(new Label("heapUsage", new LoadableDetachableModel<String>() {

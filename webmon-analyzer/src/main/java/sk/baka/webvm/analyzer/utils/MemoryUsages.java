@@ -26,6 +26,8 @@ import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.analyzer.hostos.Memory;
 import static sk.baka.webvm.analyzer.utils.Constants.*;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Provides utilities for the java.util.management package.
  * @author Martin Vysny
@@ -56,42 +58,16 @@ public final class MemoryUsages {
     }
 
     /**
-     * Computes and returns the memory usage object, using information only from {@link Runtime}.
-     * @return non-null usage object.
-     * @deprecated use {@link Memory#getHeapFromRuntime()}
-     */
-    @Deprecated
-    public static MemoryUsage getHeapFromRuntime() {
-        return Memory.getHeapFromRuntime();
-    }
-
-    /**
-     * Sums two memory usages together. Does not allow null values.
-     * @param u1 first usage, must not be null
-     * @param u2 second usage, must not be null
-     * @return a summed usage, never null
-     */
-    public static MemoryUsage add(final MemoryUsage u1, final MemoryUsage u2) {
-        return new MemoryUsage(addMem(u1.getInit(), u2.getInit()), u1.getUsed() + u2.getUsed(), u1.getCommitted() + u2.getCommitted(), addMem(u1.getMax(), u2.getMax()));
-    }
-
-    private static long addMem(final long l1, final long l2) {
-        if (l1 < 0 || l2 < 0) {
-            return -1;
-        }
-        return l1 + l2;
-    }
-
-    /**
      * Returns a new object with all values divided by 1024*1024 (converted from bytes to mebibytes).
      * @param mu the memory usage to convert
      * @return new memory object with values in mebibytes. Returns null if null was supplied.
      */
-    public static MemoryUsage getInMB(final MemoryUsage mu) {
+    @Nullable
+    public static MemoryUsage2 getInMB(@Nullable final MemoryUsage2 mu) {
         if (mu == null) {
             return null;
         }
-        return new MemoryUsage(mu.getInit() == -1 ? -1 : mu.getInit() / MEBIBYTES, mu.getUsed() / MEBIBYTES, mu.getCommitted() / MEBIBYTES, mu.getMax() == -1 ? -1 : mu.getMax() / MEBIBYTES);
+        return new MemoryUsage2(mu.getInit() == -1 ? -1 : mu.getInit() / MEBIBYTES, mu.getUsed() / MEBIBYTES, mu.getCommitted() / MEBIBYTES, mu.getMax() == -1 ? -1 : mu.getMax() / MEBIBYTES);
     }
 
     /**
@@ -174,13 +150,5 @@ public final class MemoryUsages {
     @Deprecated
     public static SortedMap<String, MemoryPoolMXBean> getMemoryPools() {
         return Memory.getMemoryPools();
-    }
-    
-    /**
-     * @deprecated use {@link Memory#getOSMemoryInfoProvider()}.
-     */
-    @Deprecated
-    public static IMemoryInfoProvider getMemoryInfoProvider() {
-        return Memory.getOSMemoryInfoProvider();
     }
 }
