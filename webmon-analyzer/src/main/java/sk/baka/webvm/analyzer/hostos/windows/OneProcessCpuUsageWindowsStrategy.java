@@ -36,10 +36,12 @@ public class OneProcessCpuUsageWindowsStrategy implements ICpuUsageMeasure {
         this.pid = pid;
     }
 
+    @Override
     public Object measure() throws Exception {
         return WMIUtils.getProcessPerfRawData(pid);
     }
 
+    @Override
     public int getAvgCpuUsage(Object m1, Object m2) {
         return ((WMIUtils.Win32_PerfRawData_PerfProc_Process) m2).getCPUUsage((WMIUtils.Win32_PerfRawData_PerfProc_Process) m1);
     }
