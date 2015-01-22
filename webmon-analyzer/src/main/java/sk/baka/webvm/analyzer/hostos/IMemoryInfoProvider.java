@@ -21,6 +21,10 @@ package sk.baka.webvm.analyzer.hostos;
 import java.io.Serializable;
 import java.lang.management.MemoryUsage;
 
+import org.jetbrains.annotations.Nullable;
+
+import sk.baka.webvm.analyzer.utils.MemoryUsage2;
+
 /**
  * Provides memory information. Implementors must be thread-safe.
  * <p/>
@@ -46,7 +50,8 @@ public interface IMemoryInfoProvider extends Serializable {
      * @return memory usage or null if the information is unavailable.
      * @throws RuntimeException if the information retrieval fails.
      */
-    MemoryUsage getSwap();
+    @Nullable
+    MemoryUsage2 getSwap();
 
     /**
      * Returns physical memory information for host OS.
@@ -62,5 +67,6 @@ public interface IMemoryInfoProvider extends Serializable {
      * @return memory usage or null if the information is unavailable.
      * @throws RuntimeException if the information retrieval fails.
      */
-    MemoryUsage getPhysicalMemory();
+    @Nullable
+    MemoryUsage2 getPhysicalMemory();
 }

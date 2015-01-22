@@ -18,9 +18,13 @@
  */
 package sk.baka.webvm.analyzer;
 
+import sk.baka.webvm.analyzer.hostos.CPUUsage;
 import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasureStrategy;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.jetbrains.annotations.Nullable;
+
 import sk.baka.webvm.analyzer.hostos.Cpu;
 import sk.baka.webvm.analyzer.utils.Checks;
 
@@ -47,29 +51,30 @@ public final class CPUUsageMeasurer {
 
     /**
      * Returns an average CPU usage in a time slice starting at the previous call of this method.
-     * @return average overall CPU usage or -1 if CPU sampling is unsupported or error occurred.
+     * @return average overall CPU usage or null if CPU sampling is unsupported or error occurred.
      */
-    public synchronized int getCpuUsage() {
+    @Nullable
+    public synchronized CPUUsage getCpuUsage() {
         if (cpuUsage == null) {
-            return -1;
+            return null;
         }
         if (cpuMeasurement == null) {
             try {
                 cpuMeasurement = cpuUsage.measure();
             } catch (Exception ex) {
                 LOG.log(Level.SEVERE, "Failed to measure a CPU usage", ex);
-                return -1;
+                return null;
             }
-            return 0;
+            return CPUUsage.ZERO;
         }
         final Object newMeasurement;
         try {
             newMeasurement = cpuUsage.measure();
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "Failed to measure a CPU usage", ex);
-            return -1;
+            return null;
         }
-        final int result = cpuMeasurement == null || newMeasurement == null ? 0 : cpuUsage.getAvgCpuUsage(cpuMeasurement, newMeasurement);
+        final CPUUsage result = cpuMeasurement == null || newMeasurement == null ? CPUUsage.ZERO : cpuUsage.getAvgCpuUsage(cpuMeasurement, newMeasurement);
         cpuMeasurement = newMeasurement;
         return result;
     }

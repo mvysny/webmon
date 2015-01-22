@@ -248,7 +248,7 @@ public class MemoryUsage2 implements Serializable {
 	 * @return a summed usage, never null
 	 */
 	@NotNull
-	public MemoryUsage2 add(@NotNull final MemoryUsage other) {
+	public MemoryUsage2 add(@NotNull final MemoryUsage2 other) {
 		return new MemoryUsage2(addMem(getInit(), other.getInit()), getUsed() + other.getUsed(), getCommitted() + other.getCommitted(),
 				addMem(getMax(), other.getMax()));
 	}
@@ -259,4 +259,7 @@ public class MemoryUsage2 implements Serializable {
 		}
 		return l1 + l2;
 	}
+
+	@NotNull
+	public static final MemoryUsage2 ZERO = new MemoryUsage2(0, 0, 0, 0);
 }

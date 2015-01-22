@@ -32,6 +32,7 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.hostos.windows.WMIUtils;
+import sk.baka.webvm.analyzer.utils.MemoryUsage2;
 
 /**
  * Provides memory information for a process.
@@ -98,17 +99,17 @@ public class Memory {
      * Sums up all non-heap pools and return their memory usage.
      * @return memory usage, null if no pool collects non-heap space.
      */
-    public static MemoryUsage getNonHeapSummary() {
-        MemoryUsage result = null;
+    public static MemoryUsage2 getNonHeapSummary() {
+        MemoryUsage2 result = null;
         final List<MemoryPoolMXBean> beans = ManagementFactory.getMemoryPoolMXBeans();
         for (final MemoryPoolMXBean bean : beans) {
             if (bean.getType() != MemoryType.NON_HEAP) {
                 continue;
             }
             if (result == null) {
-                result = bean.getUsage();
+                result = MemoryUsage2.from(bean.getUsage());
             } else {
-                result = add(result, bean.getUsage());
+                result = result.add(MemoryUsage2.from(bean.getUsage()));
             }
         }
         return result;
@@ -138,11 +139,11 @@ public class Memory {
      * Computes and returns the memory usage object, using information only from {@link Runtime}.
      * @return non-null usage object.
      */
-    public static MemoryUsage getHeapFromRuntime() {
+    public static MemoryUsage2 getHeapFromRuntime() {
         long maxMem = Runtime.getRuntime().maxMemory();
         long heapSize = Runtime.getRuntime().totalMemory();
         long heapUsed = heapSize - Runtime.getRuntime().freeMemory();
-        return new MemoryUsage(-1, heapUsed, heapSize, maxMem == Long.MAX_VALUE ? -1 : maxMem);
+        return new MemoryUsage2(-1, heapUsed, heapSize, maxMem == Long.MAX_VALUE ? -1 : maxMem);
     }
 
     private static final SortedMap<String, MemoryPoolMXBean> MEMORY_POOLS;
