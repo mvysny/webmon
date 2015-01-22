@@ -39,19 +39,6 @@ public final class MemoryUsages {
     }
 
     /**
-     * Returns a new object with all values divided by 1024*1024 (converted from bytes to mebibytes).
-     * @param mu the memory usage to convert
-     * @return new memory object with values in mebibytes. Returns null if null was supplied.
-     */
-    @Nullable
-    public static MemoryUsage2 getInMB(@Nullable final MemoryUsage2 mu) {
-        if (mu == null) {
-            return null;
-        }
-        return new MemoryUsage2(mu.getInit() == -1 ? -1 : mu.getInit() / MEBIBYTES, mu.getUsed() / MEBIBYTES, mu.getCommitted() / MEBIBYTES, mu.getMax() == -1 ? -1 : mu.getMax() / MEBIBYTES);
-    }
-
-    /**
      * Formats a memory usage instance to a compact string. Uses the following format: [used (committed) / max].
      * @param mu the memory usage object.
      * @param inMegs if true then given memory usage values are already megabytes. If false then the values are in bytes.

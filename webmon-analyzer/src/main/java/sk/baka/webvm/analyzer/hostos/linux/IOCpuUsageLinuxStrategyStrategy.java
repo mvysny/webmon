@@ -17,6 +17,7 @@
  */
 package sk.baka.webvm.analyzer.hostos.linux;
 
+import sk.baka.webvm.analyzer.hostos.CPUUsage;
 import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasureStrategy;
 
 /**
@@ -32,7 +33,7 @@ public class IOCpuUsageLinuxStrategyStrategy implements ICpuUsageMeasureStrategy
     }
 
     @Override
-    public int getAvgCpuUsage(Object m1, Object m2) {
-        return ((Proc.Diskstats) m2).getCpuIOUsage((Proc.Diskstats) m1);
+    public CPUUsage getAvgCpuUsage(Object m1, Object m2) {
+        return CPUUsage.of(((Proc.Diskstats) m2).getCpuIOUsage((Proc.Diskstats) m1));
     }
 }

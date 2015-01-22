@@ -17,6 +17,9 @@
  */
 package sk.baka.webvm.analyzer.hostos.linux;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import sk.baka.webvm.analyzer.hostos.CPUUsage;
 import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasureStrategy;
 
 /**
@@ -24,13 +27,15 @@ import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasureStrategy;
  *
  * @author Martin Vysny
  */
-public class CpuUsageLinuxStrategyStrategy implements ICpuUsageMeasureStrategy {
+public class CpuUsageLinuxStrategy implements ICpuUsageMeasureStrategy {
 
+    @Nullable
     public Object measure() throws Exception {
         return Proc.Stat.now();
     }
 
-    public int getAvgCpuUsage(Object m1, Object m2) {
-        return ((Proc.Stat) m2).getCpuUsage((Proc.Stat) m1);
+    @NotNull
+    public CPUUsage getAvgCpuUsage(@NotNull Object m1, @NotNull Object m2) {
+        return ((Proc.Stats) m2).getCPUUsage((Proc.Stats) m1);
     }
 }

@@ -21,15 +21,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Scanner;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import sk.baka.webvm.analyzer.hostos.CPUUsage;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
 
@@ -42,14 +40,64 @@ public class Proc {
 
     private static final Logger log = Logger.getLogger(Proc.class.getName());
 
+    public static final class Stats {
+        /**
+         * Summed stats for all processors.
+         */
+        @NotNull
+        public final Stat overall;
+        /**
+         * Stats for each CPU core.
+         */
+        @NotNull
+        public final List<Stat> cores;
+
+        public Stats(@NotNull Stat overall, @NotNull List<Stat> cores) {
+            this.overall = overall;
+            this.cores = cores;
+        }
+
+        @NotNull
+        public CPUUsage getCPUUsage(@NotNull Stats prev) {
+            // compute max core cpu usage
+            final int coreCount = Math.min(cores.size(), prev.cores.size());
+            int maxCoreUsage = 0;
+            for (int i = 0; i < coreCount; i++) {
+                final int coreUsage = cores.get(i).getCpuUsage(prev.cores.get(i));
+                maxCoreUsage = Math.max(maxCoreUsage, coreUsage);
+            }
+            final int averageUsageOfAllCores = overall.getCpuUsage(prev.overall);
+            return new CPUUsage(averageUsageOfAllCores, maxCoreUsage);
+        }
+    }
+
     /**
      * Parses the /proc/stat file on Linux.
      */
     public static final class Stat {
-
+        /**
+         * normal processes executing in user mode.
+         * <p></p>
+         * These numbers identify the amount of time the CPU has spent performing different kinds of work. Time units are in USER_HZ or Jiffies (typically hundredths of a second).
+         */
         private final long user;
+        /**
+         * niced processes executing in user mode
+         * <p></p>
+         * These numbers identify the amount of time the CPU has spent performing different kinds of work. Time units are in USER_HZ or Jiffies (typically hundredths of a second).
+         */
         private final long nice;
+        /**
+         * processes executing in kernel mode
+         * <p></p>
+         * These numbers identify the amount of time the CPU has spent performing different kinds of work. Time units are in USER_HZ or Jiffies (typically hundredths of a second).
+         */
         private final long system;
+        /**
+         * twiddling thumbs
+         * <p></p>
+         * These numbers identify the amount of time the CPU has spent performing different kinds of work. Time units are in USER_HZ or Jiffies (typically hundredths of a second).
+         */
         private final long idle;
 
         public Stat(long user, long nice, long system, long idle) {
@@ -69,18 +117,33 @@ public class Proc {
          * @return parsed file contents or null if the file does not exist or it does not contain the "cpu" line.
          * @throws RuntimeException if the parse fails
          */
-        public static Stat now() {
+        @Nullable
+        public static Stats now() {
             try {
                 final Scanner s = new Scanner(PROC_STAT);
                 try {
+                    Stat overall = null;
+                    final int coreCount = Runtime.getRuntime().availableProcessors();
+                    final List<Stat> cores = new ArrayList<Stat>(coreCount);
                     for (; s.hasNextLine();) {
                         final String name = s.next();
-                        if (name.equals("cpu")) {
-                            return new Stat(s.nextLong(), s.nextLong(), s.nextLong(), s.nextLong());
+                        if (name.startsWith("cpu")) {
+                            final Stat stat = new Stat(s.nextLong(), s.nextLong(), s.nextLong(), s.nextLong());
+                            if (name.equals("cpu")) {
+                                overall = stat;
+                            } else {
+                                cores.add(stat);
+                            }
+                            if (overall != null && cores.size() >= coreCount) {
+                                break;
+                            }
                         }
                         s.nextLine(); // skip this line, try the next one
                     }
-                    return null;
+                    if (overall == null || cores.isEmpty()) {
+                        return null;
+                    }
+                    return new Stats(overall, cores);
                 } finally {
                     MiscUtils.closeQuietly(s);
                 }
@@ -90,13 +153,24 @@ public class Proc {
             }
         }
 
+        /**
+         * Sum of user, nice, system and idle.
+         * <p></p>
+         * These numbers identify the amount of time the CPU has spent performing different kinds of work. Time units are in USER_HZ or Jiffies (typically hundredths of a second).
+         * @return total
+         */
         public long getTotal() {
             return user + nice + system + idle;
         }
 
-        public int getCpuUsage(Stat prev) {
+        /**
+         * 0..100
+         * @param prev prev stat
+         * @return cpu usage of this core, 0..100
+         */
+        public int getCpuUsage(@NotNull Stat prev) {
             final long dtotal = getTotal() - prev.getTotal();
-            if (dtotal ==0) {
+            if (dtotal == 0) {
                 return 0;
             }
             int cpuIdle = (int) (Constants.HUNDRED_PERCENT * (idle - prev.idle) / dtotal);
@@ -157,7 +231,7 @@ public class Proc {
             }
         }
 
-        public int getCpuIOUsage(Diskstats prev) {
+        public int getCpuIOUsage(@NotNull Diskstats prev) {
             // To compute the CPU usage, we have to perform:
             // (weightedMillisSpentIO2-weightedMillisSpentIO1)*100/(currentTimeMillis2-currentTimeMillis1)
             final long sampleTimeDelta = currentTimeMillis - prev.currentTimeMillis;
@@ -213,6 +287,7 @@ public class Proc {
          * @return parsed file contents or null if the file does not exist (probably because the process is terminated).
          * @throws RuntimeException if the parse fails
          */
+        @Nullable
         public static PidStat now(int pid) {
             final File pidstat = new File("/proc/" + pid + "/stat");
             final String[] stat;

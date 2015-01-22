@@ -20,6 +20,7 @@ package sk.baka.webvm.analyzer.hostos.linux;
 
 import java.lang.management.MemoryUsage;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
+import sk.baka.webvm.analyzer.utils.MemoryUsage2;
 
 /**
  * Provides the RSS and SWAP values.
@@ -36,21 +37,21 @@ public class LinuxProcessMemoryProvider implements IMemoryInfoProvider {
         return Proc.Stat.isAvailable();
     }
 
-    public MemoryUsage getSwap() {
+    public MemoryUsage2 getSwap() {
         final Proc.PidStatus status = Proc.PidStatus.now(pid);
         if (status == null) {
             return null;
         }
         final Long swap = status.getVmSwapNull();
-        return swap == null ? null : new MemoryUsage(0, swap, swap, swap);
+        return swap == null ? null : new MemoryUsage2(0, swap, swap, swap);
     }
 
-    public MemoryUsage getPhysicalMemory() {
+    public MemoryUsage2 getPhysicalMemory() {
         final Proc.PidStat stat = Proc.PidStat.now(pid);
         if (stat == null) {
             return null;
         }
         final long rss = stat.getRSSAsBytes();
-        return new MemoryUsage(0, rss, rss, rss);
+        return new MemoryUsage2(0, rss, rss, rss);
     }
 }

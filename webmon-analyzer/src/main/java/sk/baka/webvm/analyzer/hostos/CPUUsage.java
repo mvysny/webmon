@@ -34,9 +34,42 @@ public final class CPUUsage implements Serializable {
 
     @Override
     public String toString() {
-        return "cpuAvgUsage=" + cpuAvgUsage + ", cpuMaxCoreUsage=" + cpuMaxCoreUsage;
+        return "avg=" + cpuAvgUsage + ", core_max=" + cpuMaxCoreUsage;
     }
 
     @NotNull
 	public static final CPUUsage ZERO = new CPUUsage(0, 0);
+
+    @NotNull
+    public static CPUUsage of(int cpuUsage) {
+        return CACHE[cpuUsage];
+    }
+
+    private static final CPUUsage[] CACHE = new CPUUsage[100];
+    static {
+        CACHE[0] = ZERO;
+        for (int i = 1; i < 100; i++) {
+            CACHE[i] = new CPUUsage(i, i);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CPUUsage cpuUsage = (CPUUsage) o;
+
+        if (cpuAvgUsage != cpuUsage.cpuAvgUsage) return false;
+        if (cpuMaxCoreUsage != cpuUsage.cpuMaxCoreUsage) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = cpuAvgUsage;
+        result = 31 * result + cpuMaxCoreUsage;
+        return result;
+    }
 }

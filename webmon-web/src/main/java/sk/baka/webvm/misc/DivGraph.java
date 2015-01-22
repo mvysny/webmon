@@ -20,6 +20,8 @@ package sk.baka.webvm.misc;
 
 import java.lang.management.MemoryUsage;
 import sk.baka.webvm.Graphs;
+import sk.baka.webvm.analyzer.utils.MemoryUsage2;
+
 import static sk.baka.webvm.analyzer.utils.Constants.*;
 
 /**
@@ -235,7 +237,7 @@ public final class DivGraph {
      * @param width width of result in pixels.
      * @return a string representation of a horizontal bar line.
      */
-    public static String drawMemoryStatus(final MemoryUsage usage, final int width) {
+    public static String drawMemoryStatus(final MemoryUsage2 usage, final int width) {
         final GraphStyle gs = new GraphStyle();
         gs.vertical = false;
         gs.width = width;

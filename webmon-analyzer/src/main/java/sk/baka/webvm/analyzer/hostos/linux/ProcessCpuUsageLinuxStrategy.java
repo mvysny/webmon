@@ -17,16 +17,19 @@
  */
 package sk.baka.webvm.analyzer.hostos.linux;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import sk.baka.webvm.analyzer.hostos.CPUUsage;
 import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasureStrategy;
 
 /**
  *
  * @author Martin Vysny
  */
-public class ProcessCpuUsageLinuxStrategyStrategy implements ICpuUsageMeasureStrategy {
+public class ProcessCpuUsageLinuxStrategy implements ICpuUsageMeasureStrategy {
     public final int pid;
 
-    public ProcessCpuUsageLinuxStrategyStrategy(int pid) {
+    public ProcessCpuUsageLinuxStrategy(int pid) {
         this.pid = pid;
     }
 
@@ -38,32 +41,36 @@ public class ProcessCpuUsageLinuxStrategyStrategy implements ICpuUsageMeasureStr
         return StatWithTime.now(pid);
     }
 
-    public int getAvgCpuUsage(Object m1, Object m2) {
-        return ((StatWithTime) m2).getCpuUsage((StatWithTime) m1);
+    public CPUUsage getAvgCpuUsage(Object m1, Object m2) {
+        final int u = ((StatWithTime) m2).getCpuUsage((StatWithTime) m1);
+        return CPUUsage.of(u);
     }
     private static final class StatWithTime {
         /**
          * may be null.
          */
+        @Nullable
         public final Proc.PidStat stat;
         /**
          * may be null.
          */
-        public final Proc.Stat procStat;
-        public StatWithTime(Proc.PidStat stat, Proc.Stat procStat) {
+        @Nullable
+        public final Proc.Stats procStat;
+        public StatWithTime(@Nullable Proc.PidStat stat, @Nullable Proc.Stats procStat) {
             this.stat = stat;
             this.procStat = procStat;
         }
+        @NotNull
         public static StatWithTime now(int pid) {
             return new StatWithTime(Proc.PidStat.now(pid), Proc.Stat.now());
         }
-        public int getCpuUsage(StatWithTime prev) {
+        public int getCpuUsage(@NotNull StatWithTime prev) {
             if (prev == null || stat == null || procStat == null) {
                 return 0;
             }
             final long du = stat.utimeJiffies - prev.stat.utimeJiffies;
             final long ds = stat.stimeJiffies - prev.stat.stimeJiffies;
-            final long dt = procStat.getTotal() - prev.procStat.getTotal();
+            final long dt = procStat.overall.getTotal() - prev.procStat.overall.getTotal();
             if (du < 0 || ds < 0 || dt < 0) {
                 throw new IllegalArgumentException("Parameter prev: invalid value " + prev + ": does not precede this: " + this);
             }

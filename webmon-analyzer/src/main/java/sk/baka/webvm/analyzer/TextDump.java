@@ -19,6 +19,7 @@ import sk.baka.webvm.analyzer.hostos.Architecture;
 import sk.baka.webvm.analyzer.hostos.Memory;
 import sk.baka.webvm.analyzer.hostos.OS;
 import sk.baka.webvm.analyzer.utils.Constants;
+import sk.baka.webvm.analyzer.utils.MemoryUsage2;
 import sk.baka.webvm.analyzer.utils.MemoryUsages;
 import sk.baka.webvm.analyzer.utils.Threads;
 
@@ -203,30 +204,13 @@ public class TextDump {
         sb.append("\n");
         for (int i = 0; i < history.size(); i++) {
             for (int j = 0; j < HistorySample.MemoryPools.values().length; j++) {
-                content.get(j).add(getUsagePerc(history.get(i).memPoolUsage.get(HistorySample.MemoryPools.values()[j])));
+                content.get(j).add(MemoryUsage2.getUsagePerc(history.get(i).memPoolUsage.get(HistorySample.MemoryPools.values()[j])));
             }
         }
         for (int i = 0; i < HistorySample.MemoryPools.values().length; i++) {
             table.add(content.get(i), rightAlign);
         }
         sb.append(table.toString());
-    }
-
-    /**
-     * Returns memory usage in the following format: xx%
-     *
-     * @param mu the memory usage object, may be null
-     * @return formatted percent value; "not available" if the object is null or
-     * max is -1; "none" if max is zero
-     */
-    public static String getUsagePerc(final MemoryUsage mu) {
-        if (mu == null || mu.getMax() < 0) {
-            return "?";
-        }
-        if (mu.getMax() == 0) {
-            return "0";
-        }
-        return "" + (mu.getUsed() * Constants.HUNDRED_PERCENT / mu.getMax());
     }
 
     private static final int MAX_THREAD_NAME_LENGTH = 48;
