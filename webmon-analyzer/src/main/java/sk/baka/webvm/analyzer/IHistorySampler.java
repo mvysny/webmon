@@ -11,6 +11,8 @@ import sk.baka.webvm.analyzer.utils.IService;
 public interface IHistorySampler extends IService {
     /**
      * Default VMStat history.
+     * <p></p>
+     * POZOR sample delay ms musi byt nasobky sekund, inac niektore rutiny nebudu pocitat spravne.
      */
     public static final SamplerConfig HISTORY_VMSTAT = new SamplerConfig(150, 1000, 0);
     /**

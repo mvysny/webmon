@@ -276,6 +276,8 @@ public class TextDump {
         daemonthreadcount.add("Daemon Thread Count");
         final List<String> hostcpuusage = new ArrayList<String>();
         hostcpuusage.add("Host CPU Usage %");
+        final List<String> cpucoreusage = new ArrayList<String>();
+        cpucoreusage.add("CPU Core Max Usage %");
         final List<String> javacpuusage = new ArrayList<String>();
         javacpuusage.add("Java CPU Usage %");
         final List<String> hostiousage = new ArrayList<String>();
@@ -286,14 +288,16 @@ public class TextDump {
             gccpuusage.add("" + hs.gcCpuUsage);
             threadcount.add("" + hs.threads.threadCount);
             daemonthreadcount.add("" + hs.threads.daemonThreadCount);
-            hostcpuusage.add("" + hs.cpuUsage);
+            hostcpuusage.add("" + hs.cpuUsage.cpuAvgUsage);
             javacpuusage.add("" + hs.cpuJavaUsage);
             hostiousage.add("" + hs.cpuIOUsage);
             classcount.add("" + hs.classesLoaded);
+            cpucoreusage.add("" + hs.cpuUsage.cpuMaxCoreUsage);
         }
         final List<Boolean> rightAlign = new ArrayList<Boolean>(Collections.nCopies(history.size() + 1, Boolean.TRUE));
         table.add(header, rightAlign);
         table.add(hostcpuusage, rightAlign);
+        table.add(cpucoreusage, rightAlign);
         table.add(hostiousage, rightAlign);
         table.add(javacpuusage, rightAlign);
         table.add(gccpuusage, rightAlign);

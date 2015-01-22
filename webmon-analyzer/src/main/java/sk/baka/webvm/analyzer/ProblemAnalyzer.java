@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm.analyzer;
 
+import org.jetbrains.annotations.NotNull;
 import sk.baka.webvm.analyzer.config.Config;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.analyzer.hostos.Memory;
@@ -241,34 +242,19 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
      * @return report
      */
     public ProblemReport getGCCPUUsageReport(final List<HistorySample> history) {
-        int tresholdViolationCount = 0;
-        int maxTresholdViolationCount = 0;
-        int totalAvgTreshold = 0;
-        int avgTresholdViolation = 0;
-        int maxAvgTresholdViolation = 0;
-        for (final HistorySample h : history) {
-            totalAvgTreshold += h.gcCpuUsage;
-            if (h.gcCpuUsage >= config.gcCpuTreshold) {
-                tresholdViolationCount++;
-                avgTresholdViolation += h.gcCpuUsage;
-                if (maxTresholdViolationCount < tresholdViolationCount) {
-                    maxTresholdViolationCount = tresholdViolationCount;
-                    maxAvgTresholdViolation = avgTresholdViolation;
-                }
-            } else {
-                tresholdViolationCount = 0;
-                avgTresholdViolation = 0;
+        final Stats stats = getStats(history, new IntFunction() {
+            @Override
+            public int get(@NotNull HistorySample sample) {
+                return sample.gcCpuUsage;
             }
-        }
-        maxAvgTresholdViolation = maxTresholdViolationCount == 0 ? 0 : maxAvgTresholdViolation / maxTresholdViolationCount;
-        totalAvgTreshold = history.size() == 0 ? 0 : totalAvgTreshold / history.size();
-        if (maxTresholdViolationCount >= config.gcCpuTresholdSamples) {
+        }, config.gcCpuTreshold, config.gcCpuTresholdSamples);
+        if (stats.isThresholdTriggered()) {
             return new ProblemReport(true, CLASS_GC_CPU_USAGE, "GC spent more than " + config.gcCpuTreshold + "% (avg. "
-                    + maxAvgTresholdViolation + "%) of CPU for " + (maxTresholdViolationCount * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / Constants.MILLIS_IN_SECOND) + " seconds",
+                    + stats.thresholdValueAvg + "%) of CPU for " + stats.thresholdViolationSeconds + " seconds",
                     getGcCpuUsageDesc());
         }
         return new ProblemReport(false, CLASS_GC_CPU_USAGE, "Avg. GC CPU usage last "
-                + (history.size() * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / Constants.MILLIS_IN_SECOND) + " seconds: " + totalAvgTreshold + "%",
+                + stats.historyLengthSeconds + " seconds: " + stats.avg + "%",
                 getGcCpuUsageDesc());
     }
 
@@ -278,35 +264,90 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
      * @return report
      */
     public ProblemReport getCPUUsageReport(final List<HistorySample> history) {
-        int tresholdViolationCount = 0;
-        int maxTresholdViolationCount = 0;
-        int totalAvgTreshold = 0;
-        int avgTresholdViolation = 0;
-        int maxAvgTresholdViolation = 0;
-        for (final HistorySample h : history) {
-            totalAvgTreshold += h.cpuUsage.cpuMaxCoreUsage;
-            if (h.cpuUsage.cpuMaxCoreUsage >= config.cpuTreshold) {
-                tresholdViolationCount++;
-                avgTresholdViolation += h.cpuUsage.cpuMaxCoreUsage;
-                if (maxTresholdViolationCount < tresholdViolationCount) {
-                    maxTresholdViolationCount = tresholdViolationCount;
-                    maxAvgTresholdViolation = avgTresholdViolation;
-                }
-            } else {
-                tresholdViolationCount = 0;
-                avgTresholdViolation = 0;
+        final Stats stats = getStats(history, new IntFunction() {
+            @Override
+            public int get(@NotNull HistorySample sample) {
+                return sample.cpuUsage.cpuMaxCoreUsage;
             }
-        }
-        maxAvgTresholdViolation = maxTresholdViolationCount == 0 ? 0 : maxAvgTresholdViolation / maxTresholdViolationCount;
-        totalAvgTreshold = history.size() == 0 ? 0 : totalAvgTreshold / history.size();
-        if (maxTresholdViolationCount >= config.cpuTresholdSamples) {
+        }, config.cpuTreshold, config.cpuTresholdSamples);
+        if (stats.isThresholdTriggered()) {
             return new ProblemReport(true, CLASS_CPU_USAGE, "A CPU core spent more than " + config.cpuTreshold + "% (avg. "
-                    + maxAvgTresholdViolation + "%) of CPU for " + (maxTresholdViolationCount * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / Constants.MILLIS_IN_SECOND) + " seconds",
+                    + stats.thresholdValueAvg + "%) of CPU for " + stats.thresholdViolationSeconds + " seconds",
                     getCpuUsageDesc());
         }
         return new ProblemReport(false, CLASS_CPU_USAGE, "Avg. max CPU core usage last "
-                + (history.size() * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / Constants.MILLIS_IN_SECOND) + " seconds: " + totalAvgTreshold + "%",
+                + stats.historyLengthSeconds + " seconds: " + stats.avg + "%",
                 getCpuUsageDesc());
+    }
+
+    private static class Stats {
+        public final int historyLengthSeconds;
+        /**
+         * Average value.
+         */
+        public final int avg;
+        /**
+         * If the value threshold has been triggered, this is greater than zero.
+         */
+        public final int thresholdViolationSeconds;
+        /**
+         * If the value threshold has been triggered, this is greater than zero.
+         */
+        public final int thresholdValueAvg;
+
+        public Stats(int historyLengthSeconds, int avg, int thresholdViolationSeconds, int thresholdValueAvg) {
+            this.historyLengthSeconds = historyLengthSeconds;
+            this.avg = avg;
+            this.thresholdValueAvg = thresholdValueAvg;
+            this.thresholdViolationSeconds = thresholdViolationSeconds;
+        }
+        public static final Stats ZERO = new Stats(0, 0, 0, 0);
+
+        public boolean isThresholdTriggered() {
+            return thresholdViolationSeconds > 0;
+        }
+    }
+    private static interface IntFunction {
+        int get(@NotNull HistorySample sample);
+    }
+
+    /**
+     * Spocita statistiku hodnoty
+     * @param history historia, not null
+     * @param f funkcia ktora vracia z history sample hodnotu, ktoru analyzujeme.
+     * @param thresholdValue ak je thresholdSamples poslednych hodnot viac alebo rovnych thresholdValue, problem.
+     * @param thresholdSamples ak je thresholdSamples poslednych hodnot viac alebo rovnych thresholdValue, problem.
+     * @return stats, not null.
+     */
+    @NotNull
+    private static Stats getStats(final List<HistorySample> history, @NotNull final IntFunction f, int thresholdValue, int thresholdSamples) {
+        if (history.isEmpty()) {
+            return Stats.ZERO;
+        }
+        int total = 0;
+        int currentTresholdViolationCount = 0;
+        int currentTresholdViolationSum = 0;
+        for (int i = 0; i < history.size(); i++) {
+            final int val = f.get(history.get(i));
+            total += val;
+            if (val >= thresholdValue) {
+                currentTresholdViolationCount++;
+                currentTresholdViolationSum += val;
+            } else {
+                currentTresholdViolationCount = 0;
+                currentTresholdViolationSum = 0;
+            }
+        }
+        if (currentTresholdViolationCount < thresholdSamples) {
+            currentTresholdViolationCount = 0;
+            currentTresholdViolationSum = 0;
+        }
+        final int historyLengthInSeconds = history.size() * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / Constants.MILLIS_IN_SECOND;
+        final int thresholdViolationSeconds = currentTresholdViolationCount * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / Constants.MILLIS_IN_SECOND;
+        return new Stats(historyLengthInSeconds,
+                total / history.size(),
+                thresholdViolationSeconds,
+                currentTresholdViolationCount > 0 ? currentTresholdViolationSum / currentTresholdViolationCount : 0);
     }
 
     /**
