@@ -23,6 +23,8 @@ import java.lang.management.MemoryUsage;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import sk.baka.webvm.analyzer.utils.MemoryUsage2;
 import sk.baka.webvm.analyzer.utils.MemoryUsages;
 
 /**
@@ -55,7 +57,7 @@ public final class MemoryJMXStrategy implements IMemoryInfoProvider {
         return BEAN != null;
     }
 
-    public MemoryUsage getPhysicalMemory() {
+    public MemoryUsage2 getPhysicalMemory() {
         if (!available()) {
             return null;
         }
@@ -63,14 +65,14 @@ public final class MemoryJMXStrategy implements IMemoryInfoProvider {
             final long total = (Long) BEAN_CLASS.getMethod("getTotalPhysicalMemorySize").invoke(BEAN);
             final long free = (Long) BEAN_CLASS.getMethod("getFreePhysicalMemorySize").invoke(BEAN);
             final long used = total - free;
-            return new MemoryUsage(-1, used, used, total);
+            return new MemoryUsage2(-1, used, used, total);
         } catch (Exception e) {
             LOG.log(Level.INFO, "Failed to obtain JMX memory", e);
             return null;
         }
     }
     
-    public MemoryUsage getSwap() {
+    public MemoryUsage2 getSwap() {
         if (!available()) {
             return null;
         }
@@ -78,7 +80,7 @@ public final class MemoryJMXStrategy implements IMemoryInfoProvider {
             final long total = (Long) BEAN_CLASS.getMethod("getTotalSwapSpaceSize").invoke(BEAN);
             final long free = (Long) BEAN_CLASS.getMethod("getFreeSwapSpaceSize").invoke(BEAN);
             final long used = total - free;
-            return new MemoryUsage(-1, used, used, total);
+            return new MemoryUsage2(-1, used, used, total);
         } catch (Exception e) {
             LOG.log(Level.INFO, "Failed to obtain JMX memory", e);
             return null;

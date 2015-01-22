@@ -22,6 +22,7 @@ import sk.baka.webvm.analyzer.config.Config;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.analyzer.hostos.Memory;
 import sk.baka.webvm.analyzer.utils.Constants;
+import sk.baka.webvm.analyzer.utils.MemoryUsage2;
 import sk.baka.webvm.analyzer.utils.MemoryUsages;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
 import sk.baka.webvm.analyzer.utils.Threads;
@@ -193,7 +194,7 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
         boolean isProblem = false;
         // buffer/cache information is available?
         boolean cbAvailable = false;
-        MemoryUsage phys = new MemoryUsage(0, 0, 0, 0);
+        MemoryUsage2 phys = MemoryUsage2.ZERO;
         try {
             phys = meminfo.getPhysicalMemory();
             if (phys == null) {
@@ -214,7 +215,7 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
             isProblem = true;
         }
         sb.append("Swap used: ");
-        MemoryUsage swap = new MemoryUsage(0, 0, 0, 0);
+        MemoryUsage2 swap = MemoryUsage2.ZERO;
         try {
             swap = meminfo.getSwap();
             sb.append(MemoryUsages.getUsagePerc(swap));

@@ -34,25 +34,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class MemoryUsages {
 
-    /**
-     * Sums up all non-heap pools and return their memory usage.
-     * @return memory usage, null if no pool collects non-heap space.
-     * @deprecated use {@link Memory#getNonHeapSummary()}.
-     */
-    public static MemoryUsage getNonHeapSummary() {
-        return Memory.getNonHeapSummary();
-    }
-
-    /**
-     * Checks if there is a non-heap pool in the memory pool list.
-     * @return true if there is pool managing non-heap memory, false otherwise.
-     * @deprecated use {@link Memory#isNonHeapPool() }.
-     */
-    @Deprecated
-    public static boolean isNonHeapPool() {
-        return Memory.isNonHeapPool();
-    }
-
     private MemoryUsages() {
         throw new AssertionError();
     }
@@ -76,40 +57,8 @@ public final class MemoryUsages {
      * @param inMegs if true then given memory usage values are already megabytes. If false then the values are in bytes.
      * @return [used (committed) / max], or [not available] if null was given
      */
-    public static String toString(final MemoryUsage mu, final boolean inMegs) {
-        if (mu == null) {
-            return "[not available]";
-        }
-        final StringBuilder sb = new StringBuilder();
-        sb.append('[');
-        sb.append(mu.getUsed());
-        if (inMegs) {
-            sb.append("M");
-        }
-        sb.append(" (");
-        sb.append(mu.getCommitted());
-        if (inMegs) {
-            sb.append("M");
-        }
-        sb.append(")");
-        if (mu.getMax() >= 0) {
-            sb.append(" / ");
-            sb.append(mu.getMax());
-            if (inMegs) {
-                sb.append("M");
-            }
-            sb.append(" - ");
-            if (mu.getMax() > 0) {
-                sb.append(mu.getUsed() * HUNDRED_PERCENT / mu.getMax());
-            } else {
-                sb.append('0');
-            }
-            sb.append('%');
-        } else {
-            sb.append(" / ?");
-        }
-        sb.append(']');
-        return sb.toString();
+    public static String toString(final MemoryUsage2 mu, final boolean inMegs) {
+        return mu == null ? "[not available]" : mu.toString(inMegs);
     }
 
     /**
@@ -117,7 +66,7 @@ public final class MemoryUsages {
      * @param mu the memory usage object, may be null
      * @return formatted percent value; "not available" if the object is null or max is -1; "none" if max is zero
      */
-    public static String getUsagePerc(final MemoryUsage mu) {
+    public static String getUsagePerc(final MemoryUsage2 mu) {
         if (mu == null || mu.getMax() < 0) {
             return "not available";
         }
@@ -132,7 +81,7 @@ public final class MemoryUsages {
      * @param mu the memory usage object, may be null
      * @return formatted percent value; "?" if the object is null or max is -1; "none" if max is zero
      */
-    public static String getFreePerc(final MemoryUsage mu) {
+    public static String getFreePerc(final MemoryUsage2 mu) {
         if (mu == null || mu.getMax() < 0) {
             return "not available";
         }
@@ -140,15 +89,5 @@ public final class MemoryUsages {
             return "none";
         }
         return (HUNDRED_PERCENT - (mu.getUsed() * HUNDRED_PERCENT / mu.getMax())) + "%";
-    }
-    
-    /**
-     * Returns all known memory pools which are garbage-collectable and provide meaningful usage information.
-     * @return map of memory pools, never null, may be empty.
-     * @deprecated use {@link Memory#getMemoryPools()}
-     */
-    @Deprecated
-    public static SortedMap<String, MemoryPoolMXBean> getMemoryPools() {
-        return Memory.getMemoryPools();
     }
 }

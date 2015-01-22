@@ -30,6 +30,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import sk.baka.webvm.analyzer.HistorySampler;
 import sk.baka.webvm.analyzer.IHistorySampler;
 import sk.baka.webvm.analyzer.hostos.*;
+import sk.baka.webvm.analyzer.hostos.Memory;
 import sk.baka.webvm.misc.AbstractGraph;
 import sk.baka.webvm.misc.BluffGraph;
 import sk.baka.webvm.misc.GraphStyle;
@@ -257,13 +258,13 @@ public class Graphs extends WebVMPage {
     }
 
     private void drawNonHeap() {
-        if (MemoryUsages.isNonHeapPool()) {
+        if (Memory.isNonHeapPool()) {
             drawMemoryUsageGraph("nonHeapUsageGraph", HistorySample.MemoryPools.NonHeap);
             final IModel<MemoryUsage> nonHeap = register(new LoadableDetachableModel<MemoryUsage>() {
 
                 @Override
                 protected MemoryUsage load() {
-                    return MemoryUsages.getInMB(MemoryUsages.getNonHeapSummary());
+                    return MemoryUsages.getInMB(Memory.getNonHeapSummary());
                 }
             });
             border.add(new Label("nonHeapUsage", new LoadableDetachableModel<String>() {
