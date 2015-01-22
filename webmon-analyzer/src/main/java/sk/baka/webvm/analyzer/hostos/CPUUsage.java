@@ -22,6 +22,12 @@ public final class CPUUsage implements Serializable {
 	public final int cpuMaxCoreUsage;
 
 	public CPUUsage(int cpuAvgUsage, int cpuMaxCoreUsage) {
+        if (cpuAvgUsage < 0 || cpuAvgUsage > 100) {
+            throw new IllegalArgumentException("Parameter cpuAvgUsage: invalid value " + cpuAvgUsage + ": must be 0..100");
+        }
+        if (cpuMaxCoreUsage < 0 || cpuMaxCoreUsage > 100) {
+            throw new IllegalArgumentException("Parameter cpuMaxCoreUsage: invalid value " + cpuMaxCoreUsage + ": must be 0..100");
+        }
 		this.cpuAvgUsage = cpuAvgUsage;
 		this.cpuMaxCoreUsage = cpuMaxCoreUsage;
 	}

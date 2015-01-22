@@ -31,8 +31,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static sk.baka.webvm.analyzer.utils.MemoryUsages.add;
-import static sk.baka.webvm.analyzer.utils.MemoryUsages.getNonHeapSummary;
 import sk.baka.webvm.analyzer.hostos.windows.WMIUtils;
 
 /**
@@ -54,10 +52,12 @@ public class Memory {
             return WMIUtils.isAvailable();
         }
 
+        @Override
         public MemoryUsage getSwap() {
             return null;
         }
 
+        @Override
         public MemoryUsage getPhysicalMemory() {
             return WMIUtils.getWorkingSetSize(pid);
         }
