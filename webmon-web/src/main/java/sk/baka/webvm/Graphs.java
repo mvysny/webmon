@@ -31,6 +31,7 @@ import sk.baka.webvm.analyzer.HistorySampler;
 import sk.baka.webvm.analyzer.IHistorySampler;
 import sk.baka.webvm.analyzer.hostos.*;
 import sk.baka.webvm.analyzer.hostos.Memory;
+import sk.baka.webvm.analyzer.utils.MemoryUsage2;
 import sk.baka.webvm.misc.AbstractGraph;
 import sk.baka.webvm.misc.BluffGraph;
 import sk.baka.webvm.misc.GraphStyle;
@@ -165,7 +166,7 @@ public class Graphs extends WebVMPage {
                     final AbstractGraph dg = new BluffGraph(100, gs);
                     dg.makeAscending = true;
                     for (final HistorySample hs : history.getObject()) {
-                        dg.add(new int[]{hs.cpuJavaUsage, hs.cpuUsage, hs.cpuIOUsage});
+                        dg.add(new int[]{hs.cpuJavaUsage, hs.cpuUsage.cpuAvgUsage, hs.cpuIOUsage});
                     }
                     dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength(), false);
                     return dg.draw();
@@ -175,7 +176,7 @@ public class Graphs extends WebVMPage {
 
                 @Override
                 protected String load() {
-                    return printValue(hostCpu, getNonEmptyLastSample().cpuUsage);
+                    return printValue(hostCpu, getNonEmptyLastSample().cpuUsage.cpuAvgUsage);
                 }
             }));
             border.add(new Label("javaCpuUsagePerc", new LoadableDetachableModel<String>() {
@@ -234,10 +235,10 @@ public class Graphs extends WebVMPage {
 
     private void drawHeap() {
         drawMemoryUsageGraph("heapUsageGraph", HistorySample.MemoryPools.Heap);
-        final IModel<MemoryUsage> heap = register(new LoadableDetachableModel<MemoryUsage>() {
+        final IModel<MemoryUsage2> heap = register(new LoadableDetachableModel<MemoryUsage2>() {
 
             @Override
-            protected MemoryUsage load() {
+            protected MemoryUsage2 load() {
                 return MemoryUsages.getInMB(sk.baka.webvm.analyzer.hostos.Memory.getHeapFromRuntime());
             }
         });
@@ -260,10 +261,10 @@ public class Graphs extends WebVMPage {
     private void drawNonHeap() {
         if (Memory.isNonHeapPool()) {
             drawMemoryUsageGraph("nonHeapUsageGraph", HistorySample.MemoryPools.NonHeap);
-            final IModel<MemoryUsage> nonHeap = register(new LoadableDetachableModel<MemoryUsage>() {
+            final IModel<MemoryUsage2> nonHeap = register(new LoadableDetachableModel<MemoryUsage2>() {
 
                 @Override
-                protected MemoryUsage load() {
+                protected MemoryUsage2 load() {
                     return MemoryUsages.getInMB(Memory.getNonHeapSummary());
                 }
             });
@@ -289,10 +290,10 @@ public class Graphs extends WebVMPage {
     }
 
     private void drawPhysMem() {
-        final IModel<MemoryUsage> physMem = register(new LoadableDetachableModel<MemoryUsage>() {
+        final IModel<MemoryUsage2> physMem = register(new LoadableDetachableModel<MemoryUsage2>() {
 
             @Override
-            protected MemoryUsage load() {
+            protected MemoryUsage2 load() {
                 return MemoryUsages.getInMB(meminfo.getPhysicalMemory());
             }
         });
@@ -318,10 +319,10 @@ public class Graphs extends WebVMPage {
     }
 
     private void drawSwap() {
-        final IModel<MemoryUsage> swap = register(new LoadableDetachableModel<MemoryUsage>() {
+        final IModel<MemoryUsage2> swap = register(new LoadableDetachableModel<MemoryUsage2>() {
 
             @Override
-            protected MemoryUsage load() {
+            protected MemoryUsage2 load() {
                 return MemoryUsages.getInMB(meminfo.getSwap());
             }
         });
@@ -399,8 +400,6 @@ public class Graphs extends WebVMPage {
      * Draws details for given memory usage object line.
      *
      * @param wid chain result with this wicket id
-     * @param index the memory usage index to the {@link HistorySample#memUsage}
-     * array.
      */
     private void drawMemoryUsageGraph(final String wid, final HistorySample.MemoryPools pool) {
         unescaped(wid, new LoadableDetachableModel<String>() {
@@ -413,7 +412,7 @@ public class Graphs extends WebVMPage {
                 if (maxMem == -1) {
                     maxMem = 0;
                     for (final HistorySample hs : history.getObject()) {
-                        final MemoryUsage usage = hs.memPoolUsage.get(pool);
+                        final MemoryUsage2 usage = hs.memPoolUsage.get(pool);
                         if (maxMem < usage.getCommitted()) {
                             maxMem = usage.getCommitted();
                         }
@@ -422,7 +421,7 @@ public class Graphs extends WebVMPage {
                 }
                 final BluffGraph dg = new BluffGraph((int) maxMem, gs);
                 for (final HistorySample hs : history.getObject()) {
-                    final MemoryUsage usage = hs.memPoolUsage.get(pool);
+                    final MemoryUsage2 usage = hs.memPoolUsage.get(pool);
                     dg.add(new int[]{(int) usage.getUsed(), (int) usage.getCommitted()});
                 }
                 dg.fillWithZero(HistorySampler.HISTORY_VMSTAT.getHistoryLength(), false);
