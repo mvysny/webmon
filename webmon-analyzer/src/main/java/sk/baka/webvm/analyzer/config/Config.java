@@ -72,9 +72,12 @@ public class Config implements Serializable {
     public int gcCpuTresholdSamples = 3;
     /**
      * Triggers a problem when CPU is used for cpuTreshold% or more continuously for {@link #cpuTresholdSamples} seconds.
+     * <p></p>
+     * 70% seems quite low, but Linux balances a process over multiple cores, so it is possible to encounter stats as 50%+50% instead of
+     * 100%+0%
      */
     @Bind(key = "cpuTreshold", min = 0, group = GROUP_PROBLEMS)
-    public int cpuTreshold = 90;
+    public int cpuTreshold = 70;
     /**
      * Triggers a problem when CPU is used for cpuTreshold% or more continuously for {@link #cpuTresholdSamples} seconds.
      */
