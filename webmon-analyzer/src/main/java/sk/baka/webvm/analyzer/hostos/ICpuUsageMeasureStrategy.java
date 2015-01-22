@@ -19,6 +19,7 @@
 package sk.baka.webvm.analyzer.hostos;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Interface for measuring CPU usage.
@@ -31,6 +32,7 @@ public interface ICpuUsageMeasureStrategy {
      * @return the measurement object. May return null if the measurement is not available.
      * @throws Exception if something happens.
      */
+    @Nullable
     Object measure() throws Exception;
 
     /**
@@ -41,6 +43,6 @@ public interface ICpuUsageMeasureStrategy {
      * @param m2 second measurement, must not be null.
      * @return CPU usage in percent, must be a value between 0 and 100.
      */
-    int getAvgCpuUsage(final Object m1, final Object m2);
-
+    @NotNull
+    CPUUsage getAvgCpuUsage(@NotNull final Object m1, @NotNull final Object m2);
 }
