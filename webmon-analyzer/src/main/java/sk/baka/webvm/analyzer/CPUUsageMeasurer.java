@@ -18,7 +18,7 @@
  */
 package sk.baka.webvm.analyzer;
 
-import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasure;
+import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasureStrategy;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.hostos.Cpu;
@@ -28,19 +28,19 @@ import sk.baka.webvm.analyzer.utils.Checks;
  * Provides a CPU measurement support.
  * @author Martin Vysny
  */
-public final class CpuUsage {
+public final class CPUUsageMeasurer {
 
     private static final Logger LOG = Logger.getLogger(Cpu.class.getName());
     /**
      * The CPU usage measurer.
      */
-    public final ICpuUsageMeasure cpuUsage;
+    public final ICpuUsageMeasureStrategy cpuUsage;
 
     /**
      * Creates a new CPU usage measurer.
      * @param usage retrieve usage data from this object.
      */
-    public CpuUsage(final ICpuUsageMeasure usage) {
+    public CPUUsageMeasurer(final ICpuUsageMeasureStrategy usage) {
         Checks.checkNotNull("usage", usage);
         cpuUsage = usage;
     }

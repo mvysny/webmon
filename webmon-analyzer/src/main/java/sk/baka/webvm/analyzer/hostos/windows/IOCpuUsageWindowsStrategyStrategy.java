@@ -18,13 +18,13 @@
  */
 package sk.baka.webvm.analyzer.hostos.windows;
 
-import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasure;
+import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasureStrategy;
 
 /**
  *
  * @author Martin Vysny
  */
-public class IOCpuUsageWindowsStrategy implements ICpuUsageMeasure {
+public class IOCpuUsageWindowsStrategyStrategy implements ICpuUsageMeasureStrategy {
 
     @Override
     public Object measure() throws Exception {

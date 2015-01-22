@@ -17,16 +17,16 @@
  */
 package sk.baka.webvm.analyzer.hostos.linux;
 
-import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasure;
+import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasureStrategy;
 
 /**
  *
  * @author Martin Vysny
  */
-public class ProcessCpuUsageLinuxStrategy implements ICpuUsageMeasure {
+public class ProcessCpuUsageLinuxStrategyStrategy implements ICpuUsageMeasureStrategy {
     public final int pid;
 
-    public ProcessCpuUsageLinuxStrategy(int pid) {
+    public ProcessCpuUsageLinuxStrategyStrategy(int pid) {
         this.pid = pid;
     }
 
