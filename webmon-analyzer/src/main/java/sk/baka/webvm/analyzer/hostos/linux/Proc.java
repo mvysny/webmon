@@ -66,7 +66,6 @@ public class Proc {
 
         /**
          * Parses the file contents.
-         * @param pid the process PID.
          * @return parsed file contents or null if the file does not exist or it does not contain the "cpu" line.
          * @throws RuntimeException if the parse fails
          */
@@ -116,6 +115,7 @@ public class Proc {
     public static final class Diskstats {
 
         private final static File DISKSTATS = new File("/proc/diskstats");
+        private static boolean SUPPRESS_EXCEPTIONS = false;
         public final long weightedMillisSpentIO;
         public final long currentTimeMillis;
 
@@ -146,9 +146,13 @@ public class Proc {
                 } finally {
                     MiscUtils.closeQuietly(in);
                 }
+                SUPPRESS_EXCEPTIONS = false;
                 return new Diskstats(weightedMillisSpentIOTotal, currentTimeMillis);
             } catch (Exception ex) {
-                log.log(Level.INFO, "Failed to parse " + DISKSTATS, ex);
+                if (!SUPPRESS_EXCEPTIONS) {
+                    log.log(Level.INFO, "Failed to parse " + DISKSTATS, ex);
+                    SUPPRESS_EXCEPTIONS = true;
+                }
                 return null;
             }
         }
@@ -304,7 +308,7 @@ public class Proc {
 
         /**
          * Returns a value in bytes, stored under given key.
-         * @param key the key, not null.
+         * @param name the key, not null.
          * @return value in bytes. If there is no such key, returns 0.
          */
         public long getValueInBytesZero(String name) {
@@ -317,7 +321,7 @@ public class Proc {
 
         /**
          * Returns a value in bytes, stored under given key.
-         * @param key the key, not null.
+         * @param name the key, not null.
          * @return value in bytes. If there is no such key, returns null.
          */
         public Long getValueInBytesNull(String name) {

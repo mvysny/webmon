@@ -26,10 +26,12 @@ import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasure;
  */
 public class IOCpuUsageLinuxStrategy implements ICpuUsageMeasure {
 
+    @Override
     public Object measure() throws Exception {
         return Proc.Diskstats.now();
     }
 
+    @Override
     public int getAvgCpuUsage(Object m1, Object m2) {
         return ((Proc.Diskstats) m2).getCpuIOUsage((Proc.Diskstats) m1);
     }
