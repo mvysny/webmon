@@ -167,13 +167,13 @@ public final class Memory extends WebVMPage {
             item.add(new Label("poolName", bean.getName()));
             item.add(new Label("poolType", "" + bean.getType()));
             item.add(new Label("poolValid", bean.isValid() ? "Y" : "N"));
-            MemoryUsage2 usage = MemoryUsage2.from(bean.getCollectionUsage()).getInMB();
+            MemoryUsage2 usage = MemoryUsage2.getInMB(MemoryUsage2.from(bean.getCollectionUsage()));
             add(item, "poolCollects", usage, true);
             item.add(new Label("poolCollectsPerc", MemoryUsages.getUsagePerc(usage)));
-            usage = MemoryUsage2.from(bean.getPeakUsage()).getInMB();
+            usage = MemoryUsage2.getInMB(MemoryUsage2.from(bean.getPeakUsage()));
             add(item, "poolPeak", usage, false);
             item.add(new Label("poolPeakPerc", MemoryUsages.getUsagePerc(usage)));
-            usage = MemoryUsage2.from(bean.getUsage()).getInMB();
+            usage = MemoryUsage2.getInMB(MemoryUsage2.from(bean.getUsage()));
             add(item, "poolUsage", usage, false);
             item.add(new Label("poolUsagePerc", MemoryUsages.getUsagePerc(usage)));
         }

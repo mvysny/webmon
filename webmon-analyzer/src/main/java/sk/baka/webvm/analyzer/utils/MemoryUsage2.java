@@ -257,8 +257,9 @@ public final class MemoryUsage2 implements Serializable {
 		return sb.toString();
 	}
 
-	public static MemoryUsage2 from(@NotNull MemoryUsage mu) {
-		return new MemoryUsage2(mu.getInit(), mu.getUsed(), mu.getCommitted(), mu.getMax());
+	@Nullable
+	public static MemoryUsage2 from(@Nullable MemoryUsage mu) {
+		return mu == null ? null : new MemoryUsage2(mu.getInit(), mu.getUsed(), mu.getCommitted(), mu.getMax());
 	}
 
 	@Override
