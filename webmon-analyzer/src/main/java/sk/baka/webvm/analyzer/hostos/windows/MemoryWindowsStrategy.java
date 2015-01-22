@@ -32,6 +32,7 @@ public class MemoryWindowsStrategy implements IMemoryInfoProvider {
         return WMIUtils.isAvailable();
     }
     
+    @Override
     public MemoryUsage getSwap() {
         if (WMIUtils.isAvailable()) {
             return WMIUtils.getSwapUsage();
@@ -39,6 +40,7 @@ public class MemoryWindowsStrategy implements IMemoryInfoProvider {
         return null;
     }
 
+    @Override
     public MemoryUsage getPhysicalMemory() {
         // fallback to JMX
         return new MemoryJMXStrategy().getPhysicalMemory();

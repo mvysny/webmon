@@ -114,6 +114,7 @@ public class WMIUtils {
             this.nativeValue = nativeValue;
         }
 
+        @Override
         public int getNativeValue() {
             return nativeValue;
         }

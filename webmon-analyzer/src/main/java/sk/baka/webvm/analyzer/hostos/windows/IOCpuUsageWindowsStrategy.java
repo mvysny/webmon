@@ -26,10 +26,12 @@ import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasure;
  */
 public class IOCpuUsageWindowsStrategy implements ICpuUsageMeasure {
 
+    @Override
     public Object measure() throws Exception {
         return WMIUtils.getIOCPUUsage();
     }
 
+    @Override
     public int getAvgCpuUsage(Object m1, Object m2) {
         return (Integer) m2;
     }
