@@ -93,6 +93,12 @@ public final class HistorySample {
      */
     public final int cpuUsage;
     /**
+     * Shows the host OS CPU usage. A value of 0..100, 0 when not supported. If
+     * the computer contains more than one CPU/core, this value is the max usage of all
+     * CPU usages of all CPUs/cores.
+     */
+    public final int cpuMaxOneCoreUsage;
+    /**
      * Shows the owner java process CPU usage. A value of 0..100, 0 when not
      * supported.
      */
@@ -102,7 +108,7 @@ public final class HistorySample {
      */
     public final int cpuIOUsage;
 
-    private HistorySample(int gcCpuUsage, EnumMap<MemoryPools, MemoryUsage> memPoolUsage, ThreadMap threads, int classesLoaded, int cpuUsage, int cpuJavaUsage, int cpuIOUsage, long sampleTime) {
+    private HistorySample(int gcCpuUsage, EnumMap<MemoryPools, MemoryUsage> memPoolUsage, ThreadMap threads, int classesLoaded, int cpuUsage, int cpuMaxOneCoreUsage, int cpuJavaUsage, int cpuIOUsage, long sampleTime) {
         this.sampleTime = sampleTime;
         this.gcCpuUsage = gcCpuUsage;
         this.memPoolUsage = Collections.unmodifiableMap(memPoolUsage);
@@ -111,6 +117,7 @@ public final class HistorySample {
         this.cpuUsage = cpuUsage;
         this.cpuJavaUsage = cpuJavaUsage;
         this.cpuIOUsage = cpuIOUsage;
+        this.cpuMaxOneCoreUsage = cpuMaxOneCoreUsage;
     }
 
     /**
@@ -125,6 +132,7 @@ public final class HistorySample {
             this.cpuIOUsage = hs.cpuIOUsage;
             this.cpuJavaUsage = hs.cpuJavaUsage;
             this.cpuUsage = hs.cpuUsage;
+            this.cpuMaxOneCoreUsage = hs.cpuMaxOneCoreUsage;
             this.gcCpuUsage = hs.gcCpuUsage;
             this.memPoolUsage.clear();
             this.memPoolUsage.putAll(hs.memPoolUsage);
@@ -167,6 +175,12 @@ public final class HistorySample {
          */
         public int cpuJavaUsage = 0;
         /**
+         * Shows the host OS CPU usage. A value of 0..100, 0 when not supported. If
+         * the computer contains more than one CPU/core, this value is the max usage of all
+         * CPU usages of all CPUs/cores.
+         */
+        public int cpuMaxOneCoreUsage = 0;
+        /**
          * Shows the host OS CPU IO usage. A value of 0..100, 0 when not
          * supported.
          */
@@ -182,8 +196,9 @@ public final class HistorySample {
             return this;
         }
 
-        public Builder setCpuUsage(int cpuUsage) {
+        public Builder setCpuUsage(int cpuUsage, int cpuMaxOneCoreUsage) {
             this.cpuUsage = cpuUsage;
+            this.cpuMaxOneCoreUsage = cpuMaxOneCoreUsage;
             return this;
         }
 
@@ -218,7 +233,7 @@ public final class HistorySample {
         }
 
         public HistorySample build() {
-            return new HistorySample(gcCpuUsage, memPoolUsage, threads, classesLoaded, cpuUsage, cpuJavaUsage, cpuIOUsage, sampleTime);
+            return new HistorySample(gcCpuUsage, memPoolUsage, threads, classesLoaded, cpuUsage, cpuMaxOneCoreUsage, cpuJavaUsage, cpuIOUsage, sampleTime);
         }
 
         private static void write(MemoryUsage mu, DataOutput out) throws IOException {
@@ -236,6 +251,7 @@ public final class HistorySample {
             return new MemoryUsage(init, used, committed, max);
         }
 
+        @Override
         public void writeExternal(ObjectOutput out) throws IOException {
             writeTo(out);
         }
@@ -254,10 +270,12 @@ public final class HistorySample {
             }
             out.writeInt(classesLoaded);
             out.writeByte(cpuUsage);
+            out.writeByte(cpuMaxOneCoreUsage);
             out.writeByte(cpuIOUsage);
             out.writeByte(cpuJavaUsage);
         }
 
+        @Override
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
             readFrom(in);
         }
@@ -272,6 +290,7 @@ public final class HistorySample {
             }
             classesLoaded = in.readInt();
             cpuUsage = in.readByte();
+            cpuMaxOneCoreUsage = in.readByte();
             cpuIOUsage = in.readByte();
             cpuJavaUsage = in.readByte();
         }
@@ -327,6 +346,10 @@ public final class HistorySample {
 
     @Override
     public String toString() {
-        return "HistorySample{" + "gcCpuUsage=" + gcCpuUsage + ", sampleTime=" + sampleTime + ", memPoolUsage=" + memPoolUsage + ", classesLoaded=" + classesLoaded + ", cpuUsage=" + cpuUsage + ", cpuJavaUsage=" + cpuJavaUsage + ", cpuIOUsage=" + cpuIOUsage + '}';
+        return "HistorySample{" + "gcCpuUsage=" + gcCpuUsage + ", sampleTime=" + sampleTime +
+                ", memPoolUsage=" + memPoolUsage + ", classesLoaded=" + classesLoaded +
+                ", cpuUsage=" + cpuUsage + ", cpuMaxOneCoreUsage=" + cpuMaxOneCoreUsage +
+                ", cpuJavaUsage=" + cpuJavaUsage
+                + ", cpuIOUsage=" + cpuIOUsage + '}';
     }
 }

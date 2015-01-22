@@ -22,7 +22,7 @@ package sk.baka.webvm.analyzer.hostos;
  * Interface for measuring CPU usage.
  * @author mvy
  */
-public interface ICpuUsageMeasure {
+public interface ICpuUsageMeasureStrategy {
 
     /**
      * Measures an implementation-dependent CPU usage statistics. Used in {@link #getAvgCpuUsage(java.lang.Object, java.lang.Object)} to compute the real CPU usage.

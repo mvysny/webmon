@@ -17,20 +17,22 @@
  */
 package sk.baka.webvm.analyzer.hostos.linux;
 
-import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasure;
+import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasureStrategy;
 
 /**
- * Returns a Host OS CPU usage information.
+ * Returns a Host OS CPU time waiting for IO.
  *
  * @author Martin Vysny
  */
-public class CpuUsageLinuxStrategy implements ICpuUsageMeasure {
+public class IOCpuUsageLinuxStrategyStrategy implements ICpuUsageMeasureStrategy {
 
+    @Override
     public Object measure() throws Exception {
-        return Proc.Stat.now();
+        return Proc.Diskstats.now();
     }
 
+    @Override
     public int getAvgCpuUsage(Object m1, Object m2) {
-        return ((Proc.Stat) m2).getCpuUsage((Proc.Stat) m1);
+        return ((Proc.Diskstats) m2).getCpuIOUsage((Proc.Diskstats) m1);
     }
 }

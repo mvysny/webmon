@@ -18,17 +18,17 @@
  */
 package sk.baka.webvm.analyzer.hostos;
 
-import sk.baka.webvm.analyzer.hostos.windows.OneProcessCpuUsageWindowsStrategy;
-import sk.baka.webvm.analyzer.hostos.linux.ProcessCpuUsageLinuxStrategy;
-import sk.baka.webvm.analyzer.hostos.windows.CpuUsageWindowsStrategy;
-import sk.baka.webvm.analyzer.hostos.windows.IOCpuUsageWindowsStrategy;
+import sk.baka.webvm.analyzer.hostos.windows.OneProcessCpuUsageWindowsStrategyStrategy;
+import sk.baka.webvm.analyzer.hostos.linux.ProcessCpuUsageLinuxStrategyStrategy;
+import sk.baka.webvm.analyzer.hostos.windows.CpuUsageWindowsStrategyStrategy;
+import sk.baka.webvm.analyzer.hostos.windows.IOCpuUsageWindowsStrategyStrategy;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import sk.baka.webvm.analyzer.CpuUsage;
-import sk.baka.webvm.analyzer.hostos.linux.CpuUsageLinuxStrategy;
-import sk.baka.webvm.analyzer.hostos.linux.IOCpuUsageLinuxStrategy;
+import sk.baka.webvm.analyzer.CPUUsageMeasurer;
+import sk.baka.webvm.analyzer.hostos.linux.CpuUsageLinuxStrategyStrategy;
+import sk.baka.webvm.analyzer.hostos.linux.IOCpuUsageLinuxStrategyStrategy;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.hostos.windows.WMIUtils;
 
@@ -42,28 +42,28 @@ public final class Cpu {
      * Creates a new measurer for Host OS CPU usage.
      * @return the CPU measurer, never null.
      */
-    public static CpuUsage newHostCpu() {
-        final ICpuUsageMeasure cpuusage;
+    public static CPUUsageMeasurer newHostCpu() {
+        final ICpuUsageMeasureStrategy cpuusage;
         if (OS.isWindows() && WMIUtils.isAvailable()) {
-            cpuusage = new CpuUsageWindowsStrategy();
+            cpuusage = new CpuUsageWindowsStrategyStrategy();
         } else if (OS.isLinux() || OS.isAndroid()) {
-            cpuusage = new CpuUsageLinuxStrategy();
+            cpuusage = new CpuUsageLinuxStrategyStrategy();
         } else {
-            cpuusage = new DummyCpuUsageStrategy();
+            cpuusage = new DummyCpuUsageStrategyStrategy();
         }
-        return new CpuUsage(cpuusage);
+        return new CPUUsageMeasurer(cpuusage);
     }
-    private static final CpuUsage HOST_CPU = newHostCpu();
+    private static final CPUUsageMeasurer HOST_CPU = newHostCpu();
 
     /**
      * Checks if Host OS CPU usage measurement is supported.
      * @return true if supported.
      */
     public static boolean isHostCpuSupported() {
-        return !(HOST_CPU.cpuUsage instanceof DummyCpuUsageStrategy);
+        return !(HOST_CPU.cpuUsage instanceof DummyCpuUsageStrategyStrategy);
     }
 
-    private static class DummyCpuUsageStrategy implements ICpuUsageMeasure {
+    private static class DummyCpuUsageStrategyStrategy implements ICpuUsageMeasureStrategy {
 
         public Object measure() throws Exception {
             return null;
@@ -78,33 +78,33 @@ public final class Cpu {
      * Creates a new measurer for Host OS CPU IO usage (% of time spent waiting for IO).
      * @return the CPU measurer, never null.
      */
-    public static CpuUsage newHostIOCpu() {
-        final ICpuUsageMeasure io;
+    public static CPUUsageMeasurer newHostIOCpu() {
+        final ICpuUsageMeasureStrategy io;
         if (OS.isWindows() && WMIUtils.isAvailable()) {
-            io = new IOCpuUsageWindowsStrategy();
+            io = new IOCpuUsageWindowsStrategyStrategy();
         } else if (OS.isLinux() || OS.isAndroid()) {
-            io = new IOCpuUsageLinuxStrategy();
+            io = new IOCpuUsageLinuxStrategyStrategy();
         } else {
-            io = new DummyCpuUsageStrategy();
+            io = new DummyCpuUsageStrategyStrategy();
         }
-        return new CpuUsage(io);
+        return new CPUUsageMeasurer(io);
     }
-    private static final CpuUsage HOST_IO_CPU = newHostIOCpu();
+    private static final CPUUsageMeasurer HOST_IO_CPU = newHostIOCpu();
 
     /**
      * Checks if measurer for Host OS CPU IO usage (% of time spent waiting for IO) is supported.
      * @return true if supported.
      */
     public static boolean isHostIOCpuSupported() {
-        return !(HOST_IO_CPU.cpuUsage instanceof DummyCpuUsageStrategy);
+        return !(HOST_IO_CPU.cpuUsage instanceof DummyCpuUsageStrategyStrategy);
     }
 
     /**
      * Creates a new measurer for CPU used by the owner java process.
      * @return the CPU measurer, never null.
      */
-    public static CpuUsage newJavaCpu() {
-        return new CpuUsage(JavaCpuUsageStrategy.supported() ? new JavaCpuUsageStrategy() : new DummyCpuUsageStrategy());
+    public static CPUUsageMeasurer newJavaCpu() {
+        return new CPUUsageMeasurer(JavaCpuUsageStrategyStrategy.supported() ? new JavaCpuUsageStrategyStrategy() : new DummyCpuUsageStrategyStrategy());
     }
 
     /**
@@ -112,7 +112,7 @@ public final class Cpu {
      * @return true if supported.
      */
     public static boolean isJavaCpuSupported() {
-        return JavaCpuUsageStrategy.supported();
+        return JavaCpuUsageStrategyStrategy.supported();
     }
 
     private final static int NUMBER_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
@@ -120,11 +120,11 @@ public final class Cpu {
     /**
      * Returns the Java process CPU usage information.
      */
-    private static class JavaCpuUsageStrategy implements ICpuUsageMeasure {
+    private static class JavaCpuUsageStrategyStrategy implements ICpuUsageMeasureStrategy {
 
         private static final OperatingSystemMXBean BEAN;
         private static final Class<?> BEAN_CLASS;
-        private static final Logger log = Logger.getLogger(JavaCpuUsageStrategy.class.getName());
+        private static final Logger log = Logger.getLogger(JavaCpuUsageStrategyStrategy.class.getName());
 
 
         static {
@@ -173,15 +173,15 @@ public final class Cpu {
      * @param pid the process ID. If the PID is invalid, 0 will always be returned.
      * @return CPU usage, never null. Always returns 0 on unsupported platforms.
      */
-    public static CpuUsage newProcessCPUUsage(int pid) {
-        final ICpuUsageMeasure m;
-        if (OneProcessCpuUsageWindowsStrategy.isAvailable()) {
-            m = new OneProcessCpuUsageWindowsStrategy(pid);
-        } else if (ProcessCpuUsageLinuxStrategy.isAvailable()) {
-            m = new ProcessCpuUsageLinuxStrategy(pid);
+    public static CPUUsageMeasurer newProcessCPUUsage(int pid) {
+        final ICpuUsageMeasureStrategy m;
+        if (OneProcessCpuUsageWindowsStrategyStrategy.isAvailable()) {
+            m = new OneProcessCpuUsageWindowsStrategyStrategy(pid);
+        } else if (ProcessCpuUsageLinuxStrategyStrategy.isAvailable()) {
+            m = new ProcessCpuUsageLinuxStrategyStrategy(pid);
         } else {
-            m = new DummyCpuUsageStrategy();
+            m = new DummyCpuUsageStrategyStrategy();
         }
-        return new CpuUsage(m);
+        return new CPUUsageMeasurer(m);
     }
 }

@@ -18,32 +18,21 @@
  */
 package sk.baka.webvm.analyzer.hostos.windows;
 
-import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasure;
-import sk.baka.webvm.analyzer.hostos.windows.WMIUtils;
+import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasureStrategy;
 
 /**
  *
  * @author Martin Vysny
  */
-public class OneProcessCpuUsageWindowsStrategy implements ICpuUsageMeasure {
-
-    public static boolean isAvailable() {
-        return WMIUtils.isAvailable();
-    }
-    private final int pid;
-
-    public OneProcessCpuUsageWindowsStrategy(int pid) {
-        this.pid = pid;
-    }
+public class CpuUsageWindowsStrategyStrategy implements ICpuUsageMeasureStrategy {
 
     @Override
     public Object measure() throws Exception {
-        return WMIUtils.getProcessPerfRawData(pid);
+        return WMIUtils.getCPUUsage();
     }
 
     @Override
     public int getAvgCpuUsage(Object m1, Object m2) {
-        return ((WMIUtils.Win32_PerfRawData_PerfProc_Process) m2).getCPUUsage((WMIUtils.Win32_PerfRawData_PerfProc_Process) m1);
+        return (Integer) m2;
     }
-    
 }

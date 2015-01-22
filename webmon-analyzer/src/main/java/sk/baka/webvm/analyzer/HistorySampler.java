@@ -18,7 +18,7 @@
  */
 package sk.baka.webvm.analyzer;
 
-import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasure;
+import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasureStrategy;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.List;
@@ -114,15 +114,15 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
     /**
      * Serves for Host OS CPU usage measurement.
      */
-    private final CpuUsage cpuOS = Cpu.newHostCpu();
+    private final CPUUsageMeasurer cpuOS = Cpu.newHostCpu();
     /**
      * Serves for Java CPU usage measurement.
      */
-    private final CpuUsage cpuJava = Cpu.newJavaCpu();
+    private final CPUUsageMeasurer cpuJava = Cpu.newJavaCpu();
     /**
      * Serves for Host OS CPU IO usage measurement.
      */
-    private final CpuUsage cpuOSIO = Cpu.newHostIOCpu();
+    private final CPUUsageMeasurer cpuOSIO = Cpu.newHostIOCpu();
     private final IMemoryInfoProvider meminfo = MemoryUsages.getMemoryInfoProvider();
     
     /**
@@ -159,12 +159,12 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
     }
     private SamplerConfig vmstatConfig;
     private final SimpleFixedSizeFIFO<List<ProblemReport>> problemHistory;
-    private final CpuUsage gcCpuUsage = new CpuUsage(new GCCpuUsageMeasure());
+    private final CPUUsageMeasurer gcCpuUsage = new CPUUsageMeasurer(new GCCpuUsageMeasureStrategy());
 
     /**
      * Measures the GC CPU usage.
      */
-    private static final class GCCpuUsageMeasure implements ICpuUsageMeasure {
+    private static final class GCCpuUsageMeasureStrategy implements ICpuUsageMeasureStrategy {
 
         public boolean supported() {
             return true;
