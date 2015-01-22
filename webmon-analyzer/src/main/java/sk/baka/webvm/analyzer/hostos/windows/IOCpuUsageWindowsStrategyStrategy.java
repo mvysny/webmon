@@ -18,6 +18,7 @@
  */
 package sk.baka.webvm.analyzer.hostos.windows;
 
+import sk.baka.webvm.analyzer.hostos.CPUUsage;
 import sk.baka.webvm.analyzer.hostos.ICpuUsageMeasureStrategy;
 
 /**
@@ -28,12 +29,12 @@ public class IOCpuUsageWindowsStrategyStrategy implements ICpuUsageMeasureStrate
 
     @Override
     public Object measure() throws Exception {
-        return WMIUtils.getIOCPUUsage();
+        return CPUUsage.of(WMIUtils.getIOCPUUsage());
     }
 
     @Override
-    public int getAvgCpuUsage(Object m1, Object m2) {
-        return (Integer) m2;
+    public CPUUsage getAvgCpuUsage(Object m1, Object m2) {
+        return (CPUUsage) m2;
     }
     
 }

@@ -1,5 +1,7 @@
 package sk.baka.webvm.analyzer.hostos;
 
+import sk.baka.webvm.analyzer.utils.MemoryUsage2;
+
 import java.lang.management.MemoryUsage;
 
 /**
@@ -8,11 +10,11 @@ import java.lang.management.MemoryUsage;
  */
 public class DummyMemoryStrategy implements IMemoryInfoProvider {
 
-    public MemoryUsage getSwap() {
+    public MemoryUsage2 getSwap() {
         return null;
     }
 
-    public MemoryUsage getPhysicalMemory() {
+    public MemoryUsage2 getPhysicalMemory() {
         return null;
     }
 }

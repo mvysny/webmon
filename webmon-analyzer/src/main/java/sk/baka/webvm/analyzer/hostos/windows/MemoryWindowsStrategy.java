@@ -21,6 +21,7 @@ package sk.baka.webvm.analyzer.hostos.windows;
 import java.lang.management.MemoryUsage;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.analyzer.hostos.MemoryJMXStrategy;
+import sk.baka.webvm.analyzer.utils.MemoryUsage2;
 
 /**
  * Provides Windows memory data from the WMI.
@@ -33,7 +34,7 @@ public class MemoryWindowsStrategy implements IMemoryInfoProvider {
     }
     
     @Override
-    public MemoryUsage getSwap() {
+    public MemoryUsage2 getSwap() {
         if (WMIUtils.isAvailable()) {
             return WMIUtils.getSwapUsage();
         }
@@ -41,7 +42,7 @@ public class MemoryWindowsStrategy implements IMemoryInfoProvider {
     }
 
     @Override
-    public MemoryUsage getPhysicalMemory() {
+    public MemoryUsage2 getPhysicalMemory() {
         // fallback to JMX
         return new MemoryJMXStrategy().getPhysicalMemory();
     }

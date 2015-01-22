@@ -20,8 +20,10 @@ package sk.baka.webvm.analyzer.hostos.windows;
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.*;
 import sk.baka.webvm.analyzer.hostos.Architecture;
+import sk.baka.webvm.analyzer.hostos.CPUUsage;
 import sk.baka.webvm.analyzer.hostos.MemoryJMXStrategy;
 import sk.baka.webvm.analyzer.hostos.OS;
+import sk.baka.webvm.analyzer.utils.MemoryUsage2;
 import sk.baka.webvm.analyzer.utils.MiscUtils;
 
 import java.io.File;
@@ -182,16 +184,17 @@ public class WMIUtils {
         return result;
     }
 
-    public static int getCPUUsage() {
+    public static CPUUsage getCPUUsage() {
+        // @todo mvy implement properly, for all cpu cores
         checkAvailable();
         final Variant cpu = axWMI.invoke("ExecQuery", new Variant("Select PercentProcessorTime from Win32_PerfFormattedData_PerfOS_Processor where Name=\"_Total\""));
         final EnumVariant cpuList = new EnumVariant(cpu.toDispatch());
         while (cpuList.hasMoreElements()) {
             final Dispatch item = cpuList.nextElement().toDispatch();
             final String cpuUsagePerc = Dispatch.call(item, "PercentProcessorTime").getString();
-            return Integer.parseInt(cpuUsagePerc);
+            return CPUUsage.of(Integer.parseInt(cpuUsagePerc));
         }
-        return 0;
+        return CPUUsage.ZERO;
     }
 
     public static int getIOCPUUsage() {
@@ -213,6 +216,7 @@ public class WMIUtils {
      */
     public static Win32_PerfRawData_PerfProc_Process getProcessPerfRawData(int pid) {
         checkAvailable();
+        // @todo mvy implement properly, for all cpu cores
         final Variant cpu = axWMI.invoke("ExecQuery", new Variant("Select PercentProcessorTime,TimeStamp_Sys100NS from Win32_PerfRawData_PerfProc_Process where IDProcess=" + pid));
         final EnumVariant cpuList = new EnumVariant(cpu.toDispatch());
         while (cpuList.hasMoreElements()) {
@@ -242,7 +246,6 @@ public class WMIUtils {
             this.timeStamp_Sys100NS = timeStamp_Sys100NS;
         }
         
-        public static final Win32_PerfRawData_PerfProc_Process ZERO = new Win32_PerfRawData_PerfProc_Process(0, 1);
         /**
          * Returns average CPU usage over given interval.
          * @param previous the previous sample, may be null - in such case zero is returned.
@@ -274,7 +277,7 @@ public class WMIUtils {
      * @param pid the process PID
      * @return working set size or null if there is no such process with given PID.
      */
-    public static MemoryUsage getWorkingSetSize(int pid) {
+    public static MemoryUsage2 getWorkingSetSize(int pid) {
         checkAvailable();
         final Variant cpu = axWMI.invoke("ExecQuery", new Variant("Select WorkingSetSize,PeakWorkingSetSize,MaximumWorkingSetSize from Win32_Process where ProcessId=" + pid));
         final EnumVariant cpuList = new EnumVariant(cpu.toDispatch());
@@ -283,7 +286,7 @@ public class WMIUtils {
             final long workingSetSize = Long.valueOf(Dispatch.call(item, "WorkingSetSize").getString());
             final long peakWorkingSetSize = (long) Dispatch.call(item, "PeakWorkingSetSize").getInt() * 1024L;
 //            final long maximumWorkingSetSize = (long) Dispatch.call(item, "MaximumWorkingSetSize").getInt() * 1024L;
-            return new MemoryUsage(0, workingSetSize, peakWorkingSetSize, Math.max(workingSetSize, peakWorkingSetSize));
+            return new MemoryUsage2(0, workingSetSize, peakWorkingSetSize, Math.max(workingSetSize, peakWorkingSetSize));
         }
         return null;
     }
@@ -293,7 +296,7 @@ public class WMIUtils {
      *
      * @return swap usage.
      */
-    public static MemoryUsage getSwapUsage() {
+    public static MemoryUsage2 getSwapUsage() {
         checkAvailable();
         final Variant currentSwap = axWMI.invoke("ExecQuery", new Variant("Select AllocatedBaseSize,CurrentUsage from Win32_PageFileUsage"));
         long used = 0;
@@ -315,12 +318,12 @@ public class WMIUtils {
         }
         if (max < comitted) {
             // incorrect maximum? Ask JMX
-            final MemoryUsage swap = new MemoryJMXStrategy().getSwap();
+            final MemoryUsage2 swap = new MemoryJMXStrategy().getSwap();
             if (swap != null) {
                 max = swap.getMax();
             }
         }
-        return max < comitted ? new MemoryUsage(initial, used, used, comitted) : new MemoryUsage(initial, used, comitted, max);
+        return max < comitted ? new MemoryUsage2(initial, used, used, comitted) : new MemoryUsage2(initial, used, comitted, max);
     }
 
     private static void closeQuietly(JacobObject obj) {

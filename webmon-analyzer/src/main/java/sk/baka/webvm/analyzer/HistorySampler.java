@@ -205,7 +205,7 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
                 return CPUUsage.ZERO;
             }
             final int cpuusage = (int) (gcTimeDelta * Constants.HUNDRED_PERCENT / gcSampleTakenDelta);
-            return new CPUUsage(cpuusage, cpuusage);
+            return CPUUsage.of(cpuusage);
         }
     }
 

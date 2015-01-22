@@ -18,8 +18,10 @@
  */
 package sk.baka.webvm.analyzer.hostos;
 
-import sk.baka.webvm.analyzer.hostos.windows.OneProcessCpuUsageWindowsStrategyStrategy;
-import sk.baka.webvm.analyzer.hostos.linux.ProcessCpuUsageLinuxStrategyStrategy;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import sk.baka.webvm.analyzer.hostos.windows.OneProcessCpuUsageWindowsStrategy;
+import sk.baka.webvm.analyzer.hostos.linux.ProcessCpuUsageLinuxStrategy;
 import sk.baka.webvm.analyzer.hostos.windows.CpuUsageWindowsStrategyStrategy;
 import sk.baka.webvm.analyzer.hostos.windows.IOCpuUsageWindowsStrategyStrategy;
 import java.lang.management.OperatingSystemMXBean;
@@ -27,7 +29,7 @@ import java.lang.management.ManagementFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.CPUUsageMeasurer;
-import sk.baka.webvm.analyzer.hostos.linux.CpuUsageLinuxStrategyStrategy;
+import sk.baka.webvm.analyzer.hostos.linux.CpuUsageLinuxStrategy;
 import sk.baka.webvm.analyzer.hostos.linux.IOCpuUsageLinuxStrategyStrategy;
 import sk.baka.webvm.analyzer.utils.Constants;
 import sk.baka.webvm.analyzer.hostos.windows.WMIUtils;
@@ -47,7 +49,7 @@ public final class Cpu {
         if (OS.isWindows() && WMIUtils.isAvailable()) {
             cpuusage = new CpuUsageWindowsStrategyStrategy();
         } else if (OS.isLinux() || OS.isAndroid()) {
-            cpuusage = new CpuUsageLinuxStrategyStrategy();
+            cpuusage = new CpuUsageLinuxStrategy();
         } else {
             cpuusage = new DummyCpuUsageStrategyStrategy();
         }
@@ -65,12 +67,14 @@ public final class Cpu {
 
     private static class DummyCpuUsageStrategyStrategy implements ICpuUsageMeasureStrategy {
 
+        @Nullable
         public Object measure() throws Exception {
             return null;
         }
 
-        public int getAvgCpuUsage(Object m1, Object m2) {
-            return 0;
+        @NotNull
+        public CPUUsage getAvgCpuUsage(Object m1, Object m2) {
+            return CPUUsage.ZERO;
         }
     }
     
@@ -153,14 +157,15 @@ public final class Cpu {
         private static final int TOTAL_CPU_TIME = 1;
         private static final int PROCESS_CPU_TIME = 0;
 
-        public int getAvgCpuUsage(Object m1, Object m2) {
+        public CPUUsage getAvgCpuUsage(Object m1, Object m2) {
             final long[] me1 = (long[]) m1;
             final long[] me2 = (long[]) m2;
             final long sampleTimeDelta = me2[TOTAL_CPU_TIME] - me1[TOTAL_CPU_TIME];
             if (sampleTimeDelta <= 0) {
-                return 0;
+                return CPUUsage.ZERO;
             }
-            return (int) ((me2[PROCESS_CPU_TIME] - me1[PROCESS_CPU_TIME]) * Constants.HUNDRED_PERCENT / sampleTimeDelta);
+            final int result = (int) ((me2[PROCESS_CPU_TIME] - me1[PROCESS_CPU_TIME]) * Constants.HUNDRED_PERCENT / sampleTimeDelta);
+            return CPUUsage.of(result);
         }
     }
 
@@ -175,10 +180,10 @@ public final class Cpu {
      */
     public static CPUUsageMeasurer newProcessCPUUsage(int pid) {
         final ICpuUsageMeasureStrategy m;
-        if (OneProcessCpuUsageWindowsStrategyStrategy.isAvailable()) {
-            m = new OneProcessCpuUsageWindowsStrategyStrategy(pid);
-        } else if (ProcessCpuUsageLinuxStrategyStrategy.isAvailable()) {
-            m = new ProcessCpuUsageLinuxStrategyStrategy(pid);
+        if (OneProcessCpuUsageWindowsStrategy.isAvailable()) {
+            m = new OneProcessCpuUsageWindowsStrategy(pid);
+        } else if (ProcessCpuUsageLinuxStrategy.isAvailable()) {
+            m = new ProcessCpuUsageLinuxStrategy(pid);
         } else {
             m = new DummyCpuUsageStrategyStrategy();
         }

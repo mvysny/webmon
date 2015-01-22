@@ -23,6 +23,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.lang.management.MemoryUsage;
 import org.junit.Test;
+import sk.baka.webvm.analyzer.hostos.CPUUsage;
+import sk.baka.webvm.analyzer.utils.MemoryUsage2;
+
 import static org.junit.Assert.*;
 
 /**
@@ -33,9 +36,9 @@ import static org.junit.Assert.*;
 public class HistorySampleTest {
 
     private HistorySample build() {
-        final HistorySample.Builder b = new HistorySample.Builder().setClassesLoaded(5).setCpuIOUsage(10).setCpuJavaUsage(15).setCpuUsage(25).setGcCpuUsage(100);
+        final HistorySample.Builder b = new HistorySample.Builder().setClassesLoaded(5).setCpuIOUsage(10).setCpuJavaUsage(15).setCpuUsage(CPUUsage.of(25)).setGcCpuUsage(100);
         b.threads = ThreadMap.takeSnapshot();
-        b.memPoolUsage.put(HistorySample.MemoryPools.PhysMem, new MemoryUsage(-1, 25, 50, 10000));
+        b.memPoolUsage.put(HistorySample.MemoryPools.PhysMem, new MemoryUsage2(-1, 25, 50, 10000));
         return b.build();
     }
 
@@ -43,10 +46,10 @@ public class HistorySampleTest {
         assertEquals(5, hs.classesLoaded);
         assertEquals(10, hs.cpuIOUsage);
         assertEquals(15, hs.cpuJavaUsage);
-        assertEquals(25, hs.cpuUsage);
+        assertEquals(CPUUsage.of(25), hs.cpuUsage);
         assertEquals(100, hs.gcCpuUsage);
         assertEquals(1, hs.memPoolUsage.size());
-        final MemoryUsage physmem = hs.memPoolUsage.get(HistorySample.MemoryPools.PhysMem);
+        final MemoryUsage2 physmem = hs.memPoolUsage.get(HistorySample.MemoryPools.PhysMem);
         assertEquals(-1L, physmem.getInit());
         assertEquals(25L, physmem.getUsed());
         assertEquals(50L, physmem.getCommitted());
@@ -68,17 +71,5 @@ public class HistorySampleTest {
         check(hs);
         assertEquals(hs1, hs);
         assertNotNull(hs.threads);
-    }
-
-    @Test
-    public void testSerialization() throws Exception {
-        final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        final DataOutputStream dout = new DataOutputStream(bout);
-        new HistorySample.Builder().copy(build()).writeTo(dout);
-        dout.close();
-        final HistorySample.Builder b = new HistorySample.Builder();
-        b.readFrom(new DataInputStream(new ByteArrayInputStream(bout.toByteArray())));
-        check(b.build());
-        assertEquals(build(), b.build());
     }
 }

@@ -1,6 +1,7 @@
 package sk.baka.webvm.analyzer.utils;
 
 import static sk.baka.webvm.analyzer.utils.Constants.HUNDRED_PERCENT;
+import static sk.baka.webvm.analyzer.utils.Constants.MEBIBYTES;
 
 import java.io.Serializable;
 import java.lang.management.MemoryUsage;
@@ -9,6 +10,7 @@ import javax.management.openmbean.CompositeData;
 
 import org.jetbrains.annotations.NotNull;
 
+import org.jetbrains.annotations.Nullable;
 import sun.management.MemoryUsageCompositeData;
 
 /**
@@ -86,7 +88,7 @@ import sun.management.MemoryUsageCompositeData;
  * @author   Mandy Chung
  * @since   1.5
  */
-public class MemoryUsage2 implements Serializable {
+public final class MemoryUsage2 implements Serializable {
 	private final long init;
 	private final long used;
 	private final long committed;
@@ -303,4 +305,53 @@ public class MemoryUsage2 implements Serializable {
 
 	@NotNull
 	public static final MemoryUsage2 ZERO = new MemoryUsage2(0, 0, 0, 0);
+
+	/**
+	 * Returns memory usage in the following format: xx%
+	 *
+	 * @param mu the memory usage object, may be null
+	 * @return formatted percent value; "not available" if the object is null or
+	 * max is -1; "none" if max is zero
+	 */
+	@NotNull
+	public static String getUsagePerc(@Nullable final MemoryUsage2 mu) {
+		return mu == null ? "?" : mu.getUsagePerc();
+	}
+	/**
+	 * Returns memory usage in the following format: xx%
+	 * @return formatted percent value; "not available" if the object is null or
+	 * max is -1; "none" if max is zero
+	 */
+	@NotNull
+	public String getUsagePerc() {
+		if (getMax() < 0) {
+			return "?";
+		}
+		if (getMax() == 0) {
+			return "0";
+		}
+		return "" + (getUsed() * Constants.HUNDRED_PERCENT / getMax());
+	}
+
+	/**
+	 * Returns a new object with all values divided by 1024*1024 (converted from bytes to mebibytes).
+	 * @param mu the memory usage to convert
+	 * @return new memory object with values in mebibytes. Returns null if null was supplied.
+	 */
+	@Nullable
+	public static MemoryUsage2 getInMB(@Nullable final MemoryUsage2 mu) {
+		return mu == null ? null : mu.getInMB();
+	}
+
+	/**
+	 * Returns a new object with all values divided by 1024*1024 (converted from bytes to mebibytes).
+	 * @return new memory object with values in mebibytes. Returns null if null was supplied.
+	 */
+	@NotNull
+	public MemoryUsage2 getInMB() {
+		return new MemoryUsage2(getInit() == -1 ? -1 : getInit() / MEBIBYTES,
+				getUsed() / MEBIBYTES,
+				getCommitted() / MEBIBYTES,
+				getMax() == -1 ? -1 : getMax() / MEBIBYTES);
+	}
 }

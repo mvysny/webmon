@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
 import sk.baka.webvm.analyzer.hostos.OS;
+import sk.baka.webvm.analyzer.utils.MemoryUsage2;
 import sk.baka.webvm.analyzer.utils.Processes;
 
 /**
@@ -69,7 +70,7 @@ public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
         return AVAIL;
     }
 
-    public MemoryUsage getPhysicalMemory() {
+    public MemoryUsage2 getPhysicalMemory() {
         if (!available()) {
             return null;
         }
@@ -83,10 +84,10 @@ public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
         }
         final long committed = total - free;
         final long used = committed - buffers - cache;
-        return new MemoryUsage(-1, used, committed, total);
+        return new MemoryUsage2(-1, used, committed, total);
     }
 
-    public MemoryUsage getSwap() {
+    public MemoryUsage2 getSwap() {
         if (!available()) {
             return null;
         }
@@ -97,6 +98,6 @@ public final class MemoryLinuxStrategy implements IMemoryInfoProvider {
             return null;
         }
         final long used = total - free;
-        return new MemoryUsage(-1, used, used, total);
+        return new MemoryUsage2(-1, used, used, total);
     }
 }

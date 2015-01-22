@@ -36,6 +36,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import sk.baka.webvm.analyzer.hostos.IMemoryInfoProvider;
+import sk.baka.webvm.analyzer.utils.MemoryUsage2;
 import sk.baka.webvm.misc.DivGraph;
 import sk.baka.webvm.analyzer.utils.MemoryUsages;
 
@@ -53,30 +54,30 @@ public final class Memory extends WebVMPage {
      * Creates new object instance
      */
     public Memory() {
-        final IModel<MemoryUsage> heap = new LoadableDetachableModel<MemoryUsage>() {
+        final IModel<MemoryUsage2> heap = new LoadableDetachableModel<MemoryUsage2>() {
 
             @Override
-            protected MemoryUsage load() {
-                return MemoryUsages.getInMB(sk.baka.webvm.analyzer.hostos.Memory.getHeapFromRuntime());
+            protected MemoryUsage2 load() {
+                return sk.baka.webvm.analyzer.hostos.Memory.getHeapFromRuntime().getInMB();
             }
         };
         drawMemoryStatus(heap, "heapStatusBar", GRAPH_WIDTH_PIXELS);
         addStatusBar("heapStatusText", heap);
         final IMemoryInfoProvider meminfo = WicketApplication.getInjector().getInstance(IMemoryInfoProvider.class);
-        final IModel<MemoryUsage> physical = new LoadableDetachableModel<MemoryUsage>() {
+        final IModel<MemoryUsage2> physical = new LoadableDetachableModel<MemoryUsage2>() {
 
             @Override
-            protected MemoryUsage load() {
-                return MemoryUsages.getInMB(meminfo.getPhysicalMemory());
+            protected MemoryUsage2 load() {
+                return MemoryUsage2.getInMB(meminfo.getPhysicalMemory());
             }
         };
         drawMemoryStatus(physical, "physicalMemoryStatusBar", GRAPH_WIDTH_PIXELS);
         addStatusBar("physicalMemoryStatusText", physical);
-        final IModel<MemoryUsage> swap = new LoadableDetachableModel<MemoryUsage>() {
+        final IModel<MemoryUsage2> swap = new LoadableDetachableModel<MemoryUsage2>() {
 
             @Override
-            protected MemoryUsage load() {
-                return MemoryUsages.getInMB(meminfo.getSwap());
+            protected MemoryUsage2 load() {
+                return MemoryUsage2.getInMB(meminfo.getSwap());
             }
         };
         drawMemoryStatus(swap, "swapStatusBar", GRAPH_WIDTH_PIXELS);
@@ -87,7 +88,7 @@ public final class Memory extends WebVMPage {
         addGCStats();
     }
 
-    private void addStatusBar(String id, final IModel<MemoryUsage> model) {
+    private void addStatusBar(String id, final IModel<MemoryUsage2> model) {
         register(model);
         border.add(new Label(id, new LoadableDetachableModel<String>() {
 
@@ -166,18 +167,18 @@ public final class Memory extends WebVMPage {
             item.add(new Label("poolName", bean.getName()));
             item.add(new Label("poolType", "" + bean.getType()));
             item.add(new Label("poolValid", bean.isValid() ? "Y" : "N"));
-            MemoryUsage usage = MemoryUsages.getInMB(bean.getCollectionUsage());
+            MemoryUsage2 usage = MemoryUsage2.from(bean.getCollectionUsage()).getInMB();
             add(item, "poolCollects", usage, true);
             item.add(new Label("poolCollectsPerc", MemoryUsages.getUsagePerc(usage)));
-            usage = MemoryUsages.getInMB(bean.getPeakUsage());
+            usage = MemoryUsage2.from(bean.getPeakUsage()).getInMB();
             add(item, "poolPeak", usage, false);
             item.add(new Label("poolPeakPerc", MemoryUsages.getUsagePerc(usage)));
-            usage = MemoryUsages.getInMB(bean.getUsage());
+            usage = MemoryUsage2.from(bean.getUsage()).getInMB();
             add(item, "poolUsage", usage, false);
             item.add(new Label("poolUsagePerc", MemoryUsages.getUsagePerc(usage)));
         }
 
-        private void add(final ListItem<?> item, final String wid, MemoryUsage usage, final boolean gc) {
+        private void add(final ListItem<?> item, final String wid, MemoryUsage2 usage, final boolean gc) {
             if (usage == null && gc) {
                 item.add(new Label(wid, "Not collectable"));
                 return;
@@ -252,7 +253,7 @@ public final class Memory extends WebVMPage {
      * @param wid the wicket component
      * @param width the width of the bar in pixels.
      */
-    public final void drawMemoryStatus(final IModel<MemoryUsage> usage, final String wid, final int width) {
+    public final void drawMemoryStatus(final IModel<MemoryUsage2> usage, final String wid, final int width) {
         register(usage);
         unescaped(wid, new LoadableDetachableModel<String>() {
 

@@ -137,7 +137,7 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
     public static final String CLASS_CPU_USAGE = "CPU Usage";
 
     private String getCpuUsageDesc() {
-        return "Triggered when CPU is used for " + config.cpuTreshold + "% or more, continuously for "
+        return "Triggered when a CPU core is used for " + config.cpuTreshold + "% or more, continuously for "
                 + (config.cpuTresholdSamples * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / Constants.MILLIS_IN_SECOND) + " seconds";
     }
     /**
@@ -273,7 +273,7 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
     }
 
     /**
-     * Prepares the {@link #CLASS_GC_CPU_USAGE} report.
+     * Prepares the {@link #CLASS_CPU_USAGE} report.
      * @param history the history
      * @return report
      */
@@ -284,10 +284,10 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
         int avgTresholdViolation = 0;
         int maxAvgTresholdViolation = 0;
         for (final HistorySample h : history) {
-            totalAvgTreshold += h.cpuUsage;
-            if (h.cpuUsage >= config.cpuTreshold) {
+            totalAvgTreshold += h.cpuUsage.cpuMaxCoreUsage;
+            if (h.cpuUsage.cpuMaxCoreUsage >= config.cpuTreshold) {
                 tresholdViolationCount++;
-                avgTresholdViolation += h.cpuUsage;
+                avgTresholdViolation += h.cpuUsage.cpuMaxCoreUsage;
                 if (maxTresholdViolationCount < tresholdViolationCount) {
                     maxTresholdViolationCount = tresholdViolationCount;
                     maxAvgTresholdViolation = avgTresholdViolation;
@@ -300,17 +300,17 @@ public class ProblemAnalyzer implements IProblemAnalyzer {
         maxAvgTresholdViolation = maxTresholdViolationCount == 0 ? 0 : maxAvgTresholdViolation / maxTresholdViolationCount;
         totalAvgTreshold = history.size() == 0 ? 0 : totalAvgTreshold / history.size();
         if (maxTresholdViolationCount >= config.cpuTresholdSamples) {
-            return new ProblemReport(true, CLASS_CPU_USAGE, "CPU spent more than " + config.cpuTreshold + "% (avg. "
+            return new ProblemReport(true, CLASS_CPU_USAGE, "A CPU core spent more than " + config.cpuTreshold + "% (avg. "
                     + maxAvgTresholdViolation + "%) of CPU for " + (maxTresholdViolationCount * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / Constants.MILLIS_IN_SECOND) + " seconds",
                     getCpuUsageDesc());
         }
-        return new ProblemReport(false, CLASS_CPU_USAGE, "Avg. CPU usage last "
+        return new ProblemReport(false, CLASS_CPU_USAGE, "Avg. max CPU core usage last "
                 + (history.size() * HistorySampler.HISTORY_VMSTAT.getHistorySampleDelayMs() / Constants.MILLIS_IN_SECOND) + " seconds: " + totalAvgTreshold + "%",
                 getCpuUsageDesc());
     }
 
     /**
-     * Prepares the {@link #CLASS_MEMORY_STATUS} report.
+     * Prepares the {@link #CLASS_MEMORY_USAGE} report.
      * @return report
      */
     public ProblemReport getMemStatReport() {

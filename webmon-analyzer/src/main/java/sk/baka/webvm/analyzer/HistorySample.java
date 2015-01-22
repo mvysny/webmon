@@ -202,10 +202,10 @@ public final class HistorySample {
         }
 
         public Builder autodetectMeminfo(IMemoryInfoProvider meminfo) {
-            memPoolUsage.put(MemoryPools.Heap, MemoryUsages.getInMB(Memory.getHeapFromRuntime()));
-            memPoolUsage.put(MemoryPools.NonHeap, MemoryUsages.getInMB(Memory.getNonHeapSummary()));
-            memPoolUsage.put(MemoryPools.PhysMem, MemoryUsages.getInMB(meminfo.getPhysicalMemory()));
-            memPoolUsage.put(MemoryPools.Swap, MemoryUsages.getInMB(meminfo.getSwap()));
+            memPoolUsage.put(MemoryPools.Heap, Memory.getHeapFromRuntime().getInMB());
+            memPoolUsage.put(MemoryPools.NonHeap, Memory.getNonHeapSummary().getInMB());
+            memPoolUsage.put(MemoryPools.PhysMem, MemoryUsage2.getInMB(meminfo.getPhysicalMemory()));
+            memPoolUsage.put(MemoryPools.Swap, MemoryUsage2.getInMB(meminfo.getSwap()));
             return this;
         }
 

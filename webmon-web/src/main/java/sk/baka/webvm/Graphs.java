@@ -239,7 +239,7 @@ public class Graphs extends WebVMPage {
 
             @Override
             protected MemoryUsage2 load() {
-                return MemoryUsages.getInMB(sk.baka.webvm.analyzer.hostos.Memory.getHeapFromRuntime());
+                return sk.baka.webvm.analyzer.hostos.Memory.getHeapFromRuntime().getInMB();
             }
         });
         border.add(new Label("heapUsage", new LoadableDetachableModel<String>() {
@@ -265,7 +265,7 @@ public class Graphs extends WebVMPage {
 
                 @Override
                 protected MemoryUsage2 load() {
-                    return MemoryUsages.getInMB(Memory.getNonHeapSummary());
+                    return Memory.getNonHeapSummary().getInMB();
                 }
             });
             border.add(new Label("nonHeapUsage", new LoadableDetachableModel<String>() {
@@ -294,7 +294,7 @@ public class Graphs extends WebVMPage {
 
             @Override
             protected MemoryUsage2 load() {
-                return MemoryUsages.getInMB(meminfo.getPhysicalMemory());
+                return MemoryUsage2.getInMB(meminfo.getPhysicalMemory());
             }
         });
         if (physMem.getObject() != null) {
@@ -323,7 +323,7 @@ public class Graphs extends WebVMPage {
 
             @Override
             protected MemoryUsage2 load() {
-                return MemoryUsages.getInMB(meminfo.getSwap());
+                return MemoryUsage2.getInMB(meminfo.getSwap());
             }
         });
         if (swap.getObject() != null) {
