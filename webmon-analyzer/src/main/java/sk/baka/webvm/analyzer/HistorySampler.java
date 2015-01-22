@@ -196,15 +196,16 @@ public class HistorySampler extends BackgroundService implements IHistorySampler
         }
 
         @Override
-        public int getAvgCpuUsage(Object o1, Object o2) {
+        public CPUUsage getAvgCpuUsage(Object o1, Object o2) {
             final long[] m1 = (long[]) o1;
             final long[] m2 = (long[]) o2;
             final long gcTimeDelta = m2[0] - m1[0];
             final long gcSampleTakenDelta = m2[1] - m1[1];
             if (gcSampleTakenDelta == 0) {
-                return 0;
+                return CPUUsage.ZERO;
             }
-            return (int) (gcTimeDelta * Constants.HUNDRED_PERCENT / gcSampleTakenDelta);
+            final int cpuusage = (int) (gcTimeDelta * Constants.HUNDRED_PERCENT / gcSampleTakenDelta);
+            return new CPUUsage(cpuusage, cpuusage);
         }
     }
 

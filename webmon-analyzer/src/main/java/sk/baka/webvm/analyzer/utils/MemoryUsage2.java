@@ -1,5 +1,7 @@
 package sk.baka.webvm.analyzer.utils;
 
+import static sk.baka.webvm.analyzer.utils.Constants.HUNDRED_PERCENT;
+
 import java.io.Serializable;
 import java.lang.management.MemoryUsage;
 
@@ -212,6 +214,45 @@ public class MemoryUsage2 implements Serializable {
 				(committed >> 10) + "K) " );
 		buf.append("max = " + max + "(" + (max >> 10) + "K)");
 		return buf.toString();
+	}
+
+	/**
+	 * Formats a memory usage instance to a compact string. Uses the following format: [used (committed) / max].
+	 * @param inMegs if true then given memory usage values are already megabytes. If false then the values are in bytes.
+	 * @return [used (committed) / max], or [not available] if null was given
+	 */
+	@NotNull
+	public String toString(final boolean inMegs) {
+		final StringBuilder sb = new StringBuilder();
+		sb.append('[');
+		sb.append(getUsed());
+		if (inMegs) {
+			sb.append("M");
+		}
+		sb.append(" (");
+		sb.append(getCommitted());
+		if (inMegs) {
+			sb.append("M");
+		}
+		sb.append(")");
+		if (getMax() >= 0) {
+			sb.append(" / ");
+			sb.append(getMax());
+			if (inMegs) {
+				sb.append("M");
+			}
+			sb.append(" - ");
+			if (getMax() > 0) {
+				sb.append(getUsed() * HUNDRED_PERCENT / getMax());
+			} else {
+				sb.append('0');
+			}
+			sb.append('%');
+		} else {
+			sb.append(" / ?");
+		}
+		sb.append(']');
+		return sb.toString();
 	}
 
 	public static MemoryUsage2 from(@NotNull MemoryUsage mu) {
