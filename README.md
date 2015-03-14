@@ -60,7 +60,7 @@ or by running
 telnet host WEBMON_PORT|less
 ```
 
-Example of VM Dump plaintext file: http://webmon.googlecode.com/files/webmon.txt
+Example of VM Dump plaintext file: https://github.com/mvysny/webmon/releases/download/webmon-0.15/dump.txt
 
 ## Maven 2 users
 
