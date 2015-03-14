@@ -40,7 +40,7 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:git:ssh://git@github.com:mvysny/webmon.git</connection>
+        <connection>scm:git:ssh://git@github.com/mvysny/webmon.git</connection>
         <tag>HEAD</tag>
         <url>https://github.com/mvysny/webmon</url>
     </scm>
