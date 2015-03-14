@@ -27,7 +27,7 @@
     <description>WebMon: A Java Virtual Machine analyzer with Web interface. Ideal for watching out for your
         Tomcat or J2EE server installations. You can even embed it into your EAR.
     </description>
-    <url>http://baka.sk/webmon</url>
+    <url>https://github.com/mvysny/webmon</url>
     <organization>
         <name>Baka</name>
         <url>http://www.baka.sk/</url>
@@ -40,8 +40,9 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:hg:https://webmon.googlecode.com/hg/</connection>
-        <url>https://webmon.googlecode.com/hg/</url>
+        <connection>scm:git:ssh://git@github.com:mvysny/webmon.git</connection>
+        <tag>HEAD</tag>
+        <url>https://github.com/mvysny/webmon</url>
     </scm>
     <issueManagement>
         <system>Google Code Tracker</system>
@@ -108,8 +109,6 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <preparationGoals>clean install</preparationGoals>
                     <goals>clean deploy -DskipTests</goals>
-                    <username>${google-code.hg.username}</username>
-                    <password>${google-code.hg.password}</password>
                 </configuration>
             </plugin>
             <plugin>
