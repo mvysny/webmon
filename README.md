@@ -12,6 +12,21 @@ Download webmon-war.war from the Downloads page. To evaluate, you can use Jetty 
 
 The WAR is configured to be started in the context root of /webmon both in JBoss and in Glassfish.
 
+You can also run the standalone TCP-IP server, by running
+
+```
+java -cp webmon-analyzer-0.15.jar sk.baka.webvm.analyzer.utils.TCPIPServer
+```
+
+Then
+
+```
+telnet localhost 50000
+```
+
+A dump is made, and the analyzer waits for additional commands, just type 'help' to get help. You can list resources in which jars they are present, and download the resources.
+
+
 ## How to embed
 
 To embed into your JavaEE application, just embed it into your EAR.
