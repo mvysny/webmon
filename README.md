@@ -33,7 +33,7 @@ To embed into your JavaEE application, just embed it into your EAR.
 
 You can also embed webmon to your non-JavaEE application - in this case webmon will open a socket and will provide monitoring information as a simple plaintext file - you can use any browser to download the file. Download webmon-analyzer.jar. To embed webmon to your app, just use the following code:
 
-```
+```java
 final SamplerConfig cfg = new SamplerConfig(20, 1000, 0);
 final IHistorySampler hs = new HistorySampler(cfg, IHistorySampler.HISTORY_PROBLEMS, null, null);
 hs.start();
@@ -43,7 +43,7 @@ webmonServer.start();
 
 To stop the embedded server:
 
-```
+```java
 webmonServer.stop();
 hs.stop();
 ```
@@ -68,7 +68,7 @@ You can use the following Maven2 repository: http://www.baka.sk/maven2/
 
 Add the following to your pom.xml (for TCP/IP-only analyzer):
 
-```
+```xml
 <dependency>
   <groupId>sk.baka.webmon</groupId>
   <artifactId>webmon-analyzer</artifactId>
@@ -78,7 +78,7 @@ Add the following to your pom.xml (for TCP/IP-only analyzer):
 
 Add the following for the web analyzer (war):
 
-```
+```xml
 <dependency>
   <groupId>sk.baka.webmon</groupId>
   <artifactId>webmon-web</artifactId>
