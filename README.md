@@ -51,13 +51,13 @@ hs.stop();
 You can view the file in your browser at http://host:WEBMON_PORT (for some reason the browser will not download the entire file contents though), or by running
 
 ```
-nc host WEBMON_PORT|less
+nc host WEBMON_PORT
 ```
 
 or by running
 
 ```
-telnet host WEBMON_PORT|less
+telnet host WEBMON_PORT
 ```
 
 Example of VM Dump plaintext file: https://github.com/mvysny/webmon/releases/download/webmon-0.15/dump.txt
