@@ -45,8 +45,8 @@
         <url>https://github.com/mvysny/webmon</url>
     </scm>
     <issueManagement>
-        <system>Google Code Tracker</system>
-        <url>http://code.google.com/p/webmon/issues/list</url>
+        <system>GitHub</system>
+        <url>https://github.com/mvysny/webmon/issues</url>
     </issueManagement>
     <mailingLists>
         <mailingList>
