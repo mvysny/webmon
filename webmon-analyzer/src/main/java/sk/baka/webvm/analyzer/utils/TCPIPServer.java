@@ -5,12 +5,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import sk.baka.webvm.analyzer.HistorySampler;
-import sk.baka.webvm.analyzer.IHistorySampler;
-import sk.baka.webvm.analyzer.SamplerConfig;
-import sk.baka.webvm.analyzer.TextDump;
+
+import org.jetbrains.annotations.NotNull;
+import sk.baka.webvm.analyzer.*;
 
 /**
  *
@@ -20,6 +23,7 @@ public class TCPIPServer {
 
     public final int port;
     private final IHistorySampler sampler;
+    private ExecutorService executor;
 
     public TCPIPServer(int port, IHistorySampler sampler) {
         Checks.checkNotNull("sampler", sampler);
@@ -33,13 +37,31 @@ public class TCPIPServer {
             return;
         }
         serverSocket = new ServerSocket(port);
-        final Thread t = new Thread() {
-            @Override
-            public void run() {
+        executor = Executors.newCachedThreadPool(new ThreadFactory() {
+            private final AtomicInteger id = new AtomicInteger();
+            @Override public Thread newThread(@NotNull Runnable r) {
+                final Thread t = new Thread(r);
+                t.setDaemon(true);
+                t.setName(TCPIPServer.class.getSimpleName() + " - WebMon Server Socket thread #" + id.incrementAndGet());
+                return t;
+            }
+        });
+        executor.submit(new Runnable() {
+            @Override public void run() {
                 try {
-                    setName(TCPIPServer.class.getSimpleName() + " - WebMon Server Socket thread");
                     while (true) {
-                        listen();
+                        final Socket s = serverSocket.accept();
+                        executor.submit(new Runnable() {
+                            @Override public void run() {
+                                try {
+                                    handle(s);
+                                } catch (Exception e) {
+                                    if (serverSocket != null) {
+                                        log.log(Level.SEVERE, "WebMon Listening thread failed", e);
+                                    }
+                                }
+                            }
+                        });
                     }
                 } catch (Throwable t) {
                     if (serverSocket != null) {
@@ -49,9 +71,7 @@ public class TCPIPServer {
                 log.info("WebMon Socket Server stopped");
                 TCPIPServer.this.stop();
             }
-        };
-        t.setDaemon(true);
-        t.start();
+        });
     }
     private static final Logger log = Logger.getLogger(TCPIPServer.class.getName());
 
@@ -66,10 +86,11 @@ public class TCPIPServer {
         } catch (Exception ex) {
             log.log(Level.INFO, "Failed to close server socket", ex);
         }
+        executor.shutdown();
+        executor = null;
     }
 
-    private void listen() throws IOException {
-        final Socket s = serverSocket.accept();
+    private void handle(Socket s) throws IOException {
         try {
             s.getOutputStream().write(TextDump.dump(sampler.getVmstatHistory()).getBytes("UTF-8"));
             s.getOutputStream().flush();
@@ -151,21 +172,6 @@ public class TCPIPServer {
     }
 
     public static void main(String[] args) throws Exception {
-        final int port = 50000;
-        final int historySize = 20;
-        final SamplerConfig cfg = new SamplerConfig(historySize, 1000, 0);
-        final HistorySampler sampler = new HistorySampler(cfg, IHistorySampler.HISTORY_PROBLEMS, null, null);
-        sampler.start();
-        final TCPIPServer server = new TCPIPServer(port, sampler);
-        server.start();
-        System.out.println("Listening on port " + port + ", press Enter to stop");
-        System.in.read();
-//        long hu=System.currentTimeMillis();
-//        while(System.currentTimeMillis()-hu < 10000) {
-//            byte[] huhu = new byte[6000];
-//        }
-//        System.in.read();
-        server.stop();
-        sampler.stop();
+        Main.main(args);
     }
 }
