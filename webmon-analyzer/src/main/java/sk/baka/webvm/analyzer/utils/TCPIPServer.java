@@ -14,6 +14,8 @@ import java.util.logging.Logger;
 
 import org.jetbrains.annotations.NotNull;
 import sk.baka.webvm.analyzer.*;
+import sk.baka.webvm.analyzer.dump.HTMLDump;
+import sk.baka.webvm.analyzer.dump.TextDump;
 
 /**
  *
@@ -23,20 +25,24 @@ public class TCPIPServer {
 
     public final int port;
     private final IHistorySampler sampler;
+    private final int httpPort;
     private ExecutorService executor;
 
-    public TCPIPServer(int port, IHistorySampler sampler) {
+    public TCPIPServer(int port, int httpPort, IHistorySampler sampler) {
+        this.httpPort = httpPort;
         Checks.checkNotNull("sampler", sampler);
         this.port = port;
         this.sampler = sampler;
     }
     private volatile ServerSocket serverSocket = null;
+    private volatile ServerSocket serverHttpSocket = null;
 
     public synchronized void start() throws IOException {
         if (serverSocket != null) {
             return;
         }
         serverSocket = new ServerSocket(port);
+        serverHttpSocket = new ServerSocket(httpPort);
         executor = Executors.newCachedThreadPool(new ThreadFactory() {
             private final AtomicInteger id = new AtomicInteger();
             @Override public Thread newThread(@NotNull Runnable r) {
@@ -55,6 +61,37 @@ public class TCPIPServer {
                             @Override public void run() {
                                 try {
                                     handle(s);
+                                } catch (Exception e) {
+                                    if (serverSocket != null) {
+                                        log.log(Level.SEVERE, "WebMon Listening thread failed", e);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                } catch (Throwable t) {
+                    if (serverSocket != null) {
+                        log.log(Level.SEVERE, "WebMon Listening thread failed", t);
+                    }
+                }
+                log.info("WebMon Socket Server stopped");
+                TCPIPServer.this.stop();
+            }
+        });
+        executor.submit(new Runnable() {
+            @Override public void run() {
+                try {
+                    while (true) {
+                        final Socket s = serverHttpSocket.accept();
+                        executor.submit(new Runnable() {
+                            @Override public void run() {
+                                try {
+                                    s.getInputStream().skip(s.getInputStream().available());
+                                    s.getOutputStream().write(("HTTP/1.0 200 OK\n"
+                                            + "Date: Fri, 31 Dec 1999 23:59:59 GMT\n"
+                                            + "Content-Type: text/html\n\n").getBytes());
+                                    s.getOutputStream().write(new HTMLDump().dump(sampler.getVmstatHistory()).getBytes("UTF-8"));
+                                    s.close();
                                 } catch (Exception e) {
                                     if (serverSocket != null) {
                                         log.log(Level.SEVERE, "WebMon Listening thread failed", e);
@@ -92,7 +129,7 @@ public class TCPIPServer {
 
     private void handle(Socket s) throws IOException {
         try {
-            s.getOutputStream().write(TextDump.dump(sampler.getVmstatHistory()).getBytes("UTF-8"));
+            s.getOutputStream().write(new TextDump().dump(sampler.getVmstatHistory()).getBytes("UTF-8"));
             s.getOutputStream().flush();
             final PrintWriter w = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "ASCII"));
             final BufferedReader r = new BufferedReader(new InputStreamReader(s.getInputStream()));

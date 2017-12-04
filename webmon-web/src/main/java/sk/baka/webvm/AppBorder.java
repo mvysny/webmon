@@ -37,7 +37,7 @@ import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.util.resource.StringResourceStream;
 import org.apache.wicket.validation.validator.StringValidator;
 import sk.baka.webvm.analyzer.IHistorySampler;
-import sk.baka.webvm.analyzer.TextDump;
+import sk.baka.webvm.analyzer.dump.TextDump;
 
 /**
  * Defines a border for the entire application.
@@ -74,7 +74,7 @@ public class AppBorder extends Border {
 
             @Override
             public void onClick() {
-                final String vmdump = TextDump.dump(history.getVmstatHistory());
+                final String vmdump = new TextDump().dump(history.getVmstatHistory());
                 RequestCycle.get().scheduleRequestHandlerAfterCurrent(new ResourceStreamRequestHandler(new StringResourceStream(vmdump, "text/plain"), "vmdump.txt"));
             }
         });
