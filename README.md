@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/mvysny/webmon.svg?branch=master)](https://travis-ci.org/mvysny/webmon)
+
 # Webmon
 
 A WAR application, deployable to any servlet container/embeddable to your EAR. You may receive RSS/e-mail/Jabber notifications of potential problems. If you cannot use traditional tools such as JConsole or VisualVM then this is for you. WebMon requires Java5 or higher.
