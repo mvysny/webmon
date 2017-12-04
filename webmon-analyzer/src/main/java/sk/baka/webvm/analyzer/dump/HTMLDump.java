@@ -53,7 +53,7 @@ public class HTMLDump extends AbstractDump {
     }
 
     private static class HtmlTable implements Table {
-        private final StringBuilder sb = new StringBuilder("<table border='1'>");
+        private final StringBuilder sb = new StringBuilder("<table>");
 
         @Override public void setHorizontalHeaderSeparator(boolean horizontalHeaderSeparator) {
         }
@@ -85,6 +85,12 @@ public class HTMLDump extends AbstractDump {
     }
 
     @Override public String dump(List<HistorySample> history) {
-        return "<html><body>" + super.dump(history) + "</body></html>";
+        return "<html><head><style type='text/css'>table {\n"
+                + "    border-collapse: collapse;\n"
+                + "}\n"
+                + "\n"
+                + "table, th, td {\n"
+                + "    border: 1px solid black;\n"
+                + "}</style></head><body>" + super.dump(history) + "</body></html>";
     }
 }

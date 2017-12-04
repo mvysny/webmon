@@ -1,6 +1,7 @@
 package sk.baka.webvm.analyzer.utils;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
@@ -12,6 +13,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import org.jetbrains.annotations.NotNull;
 import sk.baka.webvm.analyzer.*;
 import sk.baka.webvm.analyzer.dump.HTMLDump;
@@ -35,14 +39,13 @@ public class TCPIPServer {
         this.sampler = sampler;
     }
     private volatile ServerSocket serverSocket = null;
-    private volatile ServerSocket serverHttpSocket = null;
+    private volatile HttpServer serverHttp = null;
 
     public synchronized void start() throws IOException {
         if (serverSocket != null) {
             return;
         }
         serverSocket = new ServerSocket(port);
-        serverHttpSocket = new ServerSocket(httpPort);
         executor = Executors.newCachedThreadPool(new ThreadFactory() {
             private final AtomicInteger id = new AtomicInteger();
             @Override public Thread newThread(@NotNull Runnable r) {
@@ -78,38 +81,19 @@ public class TCPIPServer {
                 TCPIPServer.this.stop();
             }
         });
-        executor.submit(new Runnable() {
-            @Override public void run() {
-                try {
-                    while (true) {
-                        final Socket s = serverHttpSocket.accept();
-                        executor.submit(new Runnable() {
-                            @Override public void run() {
-                                try {
-                                    s.getInputStream().skip(s.getInputStream().available());
-                                    s.getOutputStream().write(("HTTP/1.0 200 OK\n"
-                                            + "Date: Fri, 31 Dec 1999 23:59:59 GMT\n"
-                                            + "Content-Type: text/html\n\n").getBytes());
-                                    s.getOutputStream().write(new HTMLDump().dump(sampler.getVmstatHistory()).getBytes("UTF-8"));
-                                    s.close();
-                                } catch (Exception e) {
-                                    if (serverSocket != null) {
-                                        log.log(Level.SEVERE, "WebMon Listening thread failed", e);
-                                    }
-                                }
-                            }
-                        });
-                    }
-                } catch (Throwable t) {
-                    if (serverSocket != null) {
-                        log.log(Level.SEVERE, "WebMon Listening thread failed", t);
-                    }
-                }
-                log.info("WebMon Socket Server stopped");
-                TCPIPServer.this.stop();
+        serverHttp = HttpServer.create(new InetSocketAddress(httpPort), 10);
+        serverHttp.createContext("/", new HttpHandler() {
+            @Override public void handle(HttpExchange exchange) throws IOException {
+                final byte[] response = new HTMLDump().dump(sampler.getVmstatHistory()).getBytes("UTF-8");
+                exchange.sendResponseHeaders(200, response.length);
+                exchange.getResponseBody().write(response);
+                exchange.close();
             }
         });
+        serverHttp.setExecutor(executor);
+        serverHttp.start();
     }
+
     private static final Logger log = Logger.getLogger(TCPIPServer.class.getName());
 
     public synchronized void stop() {
@@ -122,6 +106,10 @@ public class TCPIPServer {
             ss.close();
         } catch (Exception ex) {
             log.log(Level.INFO, "Failed to close server socket", ex);
+        }
+        if (serverHttp != null) {
+            serverHttp.stop(1);
+            serverHttp = null;
         }
         executor.shutdown();
         executor = null;

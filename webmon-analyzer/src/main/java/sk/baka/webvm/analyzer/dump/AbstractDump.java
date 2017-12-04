@@ -200,11 +200,9 @@ public abstract class AbstractDump {
         for (HistorySample.MemoryPools pool: HistorySample.MemoryPools.values()) {
             content.add(new ArrayList<String>(Collections.singletonList(pool.displayable)));
             if (last != null) {
-                if (content.size() > 1) {
-                    sb.append(" / ");
-                }
                 sb.append(content.get(content.size() - 1).get(0)).append(": ");
                 sb.append(MemoryUsages.toString(last.memPoolUsage.get(pool), true));
+                newLine(sb);
             }
         }
         newLine(sb);
