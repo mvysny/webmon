@@ -15,13 +15,13 @@ The WAR is configured to be started in the context root of /webmon both in JBoss
 You can also run the standalone TCP-IP server, by running
 
 ```
-java -cp webmon-analyzer-0.15.jar sk.baka.webvm.analyzer.utils.TCPIPServer
+java -cp webmon-analyzer-0.16.jar sk.baka.webvm.analyzer.Main
 ```
 
 Then
 
 ```
-telnet localhost 50000
+telnet localhost 5455
 ```
 
 A dump is made, and the analyzer waits for additional commands, just type 'help' to get help. You can list resources in which jars they are present, and download the resources.
@@ -37,7 +37,7 @@ You can also embed webmon to your non-JavaEE application - in this case webmon w
 final SamplerConfig cfg = new SamplerConfig(20, 1000, 0);
 final IHistorySampler hs = new HistorySampler(cfg, IHistorySampler.HISTORY_PROBLEMS, null, null);
 hs.start();
-final TCPIPServer webmonServer = new TCPIPServer(WEBMON_PORT, hs);
+final TCPIPServer webmonServer = new TCPIPServer(5455, 5456, hs);
 webmonServer.start();
 ```
 
@@ -48,16 +48,16 @@ webmonServer.stop();
 hs.stop();
 ```
 
-You can view the file in your browser at http://host:WEBMON_PORT (for some reason the browser will not download the entire file contents though), or by running
+You can view the file in your browser at http://localhost:5456 (use ssh port forwarding to access remote machines), or by running
 
 ```
-nc host WEBMON_PORT
+nc localhost 5455
 ```
 
 or by running
 
 ```
-telnet host WEBMON_PORT
+telnet localhost 5455
 ```
 
 Example of VM Dump plaintext file: https://github.com/mvysny/webmon/releases/download/webmon-0.15/dump.txt
@@ -72,7 +72,7 @@ Add the following to your pom.xml (for TCP/IP-only analyzer):
 <dependency>
   <groupId>sk.baka.webmon</groupId>
   <artifactId>webmon-analyzer</artifactId>
-  <version>0.12</version>
+  <version>0.16</version>
 </dependency>
 ```
 
@@ -82,7 +82,7 @@ Add the following for the web analyzer (war):
 <dependency>
   <groupId>sk.baka.webmon</groupId>
   <artifactId>webmon-web</artifactId>
-  <version>0.12</version>
+  <version>0.16</version>
 </dependency>
 ```
 
