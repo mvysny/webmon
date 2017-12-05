@@ -71,11 +71,11 @@
     <distributionManagement>
         <site>
             <id>realtime</id>
-            <url>scp://rt.sk/home/moto/public_html/webmon/</url>
+            <url>sftp://rt.sk/home/moto/public_html/webmon/</url>
         </site>
         <repository>
             <id>realtime</id>
-            <url>scp://rt.sk/home/moto/public_html/maven2</url>
+            <url>sftp://rt.sk/home/moto/public_html/maven2</url>
         </repository>
     </distributionManagement>
     <modules>
