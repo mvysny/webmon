@@ -40,18 +40,21 @@
             <version>2.6</version>
             <scope>test</scope>
         </dependency>
+        <!-- email sending, optional -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-email</artifactId>
             <version>1.1</version>
             <optional>true</optional>
         </dependency>
+        <!-- Jabber client, optional -->
         <dependency>
             <groupId>jivesoftware</groupId>
             <artifactId>smack</artifactId>
             <version>3.0.4</version>
             <optional>true</optional>
         </dependency>
+        <!-- Only required when running the analyzer on Windows host -->
         <dependency>
             <groupId>net.sf.jacob-project</groupId>
             <artifactId>jacob</artifactId>
