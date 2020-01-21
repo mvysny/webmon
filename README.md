@@ -2,19 +2,41 @@
 
 # Webmon
 
-A WAR application, deployable to any servlet container/embeddable to your EAR. You may receive RSS/e-mail/Jabber notifications of potential problems. If you cannot use traditional tools such as JConsole or VisualVM then this is for you. WebMon requires Java5 or higher.
+A WAR application, deployable to any servlet container, or embeddable to your EAR.
+You may receive RSS/e-mail/Jabber notifications of potential problems.
+If you cannot use traditional tools such as JConsole or VisualVM then this is for
+you.
 
-WebMon can be embedded in JavaSE applications as well, without the WAR overhead.
+WebMon requires Java5 or higher.
 
-Please see http://baka.sk/webmon/ for further details and screenshots.
+WebMon can also be embedded in JavaSE applications as well, without the WAR overhead.
+Add the `webmon-analyzer` module to your app, and obtain the monitorings as text files
+by using telnet, nc or your browser.
+
+Please see the old page at [WebMon](http://baka.sk/webmon/) for further details and screenshots.
+
+WebMon consists of two modules:
+
+* webmon-analyzer - analyzes the JVM it runs in, via the JMX interface. It is able to
+  run standalone in any JVM-based deployment including JavaSE, by providing a TCP/IP server
+  which produces textual dumps.
+* webmon-web - a full-blown WAR application which provides nice charts and graphs,
+  allows you to browse class loader hierarchy and files, etc.
+
+In production I recommend to use webmon-analyzer: it is easier to embed to your app,
+has very little overhead, and is inherently secure since it listens for incoming connections
+on localhost only.
 
 ## How to run
 
-Download webmon-war.war from the Downloads page. To evaluate, you can use Jetty Runner http://wiki.eclipse.org/Jetty/Howto/Using_Jetty_Runner
+### Quickstart / Trying Out
+
+To quickly evaluate WebMon, download webmon-war.war from the [Releases](https://github.com/mvysny/webmon/releases) page.
+To run the WAR file, you can for example use the [Jetty Runner](http://wiki.eclipse.org/Jetty/Howto/Using_Jetty_Runner).
 
 The WAR is configured to be started in the context root of /webmon both in JBoss and in Glassfish.
 
-You can also run the standalone TCP-IP server, by running
+You can also run the webmon-analyzer as standalone, by running
 
 ```
 java -cp webmon-analyzer-0.16.jar sk.baka.webvm.analyzer.Main
@@ -26,14 +48,30 @@ Then
 telnet localhost 5455
 ```
 
-A dump is made, and the analyzer waits for additional commands, just type 'help' to get help. You can list resources in which jars they are present, and download the resources.
+A dump is made every time when you read that TCP/IP port.
+The analyzer then waits for additional commands; just type 'help' to get help.
+You can list resources in which jars they are present, and download the resources.
 
+## How To Embed To Your App
 
-## How to embed
+To embed into your JavaEE application, just package the WebMon WAR file into your EAR file.
 
-To embed into your JavaEE application, just embed it into your EAR.
+You can also embed WebMon to your JavaSE application, without the web frontend, by
+using the `webmon-analyzer` jar file.
+webmon-analyzer will open a TCP/IP socket and will provide monitoring information as a simple
+plaintext file - you can either use telnet or any browser to download the text report.
 
-You can also embed webmon to your non-JavaEE application - in this case webmon will open a socket and will provide monitoring information as a simple plaintext file - you can use any browser to download the file. Download webmon-analyzer.jar. To embed webmon to your app, just use the following code:
+To embed WebMon to your app, just add the following Maven dependency to your `pom.xml`:
+
+```xml
+<dependency>
+  <groupId>sk.baka.webmon</groupId>
+  <artifactId>webmon-analyzer</artifactId>
+  <version>0.16</version>
+</dependency>
+```
+
+Then, use the following code to start the WebMon sampler and open the TCP/IP port:
 
 ```java
 final SamplerConfig cfg = new SamplerConfig(20, 1000, 0);
