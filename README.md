@@ -13,8 +13,6 @@ WebMon can also be embedded in JavaSE applications as well, without the WAR over
 Add the `webmon-analyzer` module to your app, and obtain the monitorings as text files
 by using telnet, nc or your browser.
 
-Please see the old page at [WebMon](http://baka.sk/webmon/) for further details and screenshots.
-
 WebMon consists of two modules:
 
 * webmon-analyzer - analyzes the JVM it runs in, via the JMX interface. It is able to
